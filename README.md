@@ -1,4 +1,4 @@
-Keyroll
+﻿Keyroll
 =======
 
-提供一种多字段数据集存储机制
+Keyroll is a software to access Key-Value data.
