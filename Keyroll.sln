@@ -1,18 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keyroll", "Keyroll\Keyroll.csproj", "{55B061AB-B7A5-475C-AB78-EC7F04817517}"
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keyroll", "Keyroll\Keyroll.csproj", "{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{55B061AB-B7A5-475C-AB78-EC7F04817517}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55B061AB-B7A5-475C-AB78-EC7F04817517}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55B061AB-B7A5-475C-AB78-EC7F04817517}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55B061AB-B7A5-475C-AB78-EC7F04817517}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|x86.ActiveCfg = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|x86.Build.0 = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|x86.ActiveCfg = Release|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
