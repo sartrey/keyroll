@@ -1,0 +1,21 @@
+﻿<MahApps:MetroWindow x:Class="Keyroll.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        Title="Keyroll" Width="600" Height="420" 
+        WindowStartupLocation="CenterScreen">
+    <Grid Name="Grid1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TreeView Grid.Column="0" Height="Auto" Margin="0,0,0,0">
+            <TreeViewItem Header="text1">
+            </TreeViewItem>
+            <TreeViewItem Header="text2">
+            </TreeViewItem>
+            <TreeViewItem Header="text3">
+            </TreeViewItem>
+        </TreeView>
+    </Grid>
+</MahApps:MetroWindow>
