@@ -1,4 +1,6 @@
 ﻿using MahApps.Metro.Controls;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Keyroll
 {
