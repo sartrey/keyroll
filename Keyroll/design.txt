@@ -1,0 +1,5 @@
+﻿storage file format
+storage = [File Header Table] + [Storage Header] + [Asset List] + [Content Zip Package]
+
+[File Header Table]
+[SH](8) + [AL](8) + [CZP](8)

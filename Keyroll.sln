@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keyroll", "Keyroll\Keyroll.csproj", "{AFE8F19F-7543-48D9-84A9-63DA7BE3B065}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sartrey", "..\sartrey\Sartrey\Sartrey.csproj", "{47CD54C3-3019-48F3-A812-704CAFB679CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sartrey", "..\sartrey\Core\Sartrey\Sartrey.csproj", "{47CD54C3-3019-48F3-A812-704CAFB679CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{66A40B28-922A-4848-A846-67EADAA5784F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientX", "ClientX\ClientX.csproj", "{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,16 +21,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|x86.ActiveCfg = Debug|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|x86.Build.0 = Debug|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|Any CPU.ActiveCfg = Release|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|Mixed Platforms.Build.0 = Release|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|x86.ActiveCfg = Release|x86
-		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|x86.Build.0 = Release|x86
 		{AFE8F19F-7543-48D9-84A9-63DA7BE3B065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AFE8F19F-7543-48D9-84A9-63DA7BE3B065}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFE8F19F-7543-48D9-84A9-63DA7BE3B065}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -49,6 +41,26 @@ Global
 		{47CD54C3-3019-48F3-A812-704CAFB679CE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{47CD54C3-3019-48F3-A812-704CAFB679CE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{47CD54C3-3019-48F3-A812-704CAFB679CE}.Release|x86.ActiveCfg = Release|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{66A40B28-922A-4848-A846-67EADAA5784F}.Release|x86.ActiveCfg = Release|Any CPU
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|x86.ActiveCfg = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Debug|x86.Build.0 = Debug|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|Any CPU.ActiveCfg = Release|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|Mixed Platforms.Build.0 = Release|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|x86.ActiveCfg = Release|x86
+		{25166C2B-A3C1-4275-AE89-4A8DA1A7AD63}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

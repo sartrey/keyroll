@@ -1,38 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
-using System.Net.Mime;
+using System.IO.Compression;
 using System.Xml.Linq;
 
 namespace Keyroll.TDS
 {
     public class Storage
     {
-        private string _Path;
-        private Package _Data;
-        private List<Asset> _Assets;
-
-        private string _Name;
-        private string _Code;
-        private string _Key;
+        private string _Path = null;
+        private StorageHeader _Header = null;
+        private List<Asset> _Assets 
+            = new List<Asset>();
 
         public string Path 
         {
             get { return _Path; }
             set { _Path = value; }
-        }
-
-        public string Name 
-        {
-            get { return _Name; }
-            set { _Name = value; }
-        }
-
-        public string Key 
-        {
-            get { return _Key; }
-            set { _Key = value; }
         }
 
         public Asset this[string id]
@@ -48,118 +31,112 @@ namespace Keyroll.TDS
 
         protected Storage() { }
 
-        public static Storage Load(string path)
+        private void LoadAssets(XElement xml)
         {
-            var storage = new Storage();
-            storage._Path = path;
-            storage._Data = Package.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            
-            var xml = XElement.Load(storage.OpenPart("global.xml"));
             var xml_root = xml.Element("root");
-            storage._Name = xml_root.Element("name").Value;
-            storage._Code = xml_root.Element("code").Value;
-
-            storage._Assets = new List<Asset>();
-            xml = XElement.Load(storage.OpenPart("assets.xml"));
-            xml_root = xml.Element("root");
-            foreach(var xml_asset in xml_root.Elements("asset"))
+            foreach (var xml_asset in xml_root.Elements("asset"))
             {
                 var asset = Asset.Parse(xml_asset);
-                storage._Assets.Add(asset);
+                if (asset != null)
+                {
+                    _Assets.Add(asset);
+                    asset.Storage = this;
+                }
             }
-            return storage;
         }
 
-        public static Storage Create(string path)
+        private XElement SaveAssets() 
         {
-            var storage = new Storage();
-            storage._Path = path;
-            storage._Assets = new List<Asset>();
-            storage._Data = Package.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-            return storage;
-        }
-
-        public void Close()
-        {
-            var uri = PackUriHelper.CreatePartUri(
-                new Uri("global.xml", UriKind.Relative));
-            var part = _Data.PartExists(uri) ?
-                _Data.GetPart(uri) :
-                _Data.CreatePart(uri, MediaTypeNames.Text.Xml);
-            var xml = new XElement("root",
-                new XElement("name", _Name),
-                new XElement("code", _Code));
-            xml.Save(part.GetStream());
-
-            uri = PackUriHelper.CreatePartUri(
-                new Uri("assets.xml", UriKind.Relative));
-            part = _Data.PartExists(uri) ?
-                _Data.GetPart(uri) :
-                _Data.CreatePart(uri, MediaTypeNames.Text.Xml);
-            xml = new XElement("root");
-            foreach(var asset in _Assets)
+            var xml = new XElement("root");
+            foreach (var asset in _Assets)
                 xml.Add(asset.ToXML());
-            xml.Save(part.GetStream());
-            _Data.Close();
-        }
-
-        public bool Authorize(string key) 
-        {
-            var hasher = new Sartrey.Hash();
-            hasher.Data = key;
-            var hash = hasher.GetSHA1Cng();
-            if (_Code == hash)
-            {
-                _Key = key;
-                return true;
-            }
-            return false;
+            return xml;
         }
 
         /// <summary>
-        /// copy data from one stream to another
+        /// load storage
         /// </summary>
-        private void CopyStream(Stream source, Stream target)
+        public static Storage Load(string path, string key)
         {
-            const int buffer_size = 0x1000; //1000(16) = 4096(10) 4KB
-            byte[] buffer = new byte[buffer_size];
-            int count = 0;
-            while ((count = source.Read(buffer, 0, buffer_size)) > 0)
-                target.Write(buffer, 0, count);
-        }
+            var stream = File.Open(path, FileMode.Open);
+            var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+            var header_entry = archive.GetEntry("header.xml");
+            var header_stream = header_entry.Open();
+            var header_xml = XElement.Load(header_stream);
+            var header = StorageHeader.Parse(header_xml);
 
-        public Stream OpenPart(string id)
-        {
-            var uri = PackUriHelper.CreatePartUri(
-                new Uri(id, UriKind.Relative));
-            var part = _Data.GetPart(uri);
-            return part.GetStream();
-        }
+            if (!header.ValidKey(key))
+            {
+                header_stream.Close();
+                stream.Close();
+                archive.Dispose();
+                return null;
+            }
 
-        public void AddPart(string path, string id, string type)
-        {
-            var uri = PackUriHelper.CreatePartUri(
-                new Uri(id, UriKind.Relative));
-            var part = _Data.CreatePart(uri, type);
-            var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            CopyStream(stream, part.GetStream());
+            var storage = new Storage();
+            storage._Path = path;
+            storage._Header = header;
+
+            var assets_entry = archive.GetEntry("assets.xml");
+            var assets_stream = assets_entry.Open();
+            var assets_xml = XElement.Load(assets_stream);
+            storage.LoadAssets(assets_xml);
+
+            header_stream.Close();
+            assets_stream.Close();
             stream.Close();
+            archive.Dispose();
+            return storage;
         }
 
-        public void RemovePart(string id)
+        /// <summary>
+        /// create storage instance without physical entity
+        /// </summary>
+        public static Storage Create(string path, string key)
         {
-            var uri = PackUriHelper.CreatePartUri(new Uri(id, UriKind.Relative));
-            _Data.DeletePart(uri);
+            var storage = new Storage();
+            storage._Path = path;
+            var header = new StorageHeader();
+            header.SetKey(null, key);
+            storage._Header = header;
+            return storage;
         }
 
-        public void ExportPart(string path, string id, bool overwrite = false)
+        /// <summary>
+        /// commit storage changes to device
+        /// </summary>
+        public void Commit()
         {
-            var uri = PackUriHelper.CreatePartUri(new Uri(id, UriKind.Relative));
-            var part = _Data.GetPart(uri);
-            var stream = new FileStream(path, overwrite ? FileMode.OpenOrCreate : FileMode.Create, FileAccess.Write);
-            CopyStream(part.GetStream(), stream);
-            stream.Flush();
-            stream.Close();
+            var stream = File.Open(_Path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
+
+            var header_entry = archive.GetEntry("header.xml");
+            if (header_entry == null)
+                header_entry = archive.CreateEntry("header.xml");
+            var header_stream = header_entry.Open();
+            var header_xml = _Header.ToXML();
+            header_xml.Save(header_stream);
+            header_stream.Close();
+
+            var assets_entry = archive.GetEntry("assets.xml");
+            if (assets_entry == null)
+                assets_entry = archive.CreateEntry("assets.xml");
+            var assets_stream = assets_entry.Open();
+            var assets_xml = SaveAssets();
+            assets_xml.Save(assets_stream);
+            assets_stream.Close();
+        }
+
+        public void AddAsset(Asset asset)
+        {
+            if(!_Assets.Contains(asset))
+                _Assets.Add(asset);
+        }
+
+        public void RemoveAsset(Asset asset)
+        {
+            if (_Assets.Contains(asset))
+                _Assets.Remove(asset);
         }
     }
 }
