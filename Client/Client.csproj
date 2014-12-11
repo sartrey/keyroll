@@ -46,6 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KeyUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KeyUI.Designer.cs">
+      <DependentUpon>KeyUI.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -54,6 +60,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime.cs" />
+    <EmbeddedResource Include="KeyUI.resx">
+      <DependentUpon>KeyUI.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainUI.resx">
       <DependentUpon>MainUI.cs</DependentUpon>
     </EmbeddedResource>
@@ -87,6 +97,10 @@
       <Project>{47cd54c3-3019-48f3-a812-704cafb679ce}</Project>
       <Name>Sartrey</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Keyroll\Keyroll.csproj">
+      <Project>{afe8f19f-7543-48d9-84a9-63da7be3b065}</Project>
+      <Name>Keyroll</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\add_asset.png" />
@@ -108,6 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\save_storage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\search.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -30,14 +30,13 @@
         {
             System.Windows.Forms.ToolStripSeparator split1;
             System.Windows.Forms.ToolStripSeparator split2;
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainUI));
             this.ColhType = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LsvAssets = new System.Windows.Forms.ListView();
             this.ColhName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.BtnSearch = new System.Windows.Forms.ToolStripButton();
-            this.TbxTag = new System.Windows.Forms.ToolStripTextBox();
             this.LblSearch = new System.Windows.Forms.ToolStripLabel();
             this.toolbar2 = new System.Windows.Forms.ToolStrip();
+            this.TbxTag = new Sartrey.UI.WinForms.ToolStripTextBoxEx();
             this.panel1 = new System.Windows.Forms.Panel();
             this.BtnExportAsset = new System.Windows.Forms.ToolStripButton();
             this.BtnPreviewAsset = new System.Windows.Forms.ToolStripButton();
@@ -74,9 +73,9 @@
             this.ColhName,
             this.ColhType});
             this.LsvAssets.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LsvAssets.Location = new System.Drawing.Point(0, 56);
+            this.LsvAssets.Location = new System.Drawing.Point(0, 62);
             this.LsvAssets.Name = "LsvAssets";
-            this.LsvAssets.Size = new System.Drawing.Size(450, 384);
+            this.LsvAssets.Size = new System.Drawing.Size(450, 378);
             this.LsvAssets.TabIndex = 10;
             this.LsvAssets.UseCompatibleStateImageBehavior = false;
             this.LsvAssets.View = System.Windows.Forms.View.Details;
@@ -88,36 +87,39 @@
             // 
             // BtnSearch
             // 
+            this.BtnSearch.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.BtnSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.BtnSearch.Image = ((System.Drawing.Image)(resources.GetObject("BtnSearch.Image")));
+            this.BtnSearch.Image = global::Keyroll.Properties.Resources.search;
             this.BtnSearch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.BtnSearch.Name = "BtnSearch";
-            this.BtnSearch.Size = new System.Drawing.Size(23, 22);
+            this.BtnSearch.Size = new System.Drawing.Size(28, 28);
             this.BtnSearch.Text = "Search";
             this.BtnSearch.ToolTipText = "search by tag";
-            // 
-            // TbxTag
-            // 
-            this.TbxTag.Name = "TbxTag";
-            this.TbxTag.Size = new System.Drawing.Size(270, 25);
             // 
             // LblSearch
             // 
             this.LblSearch.Name = "LblSearch";
-            this.LblSearch.Size = new System.Drawing.Size(30, 22);
+            this.LblSearch.Size = new System.Drawing.Size(30, 28);
             this.LblSearch.Text = "Tag";
             // 
             // toolbar2
             // 
             this.toolbar2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolbar2.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolbar2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.LblSearch,
-            this.TbxTag,
-            this.BtnSearch});
+            this.BtnSearch,
+            this.TbxTag});
             this.toolbar2.Location = new System.Drawing.Point(0, 31);
             this.toolbar2.Name = "toolbar2";
-            this.toolbar2.Size = new System.Drawing.Size(450, 25);
+            this.toolbar2.Size = new System.Drawing.Size(450, 31);
+            this.toolbar2.Stretch = true;
             this.toolbar2.TabIndex = 9;
+            // 
+            // TbxTag
+            // 
+            this.TbxTag.Name = "TbxTag";
+            this.TbxTag.Size = new System.Drawing.Size(358, 31);
             // 
             // panel1
             // 
@@ -162,6 +164,7 @@
             this.BtnAddAsset.Size = new System.Drawing.Size(60, 28);
             this.BtnAddAsset.Text = "Add";
             this.BtnAddAsset.ToolTipText = "add asset";
+            this.BtnAddAsset.Click += new System.EventHandler(this.BtnAddAsset_Click);
             // 
             // BtnSaveStorage
             // 
@@ -171,12 +174,13 @@
             this.BtnSaveStorage.Size = new System.Drawing.Size(63, 28);
             this.BtnSaveStorage.Text = "Save";
             this.BtnSaveStorage.ToolTipText = "save storage";
+            this.BtnSaveStorage.Click += new System.EventHandler(this.BtnSaveStorage_Click);
             // 
             // BtnCreateStorage
             // 
             this.BtnCreateStorage.Image = global::Keyroll.Properties.Resources.create_storage;
             this.BtnCreateStorage.Name = "BtnCreateStorage";
-            this.BtnCreateStorage.Size = new System.Drawing.Size(160, 30);
+            this.BtnCreateStorage.Size = new System.Drawing.Size(123, 22);
             this.BtnCreateStorage.Text = "Create...";
             this.BtnCreateStorage.ToolTipText = "create storage";
             this.BtnCreateStorage.Click += new System.EventHandler(this.BtnCreateStorage_Click);
@@ -191,6 +195,7 @@
             this.BtnLoadStorage.Size = new System.Drawing.Size(77, 28);
             this.BtnLoadStorage.Text = "Load";
             this.BtnLoadStorage.ToolTipText = "load storage";
+            this.BtnLoadStorage.ButtonClick += new System.EventHandler(this.BtnLoadStorage_ButtonClick);
             // 
             // toolbar1
             // 
@@ -235,7 +240,6 @@
         private System.Windows.Forms.ListView LsvAssets;
         private System.Windows.Forms.ColumnHeader ColhName;
         private System.Windows.Forms.ToolStripButton BtnSearch;
-        private System.Windows.Forms.ToolStripTextBox TbxTag;
         private System.Windows.Forms.ToolStripLabel LblSearch;
         private System.Windows.Forms.ToolStrip toolbar2;
         private System.Windows.Forms.Panel panel1;
@@ -247,5 +251,6 @@
         private System.Windows.Forms.ToolStripMenuItem BtnCreateStorage;
         private System.Windows.Forms.ToolStripSplitButton BtnLoadStorage;
         private System.Windows.Forms.ToolStrip toolbar1;
+        private Sartrey.UI.WinForms.ToolStripTextBoxEx TbxTag;
     }
 }

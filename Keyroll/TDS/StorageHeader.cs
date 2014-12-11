@@ -29,7 +29,7 @@ namespace Keyroll.TDS
             get { return !string.IsNullOrEmpty(_Key); }
         }
 
-        public bool ValidKey(string key) 
+        public bool Activate(string key) 
         {
             if (IsValid)
                 return true;
@@ -44,6 +44,11 @@ namespace Keyroll.TDS
                 return true;
             }
             return false;
+        }
+
+        public void Deactivate() 
+        {
+            _Key = null;
         }
 
         public bool SetKey(string old, string key)

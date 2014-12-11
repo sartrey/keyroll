@@ -33,8 +33,7 @@ namespace Keyroll.TDS
 
         private void LoadAssets(XElement xml)
         {
-            var xml_root = xml.Element("root");
-            foreach (var xml_asset in xml_root.Elements("asset"))
+            foreach (var xml_asset in xml.Elements("asset"))
             {
                 var asset = Asset.Parse(xml_asset);
                 if (asset != null)
@@ -65,7 +64,7 @@ namespace Keyroll.TDS
             var header_xml = XElement.Load(header_stream);
             var header = StorageHeader.Parse(header_xml);
 
-            if (!header.ValidKey(key))
+            if (!header.Activate(key))
             {
                 header_stream.Close();
                 stream.Close();
@@ -125,18 +124,39 @@ namespace Keyroll.TDS
             var assets_xml = SaveAssets();
             assets_xml.Save(assets_stream);
             assets_stream.Close();
+
+            archive.Dispose();
+            stream.Close();
+        }
+
+        public IEnumerable<Asset> GetAssetByName(string name) 
+        {
+            foreach (var asset in _Assets) 
+            {
+                if (asset.Name == name)
+                    yield return asset;
+            }
+        }
+
+        public IEnumerable<Asset> GetAssetByHash(string hash) 
+        {
+            foreach (var asset in _Assets)
+            {
+                if (asset.Hash == hash)
+                    yield return asset;
+            }
         }
 
         public void AddAsset(Asset asset)
         {
-            if(!_Assets.Contains(asset))
-                _Assets.Add(asset);
+            asset.Storage = this;
+            _Assets.Add(asset);
         }
 
         public void RemoveAsset(Asset asset)
         {
-            if (_Assets.Contains(asset))
-                _Assets.Remove(asset);
+            asset.Storage = null;
+            _Assets.Remove(asset);
         }
     }
 }

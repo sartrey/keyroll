@@ -14,6 +14,7 @@ namespace Keyroll
 
             var main_ui = new MainUI();
             var window = new Window(main_ui);
+            window.IsSizeLocked = false;
             window.Show();
             Application.Run();
         }
