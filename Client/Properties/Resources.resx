@@ -133,9 +133,6 @@
   <data name="preview_asset" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\preview_asset.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="save_storage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\save_storage.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="open_storage" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\open_storage.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

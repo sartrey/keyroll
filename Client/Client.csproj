@@ -121,9 +121,6 @@
     <None Include="Resources\remove_asset.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\save_storage.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\search.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

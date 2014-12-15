@@ -46,6 +46,7 @@
     <Compile Include="KVM\Section.cs" />
     <Compile Include="KVM\Package.cs" />
     <Compile Include="KVM\Record.cs" />
+    <Compile Include="Shell\ShellHelper.cs" />
     <Compile Include="TDS\Asset.cs" />
     <Compile Include="TDS\StorageHeader.cs" />
     <Compile Include="TDS\Storage.cs" />
@@ -54,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Device\" />
-    <Folder Include="Shell\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\sartrey\Core\Sartrey\Sartrey.csproj">

@@ -18,6 +18,11 @@ namespace Keyroll.TDS
             set { _Path = value; }
         }
 
+        public List<Asset> Assets
+        {
+            get { return _Assets; }
+        }
+
         public Asset this[string id]
         {
             get 
@@ -98,6 +103,8 @@ namespace Keyroll.TDS
             var header = new StorageHeader();
             header.SetKey(null, key);
             storage._Header = header;
+            if (File.Exists(path))
+                File.Delete(path);
             return storage;
         }
 
@@ -123,6 +130,7 @@ namespace Keyroll.TDS
             var assets_stream = assets_entry.Open();
             var assets_xml = SaveAssets();
             assets_xml.Save(assets_stream);
+            assets_stream.SetLength(assets_stream.Position);
             assets_stream.Close();
 
             archive.Dispose();
@@ -157,6 +165,54 @@ namespace Keyroll.TDS
         {
             asset.Storage = null;
             _Assets.Remove(asset);
+        }
+
+        public void AttachEntry(Asset asset, string path)
+        {
+            var stream = File.Open(Path, FileMode.Open, FileAccess.ReadWrite);
+            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
+            var entry = archive.GetEntry(asset.Id);
+            if (entry == null)
+                entry = archive.CreateEntry(asset.ZipPath);
+            var entry_stream = entry.Open();
+            var input_stream = File.Open(path, FileMode.Open, FileAccess.Read);
+            var aes = _Header.AES;
+            aes.Encipher(input_stream, entry_stream);
+            aes.Dispose();
+            entry_stream.SetLength(entry_stream.Position);
+
+            input_stream.Close();
+            entry_stream.Close();
+            archive.Dispose();
+            stream.Close();
+        }
+
+        public void DetachEntry(Asset asset)
+        {
+            var stream = File.Open(Path, FileMode.Open, FileAccess.ReadWrite);
+            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
+            var entry = archive.GetEntry(asset.ZipPath);
+            entry.Delete();
+            archive.Dispose();
+            stream.Close();
+        }
+
+        public void ExportEntry(Asset asset, string path, bool overwrite)
+        {
+            var stream = File.Open(Path, FileMode.Open, FileAccess.ReadWrite);
+            var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+            var entry = archive.GetEntry(asset.ZipPath);
+            if (entry == null)
+                return;
+            var entry_stream = entry.Open();
+            var output_stream = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
+            var aes = _Header.AES;
+            aes.Decipher(entry_stream, output_stream);
+            aes.Dispose();
+            entry_stream.Close();
+            output_stream.Close();
+            archive.Dispose();
+            stream.Close();
         }
     }
 }

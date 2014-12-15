@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using Sartrey;
+using System.Xml.Linq;
 
 namespace Keyroll.TDS
 {
@@ -22,6 +23,17 @@ namespace Keyroll.TDS
         public string Key 
         {
             get { return _Key; }
+        }
+
+        public AES AES 
+        {
+            get
+            {
+                var aes = new AES();
+                aes.Key = new byte[16];
+                aes.IV = new byte[16];
+                return aes;
+            }
         }
 
         public bool IsValid 

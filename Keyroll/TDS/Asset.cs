@@ -53,6 +53,11 @@ namespace Keyroll.TDS
             }
         }
 
+        public string ZipPath 
+        {
+            get { return "data\\" + _Id; }
+        }
+
         public List<Tag> Tags 
         {
             get { return _Tags; }
@@ -75,7 +80,7 @@ namespace Keyroll.TDS
             asset._Name = xml.Element("name").Value;
             asset._Type = xml.Element("type").Value;
             asset._Hash = xml.Element("hash").Value;
-            return null;
+            return asset;
         }
 
         public static Asset Create()
@@ -95,60 +100,6 @@ namespace Keyroll.TDS
             asset._Hash = hash.GetMD5Cng();
             stream.Close();
             return asset;
-        }
-
-        public Stream Open()
-        {
-            var stream = File.Open(_Storage.Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
-            var entry = archive.GetEntry(_Id);
-            archive.Dispose();
-            stream.Close();
-            return entry != null ? entry.Open() : null;
-        }
-
-        public void Import(string path)
-        {
-            var stream = File.Open(_Storage.Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
-            var entry = archive.GetEntry(_Id);
-            if (entry == null)
-                entry = archive.CreateEntry("data\\" + _Id);
-            var entry_stream = entry.Open();
-            var input_stream = File.Open(path, FileMode.Open, FileAccess.Read);
-            input_stream.CopyTo(entry_stream);
-            input_stream.Flush();
-            input_stream.Close();
-            entry_stream.Close();
-            archive.Dispose();
-            stream.Close();
-        }
-
-        public void Export(string path, bool overwrite) 
-        {
-            var stream = File.Open(_Storage.Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Read);
-            var entry = archive.GetEntry(_Id);
-            if (entry == null)
-                return;
-            var entry_stream = entry.Open();
-            var output_stream = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
-            entry_stream.CopyTo(output_stream);
-            entry_stream.Flush();
-            entry_stream.Close();
-            output_stream.Close();
-            archive.Dispose();
-            stream.Close();
-        }
-
-        public void Detach()
-        {
-            var stream = File.Open(_Storage.Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
-            var entry = archive.GetEntry(_Id);
-            entry.Delete();
-            archive.Dispose();
-            stream.Close();
         }
 
         public XElement ToXML() 

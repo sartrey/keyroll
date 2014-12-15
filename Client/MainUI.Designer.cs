@@ -42,7 +42,6 @@
             this.BtnPreviewAsset = new System.Windows.Forms.ToolStripButton();
             this.BtnRemoveAsset = new System.Windows.Forms.ToolStripButton();
             this.BtnAddAsset = new System.Windows.Forms.ToolStripButton();
-            this.BtnSaveStorage = new System.Windows.Forms.ToolStripButton();
             this.BtnCreateStorage = new System.Windows.Forms.ToolStripMenuItem();
             this.BtnLoadStorage = new System.Windows.Forms.ToolStripSplitButton();
             this.toolbar1 = new System.Windows.Forms.ToolStrip();
@@ -73,6 +72,7 @@
             this.ColhName,
             this.ColhType});
             this.LsvAssets.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.LsvAssets.FullRowSelect = true;
             this.LsvAssets.Location = new System.Drawing.Point(0, 62);
             this.LsvAssets.Name = "LsvAssets";
             this.LsvAssets.Size = new System.Drawing.Size(450, 378);
@@ -137,6 +137,7 @@
             this.BtnExportAsset.Size = new System.Drawing.Size(74, 28);
             this.BtnExportAsset.Text = "Export";
             this.BtnExportAsset.ToolTipText = "export asset";
+            this.BtnExportAsset.Click += new System.EventHandler(this.BtnExportAsset_Click);
             // 
             // BtnPreviewAsset
             // 
@@ -146,6 +147,7 @@
             this.BtnPreviewAsset.Size = new System.Drawing.Size(80, 28);
             this.BtnPreviewAsset.Text = "Preview";
             this.BtnPreviewAsset.ToolTipText = "preview asset";
+            this.BtnPreviewAsset.Click += new System.EventHandler(this.BtnPreviewAsset_Click);
             // 
             // BtnRemoveAsset
             // 
@@ -155,6 +157,7 @@
             this.BtnRemoveAsset.Size = new System.Drawing.Size(83, 28);
             this.BtnRemoveAsset.Text = "Remove";
             this.BtnRemoveAsset.ToolTipText = "remove asset";
+            this.BtnRemoveAsset.Click += new System.EventHandler(this.BtnRemoveAsset_Click);
             // 
             // BtnAddAsset
             // 
@@ -166,21 +169,11 @@
             this.BtnAddAsset.ToolTipText = "add asset";
             this.BtnAddAsset.Click += new System.EventHandler(this.BtnAddAsset_Click);
             // 
-            // BtnSaveStorage
-            // 
-            this.BtnSaveStorage.Image = global::Keyroll.Properties.Resources.save_storage;
-            this.BtnSaveStorage.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.BtnSaveStorage.Name = "BtnSaveStorage";
-            this.BtnSaveStorage.Size = new System.Drawing.Size(63, 28);
-            this.BtnSaveStorage.Text = "Save";
-            this.BtnSaveStorage.ToolTipText = "save storage";
-            this.BtnSaveStorage.Click += new System.EventHandler(this.BtnSaveStorage_Click);
-            // 
             // BtnCreateStorage
             // 
             this.BtnCreateStorage.Image = global::Keyroll.Properties.Resources.create_storage;
             this.BtnCreateStorage.Name = "BtnCreateStorage";
-            this.BtnCreateStorage.Size = new System.Drawing.Size(123, 22);
+            this.BtnCreateStorage.Size = new System.Drawing.Size(160, 30);
             this.BtnCreateStorage.Text = "Create...";
             this.BtnCreateStorage.ToolTipText = "create storage";
             this.BtnCreateStorage.Click += new System.EventHandler(this.BtnCreateStorage_Click);
@@ -203,7 +196,6 @@
             this.toolbar1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolbar1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.BtnLoadStorage,
-            this.BtnSaveStorage,
             split1,
             this.BtnAddAsset,
             this.BtnRemoveAsset,
@@ -247,7 +239,6 @@
         private System.Windows.Forms.ToolStripButton BtnPreviewAsset;
         private System.Windows.Forms.ToolStripButton BtnRemoveAsset;
         private System.Windows.Forms.ToolStripButton BtnAddAsset;
-        private System.Windows.Forms.ToolStripButton BtnSaveStorage;
         private System.Windows.Forms.ToolStripMenuItem BtnCreateStorage;
         private System.Windows.Forms.ToolStripSplitButton BtnLoadStorage;
         private System.Windows.Forms.ToolStrip toolbar1;
