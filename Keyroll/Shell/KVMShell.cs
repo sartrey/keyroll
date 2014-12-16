@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Keyroll.Shell
 {
-    public class KVMShellProvider : IShellProvider
+    public abstract class KVMShell : IShell
     {
         public bool Support(string mime)
         {
@@ -12,10 +12,12 @@ namespace Keyroll.Shell
             return false;
         }
 
-        public object Shell(Stream stream)
+        public object Load(Stream stream)
         {
             var memory = Memory.Load(stream);
             return memory;
         }
+
+        public abstract void Shell(object model);
     }
 }

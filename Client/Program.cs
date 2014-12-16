@@ -14,9 +14,9 @@ namespace Keyroll
             Application.SetCompatibleTextRenderingDefault(false);
 
             var runtime = Runtime.Instance;
-            var router = new ShellRouter();
-            router.AddProvider(new KVMShellProvider());
-            runtime.ShellRouter = router;
+            var router = new Router();
+            router.Add(new ClientKVMShell());
+            runtime.Router = router;
 
             var main_ui = new MainUI();
             var window = new Window(main_ui);

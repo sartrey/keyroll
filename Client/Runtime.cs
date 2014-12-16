@@ -14,7 +14,7 @@ namespace Keyroll
         }
 
         private Storage _Storage = null;
-        private ShellRouter _ShellRouter = null;
+        private Router _Router = null;
 
         public Storage Storage
         {
@@ -22,10 +22,10 @@ namespace Keyroll
             set { _Storage = value; }
         }
 
-        public ShellRouter ShellRouter
+        public Router Router
         {
-            get { return _ShellRouter; }
-            set { _ShellRouter = value; }
+            get { return _Router; }
+            set { _Router = value; }
         }
     }
 }

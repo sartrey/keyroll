@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+  <item key="Logger">Logger</item>
+  <item key="Logger.Message">Message</item>
+  <item key="Logger.SaveLog">Save</item>
+  <item key="Logger.Finish">Finish</item>
+
+  <item key="SelectFiles.State">State</item>
+  <item key="SelectFiles.Column.Name">Name</item>
+  <item key="SelectFiles.Column.Size">Size</item>
+  <item key="SelectFiles.AddFile">Add File</item>
+  <item key="SelectFiles.AddFolder">Add Folder</item>
+  <item key="SelectFiles.Clear">Clear</item>
+  <item key="SelectFiles.Confirm">Confirm</item>
+  <item key="SelectFiles.AddFile.State">{0} file(s) selected</item>
+  <item key="SelectFiles.BrowseFolder.Question">Select files in all sub folders?</item>
+  <item key="SelectFiles.Clear.Question">Clear all files or selected files?</item>
+  <item key="SelectFiles.Question">Question</item>
+</root>

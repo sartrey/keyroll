@@ -31,9 +31,10 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KVMMainUI));
             this.MainPanel = new System.Windows.Forms.Panel();
             this.toolbar = new System.Windows.Forms.ToolStrip();
-            this.BtnAddItem = new System.Windows.Forms.ToolStripButton();
-            this.BtnRemoveItem = new System.Windows.Forms.ToolStripButton();
             this.TrvKVM = new System.Windows.Forms.TreeView();
+            this.BtnRefresh = new System.Windows.Forms.ToolStripButton();
+            this.BtnAddItem = new System.Windows.Forms.ToolStripSplitButton();
+            this.BtnRemoveItem = new System.Windows.Forms.ToolStripSplitButton();
             this.toolbar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -49,20 +50,42 @@
             // 
             this.toolbar.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.toolbar.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolbar.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolbar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.BtnAddItem,
-            this.BtnRemoveItem});
-            this.toolbar.Location = new System.Drawing.Point(0, 375);
+            this.BtnRemoveItem,
+            this.BtnRefresh});
+            this.toolbar.Location = new System.Drawing.Point(0, 369);
             this.toolbar.Name = "toolbar";
-            this.toolbar.Size = new System.Drawing.Size(240, 25);
+            this.toolbar.Size = new System.Drawing.Size(240, 31);
             this.toolbar.TabIndex = 10;
+            // 
+            // TrvKVM
+            // 
+            this.TrvKVM.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TrvKVM.Font = new System.Drawing.Font("微软雅黑", 10F);
+            this.TrvKVM.FullRowSelect = true;
+            this.TrvKVM.Location = new System.Drawing.Point(0, 0);
+            this.TrvKVM.Name = "TrvKVM";
+            this.TrvKVM.ShowRootLines = false;
+            this.TrvKVM.Size = new System.Drawing.Size(240, 369);
+            this.TrvKVM.TabIndex = 11;
+            this.TrvKVM.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TrvKVM_AfterSelect);
+            // 
+            // BtnRefresh
+            // 
+            this.BtnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("BtnRefresh.Image")));
+            this.BtnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnRefresh.Name = "BtnRefresh";
+            this.BtnRefresh.Size = new System.Drawing.Size(80, 28);
+            this.BtnRefresh.Text = "Refresh";
             // 
             // BtnAddItem
             // 
             this.BtnAddItem.Image = ((System.Drawing.Image)(resources.GetObject("BtnAddItem.Image")));
             this.BtnAddItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.BtnAddItem.Name = "BtnAddItem";
-            this.BtnAddItem.Size = new System.Drawing.Size(52, 22);
+            this.BtnAddItem.Size = new System.Drawing.Size(72, 28);
             this.BtnAddItem.Text = "Add";
             this.BtnAddItem.Click += new System.EventHandler(this.BtnAddItem_Click);
             // 
@@ -71,18 +94,9 @@
             this.BtnRemoveItem.Image = ((System.Drawing.Image)(resources.GetObject("BtnRemoveItem.Image")));
             this.BtnRemoveItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.BtnRemoveItem.Name = "BtnRemoveItem";
-            this.BtnRemoveItem.Size = new System.Drawing.Size(75, 22);
+            this.BtnRemoveItem.Size = new System.Drawing.Size(95, 28);
             this.BtnRemoveItem.Text = "Remove";
             this.BtnRemoveItem.Click += new System.EventHandler(this.BtnRemoveItem_Click);
-            // 
-            // TrvKVM
-            // 
-            this.TrvKVM.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TrvKVM.Location = new System.Drawing.Point(0, 0);
-            this.TrvKVM.Name = "TrvKVM";
-            this.TrvKVM.Size = new System.Drawing.Size(240, 375);
-            this.TrvKVM.TabIndex = 11;
-            this.TrvKVM.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TrvKVM_AfterSelect);
             // 
             // KVMMainUI
             // 
@@ -105,8 +119,9 @@
         private System.Windows.Forms.Panel MainPanel;
         private System.Windows.Forms.ToolStrip toolbar;
         private System.Windows.Forms.TreeView TrvKVM;
-        private System.Windows.Forms.ToolStripButton BtnAddItem;
-        private System.Windows.Forms.ToolStripButton BtnRemoveItem;
+        private System.Windows.Forms.ToolStripButton BtnRefresh;
+        private System.Windows.Forms.ToolStripSplitButton BtnAddItem;
+        private System.Windows.Forms.ToolStripSplitButton BtnRemoveItem;
 
     }
 }

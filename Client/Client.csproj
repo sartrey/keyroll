@@ -46,61 +46,62 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KeyUI.cs">
+    <Compile Include="UI\KeyUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="KeyUI.Designer.cs">
+    <Compile Include="UI\KeyUI.Designer.cs">
       <DependentUpon>KeyUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="KVMDomainUI.cs">
+    <Compile Include="UI\KVM\KVMDomainUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="KVMDomainUI.Designer.cs">
+    <Compile Include="UI\KVM\KVMDomainUI.Designer.cs">
       <DependentUpon>KVMDomainUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="KVMMainUI.cs">
+    <Compile Include="UI\KVMMainUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="KVMMainUI.Designer.cs">
+    <Compile Include="UI\KVMMainUI.Designer.cs">
       <DependentUpon>KVMMainUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="KVMMemoryUI.cs">
+    <Compile Include="UI\KVM\KVMMemoryUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="KVMMemoryUI.Designer.cs">
+    <Compile Include="UI\KVM\KVMMemoryUI.Designer.cs">
       <DependentUpon>KVMMemoryUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="KVMRecordUI.cs">
+    <Compile Include="UI\KVM\KVMRecordUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="KVMRecordUI.Designer.cs">
+    <Compile Include="UI\KVM\KVMRecordUI.Designer.cs">
       <DependentUpon>KVMRecordUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainUI.cs">
+    <Compile Include="ClientKVMShell.cs" />
+    <Compile Include="UI\MainUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="MainUI.Designer.cs">
+    <Compile Include="UI\MainUI.Designer.cs">
       <DependentUpon>MainUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime.cs" />
-    <EmbeddedResource Include="KeyUI.resx">
+    <EmbeddedResource Include="UI\KeyUI.resx">
       <DependentUpon>KeyUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KVMDomainUI.resx">
+    <EmbeddedResource Include="UI\KVM\KVMDomainUI.resx">
       <DependentUpon>KVMDomainUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KVMMainUI.resx">
+    <EmbeddedResource Include="UI\KVMMainUI.resx">
       <DependentUpon>KVMMainUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KVMMemoryUI.resx">
+    <EmbeddedResource Include="UI\KVM\KVMMemoryUI.resx">
       <DependentUpon>KVMMemoryUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="KVMRecordUI.resx">
+    <EmbeddedResource Include="UI\KVM\KVMRecordUI.resx">
       <DependentUpon>KVMRecordUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainUI.resx">
+    <EmbeddedResource Include="UI\MainUI.resx">
       <DependentUpon>MainUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -158,6 +159,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="WinForms.en_us.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

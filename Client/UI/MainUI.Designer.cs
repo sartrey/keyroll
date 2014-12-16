@@ -147,7 +147,7 @@
             this.BtnShellAsset.Name = "BtnShellAsset";
             this.BtnShellAsset.Size = new System.Drawing.Size(63, 28);
             this.BtnShellAsset.Text = "Shell";
-            this.BtnShellAsset.ToolTipText = "preview asset";
+            this.BtnShellAsset.ToolTipText = "shell asset";
             this.BtnShellAsset.Click += new System.EventHandler(this.BtnShellAsset_Click);
             // 
             // BtnRemoveAsset
@@ -164,7 +164,7 @@
             // 
             this.BtnCreateStorage.Image = global::Keyroll.Properties.Resources.create_storage;
             this.BtnCreateStorage.Name = "BtnCreateStorage";
-            this.BtnCreateStorage.Size = new System.Drawing.Size(160, 30);
+            this.BtnCreateStorage.Size = new System.Drawing.Size(123, 22);
             this.BtnCreateStorage.Text = "Create...";
             this.BtnCreateStorage.ToolTipText = "create storage";
             this.BtnCreateStorage.Click += new System.EventHandler(this.BtnCreateStorage_Click);
@@ -213,7 +213,7 @@
             // BtnAddKVM
             // 
             this.BtnAddKVM.Name = "BtnAddKVM";
-            this.BtnAddKVM.Size = new System.Drawing.Size(152, 22);
+            this.BtnAddKVM.Size = new System.Drawing.Size(141, 22);
             this.BtnAddKVM.Text = "Add KVM...";
             this.BtnAddKVM.Click += new System.EventHandler(this.BtnAddKVM_Click);
             // 

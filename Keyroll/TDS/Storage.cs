@@ -12,6 +12,7 @@ namespace Keyroll.TDS
         private List<Asset> _Assets 
             = new List<Asset>();
 
+        private Stream _Stream = null;
         private ZipArchive _Archive = null;
 
         public string Path 
@@ -31,8 +32,9 @@ namespace Keyroll.TDS
             {
                 if (_Archive == null)
                 {
-                    var stream = File.Open(_Path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                    _Archive = new ZipArchive(stream, ZipArchiveMode.Update, false);
+                    _Stream = File.Open(_Path, 
+                        FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                    _Archive = new ZipArchive(_Stream, ZipArchiveMode.Update, false);
                 }
                 return _Archive;
             }
@@ -129,6 +131,7 @@ namespace Keyroll.TDS
         public void Commit()
         {
             var archive = this.Archive;
+
             var header_entry = archive.GetEntry("header.xml");
             if (header_entry == null)
                 header_entry = archive.CreateEntry("header.xml");
@@ -145,12 +148,18 @@ namespace Keyroll.TDS
             assets_xml.Save(assets_stream);
             assets_stream.SetLength(assets_stream.Position);
             assets_stream.Close();
+
+            Close();
         }
 
         public void Close()
         {
             if (_Archive != null)
+            {
                 _Archive.Dispose();
+                _Stream.Dispose();
+                _Archive = null;
+            }
         }
 
         public IEnumerable<Asset> GetAssetByName(string name) 
@@ -230,7 +239,10 @@ namespace Keyroll.TDS
             if (entry == null)
                 return null;
             var entry_stream = entry.Open();
-            return entry_stream;
+            var memory_stream = new MemoryStream();
+            _Header.AES.Decipher(entry_stream, memory_stream);
+            memory_stream.Position = 0;
+            return memory_stream;
         }
     }
 }

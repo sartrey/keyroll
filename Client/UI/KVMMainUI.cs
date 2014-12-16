@@ -14,6 +14,16 @@ namespace Keyroll
             set { _Model = value; }
         }
 
+        public Control SubView 
+        {
+            get 
+            {
+                if (MainPanel.Controls.Count > 0)
+                    return MainPanel.Controls[0];
+                return null;
+            }
+        }
+
         public KVMMainUI()
         {
             InitializeComponent();
@@ -21,6 +31,7 @@ namespace Keyroll
 
         protected override void OnLoad(EventArgs e)
         {
+            LoadModel();
             base.OnLoad(e);
         }
 
@@ -65,7 +76,6 @@ namespace Keyroll
             var node = TrvKVM.SelectedNode;
             if (node == null)
                 return;
-
         }
 
         private void TrvKVM_AfterSelect(object sender, TreeViewEventArgs e)
@@ -73,7 +83,7 @@ namespace Keyroll
             var node = TrvKVM.SelectedNode;
             if (node == null)
                 return;
-            var view = MainPanel.Controls[0];
+            var view = SubView;
             if (view != null)
             {
                 view.Dispose();

@@ -47,10 +47,10 @@
     <Compile Include="KVM\Domain.cs" />
     <Compile Include="KVM\Memory.cs" />
     <Compile Include="KVM\Record.cs" />
-    <Compile Include="Shell\IShellProvider.cs" />
-    <Compile Include="Shell\KVMShellProvider.cs" />
+    <Compile Include="Shell\IShell.cs" />
+    <Compile Include="Shell\KVMShell.cs" />
     <Compile Include="Shell\ShellHelper.cs" />
-    <Compile Include="Shell\ShellRouter.cs" />
+    <Compile Include="Shell\Router.cs" />
     <Compile Include="TDS\Asset.cs" />
     <Compile Include="TDS\StorageHeader.cs" />
     <Compile Include="TDS\Storage.cs" />

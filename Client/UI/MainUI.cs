@@ -43,7 +43,7 @@ namespace Keyroll
         private void BtnCreateStorage_Click(object sender, EventArgs e)
         {
             var dlg = new SaveFileDialog();
-            dlg.Filter = "TDS存储|*.tds";
+            dlg.Filter = "Theta Data Storage|*.tds";
             var result = dlg.ShowDialog();
             if (result != DialogResult.OK)
                 return;
@@ -62,7 +62,7 @@ namespace Keyroll
         private void BtnLoadStorage_Click(object sender, EventArgs e)
         {
             var dlg = new OpenFileDialog();
-            dlg.Filter = "TDS存储|*.tds";
+            dlg.Filter = "Theta Data Storage|*.tds";
             var result = dlg.ShowDialog();
             if (result != DialogResult.OK)
                 return;
@@ -175,9 +175,9 @@ namespace Keyroll
             var id = item.Tag as string;
             var asset = storage[id];
             
-            var router = runtime.ShellRouter;
-            var providers = router.QueryProviders(asset.Type);
-            if (providers.Count() == 0)
+            var router = runtime.Router;
+            var shells = router.Query(asset.Type);
+            if (shells.Count() == 0)
             {
                 var path = Path.Combine(Application.StartupPath, "temp", asset.Name);
                 storage.ExportEntry(asset, path, true);
@@ -185,7 +185,11 @@ namespace Keyroll
             }
             else 
             {
-
+                //more than 1??
+                var shell = shells.First();
+                var stream = storage.OpenEntry(asset);
+                var model = shell.Load(stream);
+                shell.Shell(model);
             }
         }
     }
