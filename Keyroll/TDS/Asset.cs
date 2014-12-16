@@ -40,13 +40,11 @@ namespace Keyroll.TDS
             {
                 if (_Hash == null) 
                 {
-                    var stream = File.Open(_Storage.Path, FileMode.Open, FileAccess.Read);
-                    var archive = new ZipArchive(stream, ZipArchiveMode.Read);
-                    var entry = archive.GetEntry(_Id);
-                    var entry_stream = entry.Open();
-                    var hash = new Hash(entry_stream);
+                    if (_Storage == null)
+                        return null;
+                    var stream = _Storage.OpenEntry(this);
+                    var hash = new Hash(stream);
                     _Hash = hash.GetMD5Cng();
-                    archive.Dispose();
                     stream.Close();
                 }
                 return _Hash; 
@@ -69,7 +67,7 @@ namespace Keyroll.TDS
             set { _Storage = value; }
         }
 
-        public Asset() 
+        protected Asset() 
         {
         }
 
@@ -95,6 +93,7 @@ namespace Keyroll.TDS
             var asset = new Asset();
             asset._Id = Guid.NewGuid().ToString("N");
             asset._Name = Path.GetFileName(path);
+            asset._Type = Shell.ShellHelper.GetMIME(path);
             var stream = File.Open(path, FileMode.Open, FileAccess.Read);
             var hash = new Hash(stream);
             asset._Hash = hash.GetMD5Cng();

@@ -52,6 +52,30 @@
     <Compile Include="KeyUI.Designer.cs">
       <DependentUpon>KeyUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="KVMDomainUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KVMDomainUI.Designer.cs">
+      <DependentUpon>KVMDomainUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KVMMainUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KVMMainUI.Designer.cs">
+      <DependentUpon>KVMMainUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KVMMemoryUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KVMMemoryUI.Designer.cs">
+      <DependentUpon>KVMMemoryUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KVMRecordUI.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KVMRecordUI.Designer.cs">
+      <DependentUpon>KVMRecordUI.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainUI.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -63,6 +87,18 @@
     <Compile Include="Runtime.cs" />
     <EmbeddedResource Include="KeyUI.resx">
       <DependentUpon>KeyUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KVMDomainUI.resx">
+      <DependentUpon>KVMDomainUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KVMMainUI.resx">
+      <DependentUpon>KVMMainUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KVMMemoryUI.resx">
+      <DependentUpon>KVMMemoryUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KVMRecordUI.resx">
+      <DependentUpon>KVMRecordUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainUI.resx">
       <DependentUpon>MainUI.cs</DependentUpon>

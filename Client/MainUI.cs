@@ -1,8 +1,10 @@
-﻿using Keyroll.TDS;
+﻿using Keyroll.KVM;
+using Keyroll.TDS;
 using Sartrey.UI.WinForms;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Keyroll
@@ -57,7 +59,7 @@ namespace Keyroll
             Runtime.Instance.Storage = storage;
         }
 
-        private void BtnLoadStorage_ButtonClick(object sender, EventArgs e)
+        private void BtnLoadStorage_Click(object sender, EventArgs e)
         {
             var dlg = new OpenFileDialog();
             dlg.Filter = "TDS存储|*.tds";
@@ -103,8 +105,25 @@ namespace Keyroll
                 if (assets.Count() > 0)
                     continue;
                 storage.AddAsset(asset);
-                asset.Import(file);
+                storage.AttachEntry(asset, file);
             }
+            storage.Commit();
+            RefreshData();
+        }
+
+        private void BtnAddKVM_Click(object sender, EventArgs e)
+        {
+            var asset = Asset.Create();
+            asset.Name = "Memory";
+            asset.Type = Memory.MIME;
+
+            var storage = Runtime.Instance.Storage;
+            storage.AddAsset(asset);
+
+            var memory = new Memory();
+            var stream = new MemoryStream(
+                Encoding.UTF8.GetBytes(memory.ToXML().ToString()));
+            storage.AttachEntry(asset, stream);
             storage.Commit();
             RefreshData();
         }
@@ -119,7 +138,7 @@ namespace Keyroll
             {
                 var id = lvi.Tag as string;
                 var asset = storage[id];
-                asset.Detach();
+                storage.DetachEntry(asset);
                 storage.RemoveAsset(asset);
             }
             storage.Commit();
@@ -141,23 +160,33 @@ namespace Keyroll
                 var id = lvi.Tag as string;
                 var asset = storage[id];
                 var path = Path.Combine(dlg.SelectedPath, asset.Name);
-                asset.Export(path, true);
+                storage.ExportEntry(asset, path, true);
             }
         }
 
-        private void BtnPreviewAsset_Click(object sender, EventArgs e)
+        private void BtnShellAsset_Click(object sender, EventArgs e)
         {
             var items = LsvAssets.SelectedItems;
             if (items.Count != 1)
                 return;
-            var storage = Runtime.Instance.Storage;
+            var runtime = Runtime.Instance;
+            var storage = runtime.Storage;
             var item = items[0];
             var id = item.Tag as string;
             var asset = storage[id];
-            var path = Path.Combine(Application.StartupPath, "temp", asset.Name);
-            asset.Export(path, true);
-            var helper = new Shell.ShellHelper();
-            var process = helper.Open(path);
+            
+            var router = runtime.ShellRouter;
+            var providers = router.QueryProviders(asset.Type);
+            if (providers.Count() == 0)
+            {
+                var path = Path.Combine(Application.StartupPath, "temp", asset.Name);
+                storage.ExportEntry(asset, path, true);
+                var process = Shell.ShellHelper.ShellOpen(path);
+            }
+            else 
+            {
+
+            }
         }
     }
 }

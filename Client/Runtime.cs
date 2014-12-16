@@ -1,4 +1,5 @@
-﻿using Keyroll.TDS;
+﻿using Keyroll.Shell;
+using Keyroll.TDS;
 
 namespace Keyroll
 {
@@ -13,11 +14,18 @@ namespace Keyroll
         }
 
         private Storage _Storage = null;
+        private ShellRouter _ShellRouter = null;
 
         public Storage Storage
         {
             get { return _Storage; }
             set { _Storage = value; }
+        }
+
+        public ShellRouter ShellRouter
+        {
+            get { return _ShellRouter; }
+            set { _ShellRouter = value; }
         }
     }
 }

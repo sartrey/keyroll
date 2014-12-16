@@ -39,12 +39,13 @@
             this.TbxTag = new Sartrey.UI.WinForms.ToolStripTextBoxEx();
             this.panel1 = new System.Windows.Forms.Panel();
             this.BtnExportAsset = new System.Windows.Forms.ToolStripButton();
-            this.BtnPreviewAsset = new System.Windows.Forms.ToolStripButton();
+            this.BtnShellAsset = new System.Windows.Forms.ToolStripButton();
             this.BtnRemoveAsset = new System.Windows.Forms.ToolStripButton();
-            this.BtnAddAsset = new System.Windows.Forms.ToolStripButton();
             this.BtnCreateStorage = new System.Windows.Forms.ToolStripMenuItem();
             this.BtnLoadStorage = new System.Windows.Forms.ToolStripSplitButton();
             this.toolbar1 = new System.Windows.Forms.ToolStrip();
+            this.BtnAddAsset = new System.Windows.Forms.ToolStripSplitButton();
+            this.BtnAddKVM = new System.Windows.Forms.ToolStripMenuItem();
             split1 = new System.Windows.Forms.ToolStripSeparator();
             split2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolbar2.SuspendLayout();
@@ -139,15 +140,15 @@
             this.BtnExportAsset.ToolTipText = "export asset";
             this.BtnExportAsset.Click += new System.EventHandler(this.BtnExportAsset_Click);
             // 
-            // BtnPreviewAsset
+            // BtnShellAsset
             // 
-            this.BtnPreviewAsset.Image = global::Keyroll.Properties.Resources.preview_asset;
-            this.BtnPreviewAsset.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.BtnPreviewAsset.Name = "BtnPreviewAsset";
-            this.BtnPreviewAsset.Size = new System.Drawing.Size(80, 28);
-            this.BtnPreviewAsset.Text = "Preview";
-            this.BtnPreviewAsset.ToolTipText = "preview asset";
-            this.BtnPreviewAsset.Click += new System.EventHandler(this.BtnPreviewAsset_Click);
+            this.BtnShellAsset.Image = global::Keyroll.Properties.Resources.preview_asset;
+            this.BtnShellAsset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnShellAsset.Name = "BtnShellAsset";
+            this.BtnShellAsset.Size = new System.Drawing.Size(63, 28);
+            this.BtnShellAsset.Text = "Shell";
+            this.BtnShellAsset.ToolTipText = "preview asset";
+            this.BtnShellAsset.Click += new System.EventHandler(this.BtnShellAsset_Click);
             // 
             // BtnRemoveAsset
             // 
@@ -158,16 +159,6 @@
             this.BtnRemoveAsset.Text = "Remove";
             this.BtnRemoveAsset.ToolTipText = "remove asset";
             this.BtnRemoveAsset.Click += new System.EventHandler(this.BtnRemoveAsset_Click);
-            // 
-            // BtnAddAsset
-            // 
-            this.BtnAddAsset.Image = global::Keyroll.Properties.Resources.add_asset;
-            this.BtnAddAsset.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.BtnAddAsset.Name = "BtnAddAsset";
-            this.BtnAddAsset.Size = new System.Drawing.Size(60, 28);
-            this.BtnAddAsset.Text = "Add";
-            this.BtnAddAsset.ToolTipText = "add asset";
-            this.BtnAddAsset.Click += new System.EventHandler(this.BtnAddAsset_Click);
             // 
             // BtnCreateStorage
             // 
@@ -188,7 +179,7 @@
             this.BtnLoadStorage.Size = new System.Drawing.Size(77, 28);
             this.BtnLoadStorage.Text = "Load";
             this.BtnLoadStorage.ToolTipText = "load storage";
-            this.BtnLoadStorage.ButtonClick += new System.EventHandler(this.BtnLoadStorage_ButtonClick);
+            this.BtnLoadStorage.ButtonClick += new System.EventHandler(this.BtnLoadStorage_Click);
             // 
             // toolbar1
             // 
@@ -200,12 +191,31 @@
             this.BtnAddAsset,
             this.BtnRemoveAsset,
             split2,
-            this.BtnPreviewAsset,
+            this.BtnShellAsset,
             this.BtnExportAsset});
             this.toolbar1.Location = new System.Drawing.Point(0, 0);
             this.toolbar1.Name = "toolbar1";
             this.toolbar1.Size = new System.Drawing.Size(450, 31);
             this.toolbar1.TabIndex = 7;
+            // 
+            // BtnAddAsset
+            // 
+            this.BtnAddAsset.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.BtnAddKVM});
+            this.BtnAddAsset.Image = global::Keyroll.Properties.Resources.add_asset;
+            this.BtnAddAsset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnAddAsset.Name = "BtnAddAsset";
+            this.BtnAddAsset.Size = new System.Drawing.Size(72, 28);
+            this.BtnAddAsset.Text = "Add";
+            this.BtnAddAsset.ToolTipText = "add asset";
+            this.BtnAddAsset.ButtonClick += new System.EventHandler(this.BtnAddAsset_Click);
+            // 
+            // BtnAddKVM
+            // 
+            this.BtnAddKVM.Name = "BtnAddKVM";
+            this.BtnAddKVM.Size = new System.Drawing.Size(152, 22);
+            this.BtnAddKVM.Text = "Add KVM...";
+            this.BtnAddKVM.Click += new System.EventHandler(this.BtnAddKVM_Click);
             // 
             // MainUI
             // 
@@ -236,12 +246,13 @@
         private System.Windows.Forms.ToolStrip toolbar2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolStripButton BtnExportAsset;
-        private System.Windows.Forms.ToolStripButton BtnPreviewAsset;
+        private System.Windows.Forms.ToolStripButton BtnShellAsset;
         private System.Windows.Forms.ToolStripButton BtnRemoveAsset;
-        private System.Windows.Forms.ToolStripButton BtnAddAsset;
         private System.Windows.Forms.ToolStripMenuItem BtnCreateStorage;
         private System.Windows.Forms.ToolStripSplitButton BtnLoadStorage;
         private System.Windows.Forms.ToolStrip toolbar1;
         private Sartrey.UI.WinForms.ToolStripTextBoxEx TbxTag;
+        private System.Windows.Forms.ToolStripSplitButton BtnAddAsset;
+        private System.Windows.Forms.ToolStripMenuItem BtnAddKVM;
     }
 }

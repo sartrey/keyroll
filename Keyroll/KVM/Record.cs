@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Xml.Linq;
 
 namespace Keyroll.KVM
 {
@@ -6,26 +6,37 @@ namespace Keyroll.KVM
     {
         private string _Key 
             = null;
-        private byte[] _Value
+        private string _Value
             = null;
+
+        public string Key
+        {
+            get { return _Key; }
+        }
+
+        public string Value
+        {
+            get { return _Value; }
+        }
 
         public Record() 
         {
         }
 
-        public string Key 
+        public static Record Parse(XElement xml) 
         {
-            get { return _Key; }
+            var record = new Record();
+            record._Key = xml.Attribute("record").Value;
+            record._Value = xml.Value;
+            return record;
         }
 
-        public byte[] Value
+        public XElement ToXML() 
         {
-            get { return _Value; }
-        }
-
-        public string GetBase64Value()
-        {
-            return Convert.ToBase64String(_Value);
+            var xml = new XElement("record", 
+                new XAttribute("key", Key),
+                Value);
+            return xml;
         }
     }
 }

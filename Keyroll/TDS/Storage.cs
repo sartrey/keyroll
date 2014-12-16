@@ -12,6 +12,8 @@ namespace Keyroll.TDS
         private List<Asset> _Assets 
             = new List<Asset>();
 
+        private ZipArchive _Archive = null;
+
         public string Path 
         {
             get { return _Path; }
@@ -21,6 +23,19 @@ namespace Keyroll.TDS
         public List<Asset> Assets
         {
             get { return _Assets; }
+        }
+
+        private ZipArchive Archive
+        {
+            get 
+            {
+                if (_Archive == null)
+                {
+                    var stream = File.Open(_Path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    _Archive = new ZipArchive(stream, ZipArchiveMode.Update, false);
+                }
+                return _Archive;
+            }
         }
 
         public Asset this[string id]
@@ -113,9 +128,7 @@ namespace Keyroll.TDS
         /// </summary>
         public void Commit()
         {
-            var stream = File.Open(_Path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
-
+            var archive = this.Archive;
             var header_entry = archive.GetEntry("header.xml");
             if (header_entry == null)
                 header_entry = archive.CreateEntry("header.xml");
@@ -132,9 +145,12 @@ namespace Keyroll.TDS
             assets_xml.Save(assets_stream);
             assets_stream.SetLength(assets_stream.Position);
             assets_stream.Close();
+        }
 
-            archive.Dispose();
-            stream.Close();
+        public void Close()
+        {
+            if (_Archive != null)
+                _Archive.Dispose();
         }
 
         public IEnumerable<Asset> GetAssetByName(string name) 
@@ -169,50 +185,52 @@ namespace Keyroll.TDS
 
         public void AttachEntry(Asset asset, string path)
         {
-            var stream = File.Open(Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
+            var input_stream = File.Open(path, FileMode.Open, FileAccess.Read);
+            AttachEntry(asset, input_stream);
+            input_stream.Close();
+        }
+
+        public void AttachEntry(Asset asset, Stream stream) 
+        {
+            var archive = this.Archive;
             var entry = archive.GetEntry(asset.Id);
             if (entry == null)
                 entry = archive.CreateEntry(asset.ZipPath);
             var entry_stream = entry.Open();
-            var input_stream = File.Open(path, FileMode.Open, FileAccess.Read);
-            var aes = _Header.AES;
-            aes.Encipher(input_stream, entry_stream);
-            aes.Dispose();
-            entry_stream.SetLength(entry_stream.Position);
-
-            input_stream.Close();
-            entry_stream.Close();
-            archive.Dispose();
+            _Header.AES.Encipher(stream, entry_stream);
             stream.Close();
+            entry_stream.SetLength(entry_stream.Position);
+            entry_stream.Close();
         }
 
         public void DetachEntry(Asset asset)
         {
-            var stream = File.Open(Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Update);
+            var archive = this.Archive;
             var entry = archive.GetEntry(asset.ZipPath);
             entry.Delete();
-            archive.Dispose();
-            stream.Close();
         }
 
         public void ExportEntry(Asset asset, string path, bool overwrite)
         {
-            var stream = File.Open(Path, FileMode.Open, FileAccess.ReadWrite);
-            var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+            var archive = this.Archive;
             var entry = archive.GetEntry(asset.ZipPath);
             if (entry == null)
                 return;
             var entry_stream = entry.Open();
             var output_stream = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write);
-            var aes = _Header.AES;
-            aes.Decipher(entry_stream, output_stream);
-            aes.Dispose();
+            _Header.AES.Decipher(entry_stream, output_stream);
             entry_stream.Close();
             output_stream.Close();
-            archive.Dispose();
-            stream.Close();
+        }
+
+        public Stream OpenEntry(Asset asset) 
+        {
+            var archive = this.Archive;
+            var entry = archive.GetEntry(asset.ZipPath);
+            if (entry == null)
+                return null;
+            var entry_stream = entry.Open();
+            return entry_stream;
         }
     }
 }

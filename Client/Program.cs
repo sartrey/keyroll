@@ -1,4 +1,5 @@
-﻿using Sartrey.UI.WinForms;
+﻿using Keyroll.Shell;
+using Sartrey.UI.WinForms;
 using System;
 using System.Windows.Forms;
 
@@ -12,11 +13,21 @@ namespace Keyroll
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            var runtime = Runtime.Instance;
+            var router = new ShellRouter();
+            router.AddProvider(new KVMShellProvider());
+            runtime.ShellRouter = router;
+
             var main_ui = new MainUI();
             var window = new Window(main_ui);
             window.IsSizeLocked = false;
             window.Show();
+
             Application.Run();
+
+            var storage = Runtime.Instance.Storage;
+            if (storage != null)
+                storage.Close();
         }
     }
 }

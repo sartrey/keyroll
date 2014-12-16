@@ -1,10 +1,16 @@
 ﻿using System.Diagnostics;
+using System.Web;
 
 namespace Keyroll.Shell
 {
     public class ShellHelper
     {
-        public Process Open(string path) 
+        public static string GetMIME(string path)
+        {
+            return MimeMapping.GetMimeMapping(path);
+        }
+
+        public static Process ShellOpen(string path) 
         {
             var process = new Process();
             process.StartInfo.UseShellExecute = true;

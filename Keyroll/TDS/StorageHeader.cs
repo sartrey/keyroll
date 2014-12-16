@@ -8,6 +8,7 @@ namespace Keyroll.TDS
         private string _Name = null;
         private string _Code = null;
         private string _Key = null;
+        private AES _AES = null;
 
         public string Name
         {
@@ -29,10 +30,17 @@ namespace Keyroll.TDS
         {
             get
             {
-                var aes = new AES();
-                aes.Key = new byte[16];
-                aes.IV = new byte[16];
-                return aes;
+                if (_AES == null)
+                {
+                    _AES = new AES();
+                    var bytes = new Bytes(_AES.KeySize);
+                    bytes.Fill(_Key);
+                    _AES.Key = bytes.Data;
+                    bytes = new Bytes(_AES.IVSize);
+                    bytes.Fill(_Code);
+                    _AES.IV = bytes.Data;
+                }
+                return _AES;
             }
         }
 

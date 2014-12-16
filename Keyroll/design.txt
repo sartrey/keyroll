@@ -1,5 +1,8 @@
-﻿storage file format
-storage = [File Header Table] + [Storage Header] + [Asset List] + [Content Zip Package]
+﻿TDS (Theta Data Storage)
 
-[File Header Table]
-[SH](8) + [AL](8) + [CZP](8)
+storage is ZIP
+storage = [Storage Header] + [Asset List] + [Content]
+
+KVM (Key-Value Memory)
+
+kvm is XML
