@@ -133,6 +133,10 @@ namespace Keyroll
             var items = LsvAssets.SelectedItems;
             if (items.Count == 0)
                 return;
+            var result = MessageBox.Show("Are you sure?", "CAUTION",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.No)
+                return;
             var storage = Runtime.Instance.Storage;
             foreach (ListViewItem lvi in items) 
             {
@@ -189,7 +193,11 @@ namespace Keyroll
                 var shell = shells.First();
                 var stream = storage.OpenEntry(asset);
                 var model = shell.Load(stream);
+                stream.Close();
                 shell.Shell(model);
+                stream = shell.Save(model);
+                storage.AttachEntry(asset, stream);
+                storage.Commit();
             }
         }
     }

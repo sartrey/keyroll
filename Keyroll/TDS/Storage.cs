@@ -202,7 +202,7 @@ namespace Keyroll.TDS
         public void AttachEntry(Asset asset, Stream stream) 
         {
             var archive = this.Archive;
-            var entry = archive.GetEntry(asset.Id);
+            var entry = archive.GetEntry(asset.ZipPath);
             if (entry == null)
                 entry = archive.CreateEntry(asset.ZipPath);
             var entry_stream = entry.Open();

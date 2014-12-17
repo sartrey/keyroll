@@ -10,12 +10,27 @@ namespace Keyroll
         public Domain Model 
         {
             get { return _Model; }
-            set { _Model = value; }
+            set 
+            {
+                _Model = value;
+                if (_Model != null)
+                    LoadModel();
+            }
         }
 
         public KVMDomainUI()
         {
             InitializeComponent();
+        }
+
+        private void LoadModel()
+        {
+            TxtName.InputText = _Model.Name;
+        }
+
+        private void BtnUpdate_Click(object sender, System.EventArgs e)
+        {
+            _Model.Name = TxtName.InputText;
         }
     }
 }

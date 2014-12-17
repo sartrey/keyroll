@@ -42,20 +42,21 @@
             this.TxtName.Location = new System.Drawing.Point(10, 10);
             this.TxtName.Name = "TxtName";
             this.TxtName.OldText = "";
-            this.TxtName.Padding = new System.Windows.Forms.Padding(3);
+            this.TxtName.Padding = new System.Windows.Forms.Padding(1);
             this.TxtName.PasswordText = '\0';
-            this.TxtName.Size = new System.Drawing.Size(280, 27);
+            this.TxtName.Size = new System.Drawing.Size(280, 25);
             this.TxtName.TabIndex = 0;
             // 
             // BtnUpdate
             // 
-            this.BtnUpdate.Dock = System.Windows.Forms.DockStyle.Top;
-            this.BtnUpdate.Location = new System.Drawing.Point(10, 37);
+            this.BtnUpdate.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.BtnUpdate.Location = new System.Drawing.Point(10, 360);
             this.BtnUpdate.Name = "BtnUpdate";
             this.BtnUpdate.Size = new System.Drawing.Size(280, 30);
             this.BtnUpdate.TabIndex = 1;
             this.BtnUpdate.Text = "Update";
             this.BtnUpdate.UseVisualStyleBackColor = true;
+            this.BtnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
             // 
             // KVMDomainUI
             // 

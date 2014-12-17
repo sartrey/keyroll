@@ -8,6 +8,8 @@ namespace Keyroll.Shell
 
         object Load(Stream stream);
 
+        Stream Save(object model);
+
         void Shell(object model);
     }
 }

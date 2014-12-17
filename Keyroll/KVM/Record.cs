@@ -12,11 +12,13 @@ namespace Keyroll.KVM
         public string Key
         {
             get { return _Key; }
+            set { _Key = value; }
         }
 
         public string Value
         {
             get { return _Value; }
+            set { _Value = value; }
         }
 
         public Record() 
@@ -26,7 +28,7 @@ namespace Keyroll.KVM
         public static Record Parse(XElement xml) 
         {
             var record = new Record();
-            record._Key = xml.Attribute("record").Value;
+            record._Key = xml.Attribute("key").Value;
             record._Value = xml.Value;
             return record;
         }

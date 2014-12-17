@@ -31,10 +31,14 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KVMMainUI));
             this.MainPanel = new System.Windows.Forms.Panel();
             this.toolbar = new System.Windows.Forms.ToolStrip();
-            this.TrvKVM = new System.Windows.Forms.TreeView();
+            this.BtnAddDomain = new System.Windows.Forms.ToolStripButton();
+            this.BtnRemoveDomain = new System.Windows.Forms.ToolStripButton();
+            this.split1 = new System.Windows.Forms.ToolStripSeparator();
+            this.BtnAddRecord = new System.Windows.Forms.ToolStripButton();
+            this.BtnRemoveRecord = new System.Windows.Forms.ToolStripButton();
+            this.split2 = new System.Windows.Forms.ToolStripSeparator();
             this.BtnRefresh = new System.Windows.Forms.ToolStripButton();
-            this.BtnAddItem = new System.Windows.Forms.ToolStripSplitButton();
-            this.BtnRemoveItem = new System.Windows.Forms.ToolStripSplitButton();
+            this.TrvKVM = new System.Windows.Forms.TreeView();
             this.toolbar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,13 +56,77 @@
             this.toolbar.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolbar.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolbar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.BtnAddItem,
-            this.BtnRemoveItem,
+            this.BtnAddDomain,
+            this.BtnRemoveDomain,
+            this.split1,
+            this.BtnAddRecord,
+            this.BtnRemoveRecord,
+            this.split2,
             this.BtnRefresh});
             this.toolbar.Location = new System.Drawing.Point(0, 369);
             this.toolbar.Name = "toolbar";
             this.toolbar.Size = new System.Drawing.Size(240, 31);
             this.toolbar.TabIndex = 10;
+            // 
+            // BtnAddDomain
+            // 
+            this.BtnAddDomain.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.BtnAddDomain.Image = global::Keyroll.Properties.Resources.add_domain;
+            this.BtnAddDomain.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnAddDomain.Name = "BtnAddDomain";
+            this.BtnAddDomain.Size = new System.Drawing.Size(28, 28);
+            this.BtnAddDomain.Text = "Add";
+            this.BtnAddDomain.Click += new System.EventHandler(this.BtnAddDomain_Click);
+            // 
+            // BtnRemoveDomain
+            // 
+            this.BtnRemoveDomain.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.BtnRemoveDomain.Image = global::Keyroll.Properties.Resources.remove_domain;
+            this.BtnRemoveDomain.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnRemoveDomain.Name = "BtnRemoveDomain";
+            this.BtnRemoveDomain.Size = new System.Drawing.Size(28, 28);
+            this.BtnRemoveDomain.Text = "Remove";
+            this.BtnRemoveDomain.Click += new System.EventHandler(this.BtnRemoveDomain_Click);
+            // 
+            // split1
+            // 
+            this.split1.Name = "split1";
+            this.split1.Size = new System.Drawing.Size(6, 31);
+            // 
+            // BtnAddRecord
+            // 
+            this.BtnAddRecord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.BtnAddRecord.Image = ((System.Drawing.Image)(resources.GetObject("BtnAddRecord.Image")));
+            this.BtnAddRecord.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnAddRecord.Name = "BtnAddRecord";
+            this.BtnAddRecord.Size = new System.Drawing.Size(28, 28);
+            this.BtnAddRecord.Text = "toolStripButton1";
+            this.BtnAddRecord.Click += new System.EventHandler(this.BtnAddRecord_Click);
+            // 
+            // BtnRemoveRecord
+            // 
+            this.BtnRemoveRecord.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.BtnRemoveRecord.Image = ((System.Drawing.Image)(resources.GetObject("BtnRemoveRecord.Image")));
+            this.BtnRemoveRecord.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnRemoveRecord.Name = "BtnRemoveRecord";
+            this.BtnRemoveRecord.Size = new System.Drawing.Size(28, 28);
+            this.BtnRemoveRecord.Text = "toolStripButton1";
+            this.BtnRemoveRecord.Click += new System.EventHandler(this.BtnRemoveRecord_Click);
+            // 
+            // split2
+            // 
+            this.split2.Name = "split2";
+            this.split2.Size = new System.Drawing.Size(6, 31);
+            // 
+            // BtnRefresh
+            // 
+            this.BtnRefresh.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.BtnRefresh.Image = global::Keyroll.Properties.Resources.refresh;
+            this.BtnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.BtnRefresh.Name = "BtnRefresh";
+            this.BtnRefresh.Size = new System.Drawing.Size(28, 28);
+            this.BtnRefresh.Text = "Refresh";
+            this.BtnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
             // 
             // TrvKVM
             // 
@@ -67,36 +135,9 @@
             this.TrvKVM.FullRowSelect = true;
             this.TrvKVM.Location = new System.Drawing.Point(0, 0);
             this.TrvKVM.Name = "TrvKVM";
-            this.TrvKVM.ShowRootLines = false;
             this.TrvKVM.Size = new System.Drawing.Size(240, 369);
             this.TrvKVM.TabIndex = 11;
             this.TrvKVM.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TrvKVM_AfterSelect);
-            // 
-            // BtnRefresh
-            // 
-            this.BtnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("BtnRefresh.Image")));
-            this.BtnRefresh.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.BtnRefresh.Name = "BtnRefresh";
-            this.BtnRefresh.Size = new System.Drawing.Size(80, 28);
-            this.BtnRefresh.Text = "Refresh";
-            // 
-            // BtnAddItem
-            // 
-            this.BtnAddItem.Image = ((System.Drawing.Image)(resources.GetObject("BtnAddItem.Image")));
-            this.BtnAddItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.BtnAddItem.Name = "BtnAddItem";
-            this.BtnAddItem.Size = new System.Drawing.Size(72, 28);
-            this.BtnAddItem.Text = "Add";
-            this.BtnAddItem.Click += new System.EventHandler(this.BtnAddItem_Click);
-            // 
-            // BtnRemoveItem
-            // 
-            this.BtnRemoveItem.Image = ((System.Drawing.Image)(resources.GetObject("BtnRemoveItem.Image")));
-            this.BtnRemoveItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.BtnRemoveItem.Name = "BtnRemoveItem";
-            this.BtnRemoveItem.Size = new System.Drawing.Size(95, 28);
-            this.BtnRemoveItem.Text = "Remove";
-            this.BtnRemoveItem.Click += new System.EventHandler(this.BtnRemoveItem_Click);
             // 
             // KVMMainUI
             // 
@@ -120,8 +161,12 @@
         private System.Windows.Forms.ToolStrip toolbar;
         private System.Windows.Forms.TreeView TrvKVM;
         private System.Windows.Forms.ToolStripButton BtnRefresh;
-        private System.Windows.Forms.ToolStripSplitButton BtnAddItem;
-        private System.Windows.Forms.ToolStripSplitButton BtnRemoveItem;
+        private System.Windows.Forms.ToolStripButton BtnAddDomain;
+        private System.Windows.Forms.ToolStripButton BtnRemoveDomain;
+        private System.Windows.Forms.ToolStripButton BtnAddRecord;
+        private System.Windows.Forms.ToolStripButton BtnRemoveRecord;
+        private System.Windows.Forms.ToolStripSeparator split1;
+        private System.Windows.Forms.ToolStripSeparator split2;
 
     }
 }

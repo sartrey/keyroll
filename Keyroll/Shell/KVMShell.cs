@@ -18,6 +18,8 @@ namespace Keyroll.Shell
             return memory;
         }
 
+        public abstract Stream Save(object model);
+
         public abstract void Shell(object model);
     }
 }

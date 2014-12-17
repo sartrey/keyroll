@@ -28,91 +28,84 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.TxtName = new Sartrey.UI.WinForms.InputTextUI();
-            this.label1 = new System.Windows.Forms.Label();
-            this.TbxValue = new System.Windows.Forms.TextBox();
+            this.TxtKey = new Sartrey.UI.WinForms.InputTextUI();
             this.BtnUpdate = new System.Windows.Forms.Button();
+            this.TxtValue = new Sartrey.UI.WinForms.InputTextUI();
             this.BtnCopy = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // TxtName
+            // TxtKey
             // 
-            this.TxtName.BackColor = System.Drawing.Color.Transparent;
-            this.TxtName.Dock = System.Windows.Forms.DockStyle.Top;
-            this.TxtName.InputText = "";
-            this.TxtName.LabelText = "Name";
-            this.TxtName.LabelWidth = 0;
-            this.TxtName.Location = new System.Drawing.Point(10, 10);
-            this.TxtName.Name = "TxtName";
-            this.TxtName.OldText = "";
-            this.TxtName.Padding = new System.Windows.Forms.Padding(3);
-            this.TxtName.PasswordText = '\0';
-            this.TxtName.Size = new System.Drawing.Size(280, 27);
-            this.TxtName.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Location = new System.Drawing.Point(10, 37);
-            this.label1.Name = "label1";
-            this.label1.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.label1.Size = new System.Drawing.Size(280, 23);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Value";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // TbxValue
-            // 
-            this.TbxValue.Dock = System.Windows.Forms.DockStyle.Top;
-            this.TbxValue.Location = new System.Drawing.Point(10, 60);
-            this.TbxValue.Multiline = true;
-            this.TbxValue.Name = "TbxValue";
-            this.TbxValue.Size = new System.Drawing.Size(280, 100);
-            this.TbxValue.TabIndex = 2;
+            this.TxtKey.BackColor = System.Drawing.Color.Transparent;
+            this.TxtKey.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TxtKey.InputText = "";
+            this.TxtKey.LabelText = "Key";
+            this.TxtKey.LabelWidth = 40;
+            this.TxtKey.Location = new System.Drawing.Point(10, 10);
+            this.TxtKey.Name = "TxtKey";
+            this.TxtKey.OldText = "";
+            this.TxtKey.Padding = new System.Windows.Forms.Padding(1);
+            this.TxtKey.PasswordText = '\0';
+            this.TxtKey.Size = new System.Drawing.Size(280, 25);
+            this.TxtKey.TabIndex = 0;
             // 
             // BtnUpdate
             // 
-            this.BtnUpdate.Dock = System.Windows.Forms.DockStyle.Top;
-            this.BtnUpdate.Location = new System.Drawing.Point(10, 160);
+            this.BtnUpdate.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.BtnUpdate.Location = new System.Drawing.Point(10, 360);
             this.BtnUpdate.Name = "BtnUpdate";
             this.BtnUpdate.Size = new System.Drawing.Size(280, 30);
             this.BtnUpdate.TabIndex = 3;
             this.BtnUpdate.Text = "Update";
             this.BtnUpdate.UseVisualStyleBackColor = true;
+            this.BtnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
+            // 
+            // TxtValue
+            // 
+            this.TxtValue.BackColor = System.Drawing.Color.Transparent;
+            this.TxtValue.Dock = System.Windows.Forms.DockStyle.Top;
+            this.TxtValue.InputText = "";
+            this.TxtValue.LabelText = "Value";
+            this.TxtValue.LabelWidth = 40;
+            this.TxtValue.Location = new System.Drawing.Point(10, 35);
+            this.TxtValue.Name = "TxtValue";
+            this.TxtValue.OldText = "";
+            this.TxtValue.Padding = new System.Windows.Forms.Padding(1);
+            this.TxtValue.PasswordText = '\0';
+            this.TxtValue.Size = new System.Drawing.Size(280, 100);
+            this.TxtValue.TabIndex = 1;
             // 
             // BtnCopy
             // 
-            this.BtnCopy.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BtnCopy.Location = new System.Drawing.Point(10, 360);
+            this.BtnCopy.Dock = System.Windows.Forms.DockStyle.Top;
+            this.BtnCopy.Location = new System.Drawing.Point(10, 135);
             this.BtnCopy.Name = "BtnCopy";
             this.BtnCopy.Size = new System.Drawing.Size(280, 30);
-            this.BtnCopy.TabIndex = 4;
+            this.BtnCopy.TabIndex = 2;
             this.BtnCopy.Text = "Copy to clipboard";
             this.BtnCopy.UseVisualStyleBackColor = true;
+            this.BtnCopy.Click += new System.EventHandler(this.BtnCopy_Click);
             // 
             // KVMRecordUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.BtnCopy);
+            this.Controls.Add(this.TxtValue);
             this.Controls.Add(this.BtnUpdate);
-            this.Controls.Add(this.TbxValue);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.TxtName);
+            this.Controls.Add(this.TxtKey);
             this.Name = "KVMRecordUI";
             this.Padding = new System.Windows.Forms.Padding(10);
             this.Size = new System.Drawing.Size(300, 400);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
-        private Sartrey.UI.WinForms.InputTextUI TxtName;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox TbxValue;
+        private Sartrey.UI.WinForms.InputTextUI TxtKey;
         private System.Windows.Forms.Button BtnUpdate;
+        private Sartrey.UI.WinForms.InputTextUI TxtValue;
         private System.Windows.Forms.Button BtnCopy;
     }
 }

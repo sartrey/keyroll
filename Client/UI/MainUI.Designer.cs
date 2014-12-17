@@ -142,7 +142,7 @@
             // 
             // BtnShellAsset
             // 
-            this.BtnShellAsset.Image = global::Keyroll.Properties.Resources.preview_asset;
+            this.BtnShellAsset.Image = global::Keyroll.Properties.Resources.shell_asset;
             this.BtnShellAsset.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.BtnShellAsset.Name = "BtnShellAsset";
             this.BtnShellAsset.Size = new System.Drawing.Size(63, 28);

@@ -1,5 +1,7 @@
 ﻿using Keyroll.KVM;
 using System;
+using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Keyroll
@@ -11,7 +13,12 @@ namespace Keyroll
         public Memory Model 
         {
             get { return _Model; }
-            set { _Model = value; }
+            set 
+            {
+                _Model = value;
+                if(_Model != null)
+                    LoadModel();
+            }
         }
 
         public Control SubView 
@@ -27,12 +34,6 @@ namespace Keyroll
         public KVMMainUI()
         {
             InitializeComponent();
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            LoadModel();
-            base.OnLoad(e);
         }
 
         private void LoadModel() 
@@ -56,26 +57,7 @@ namespace Keyroll
                 }
                 root_node.Nodes.Add(domain_node);
             }
-        }
-
-        private void BtnAddItem_Click(object sender, EventArgs e)
-        {
-            var node = TrvKVM.SelectedNode;
-            if (node == null)
-                return;
-            if (node.Level == 0)
-            {
-            }
-            else 
-            {
-            }
-        }
-
-        private void BtnRemoveItem_Click(object sender, EventArgs e)
-        {
-            var node = TrvKVM.SelectedNode;
-            if (node == null)
-                return;
+            TrvKVM.Nodes[0].Expand();
         }
 
         private void TrvKVM_AfterSelect(object sender, TreeViewEventArgs e)
@@ -109,6 +91,81 @@ namespace Keyroll
             }
             view.Dock = DockStyle.Fill;
             MainPanel.Controls.Add(view);
+        }
+
+        private void BtnAddDomain_Click(object sender, EventArgs e)
+        {
+            var node = TrvKVM.SelectedNode;
+            if (node == null)
+                return;
+            if (node.Level > 1)
+                return;
+            var domain = new Domain();
+            domain.Name = Guid.NewGuid().ToString("N");
+            _Model.Domains.Add(domain);
+            var new_node = new TreeNode();
+            new_node.Tag = domain.Name;
+            new_node.Text = domain.Name;
+            if (node.Level == 0)
+                node.Nodes.Add(new_node);
+            else
+                node.Parent.Nodes.Add(new_node);
+            LoadModel();
+        }
+
+        private void BtnRemoveDomain_Click(object sender, EventArgs e)
+        {
+            var node = TrvKVM.SelectedNode;
+            if (node == null)
+                return;
+            if (node.Level != 1)
+                return;
+            var domain = _Model[(string)node.Tag];
+            _Model.Domains.Remove(domain);
+            LoadModel();
+        }
+
+        private void BtnAddRecord_Click(object sender, EventArgs e)
+        {
+            var node = TrvKVM.SelectedNode;
+            if (node == null)
+                return;
+            if (node.Level == 0)
+                return;
+            
+            var domain_node = (node.Level == 1 ? node : node.Parent);
+            var domain = _Model[(string)domain_node.Tag];
+            var record = new Record();
+            record.Key = Guid.NewGuid().ToString("N");
+            domain.Records.Add(record);
+            
+            var new_node = new TreeNode();
+            new_node.Tag = record.Key;
+            new_node.Text = record.Key;
+            if (node.Level == 1)
+                node.Nodes.Add(new_node);
+            else
+                node.Parent.Nodes.Add(new_node);
+            LoadModel();
+            new_node.Parent.Expand();
+        }
+
+        private void BtnRemoveRecord_Click(object sender, EventArgs e)
+        {
+            var node = TrvKVM.SelectedNode;
+            if (node == null)
+                return;
+            if (node.Level != 2)
+                return;
+            var domain = _Model[(string)node.Parent.Tag];
+            var record = domain[(string)node.Tag];
+            domain.Records.Remove(record);
+            LoadModel();
+        }
+
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            LoadModel();
         }
     }
 }

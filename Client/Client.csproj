@@ -152,7 +152,7 @@
     <None Include="Resources\open_storage.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\preview_asset.png" />
+    <None Include="Resources\shell_asset.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\remove_asset.png" />
@@ -161,6 +161,11 @@
     <None Include="Resources\search.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\add_domain.png" />
+    <None Include="Resources\remove_record.png" />
+    <None Include="Resources\refresh.png" />
+    <None Include="Resources\remove_domain.png" />
+    <None Include="Resources\add_record.png" />
     <Content Include="WinForms.en_us.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
