@@ -1,0 +1,102 @@
+#!/usr/bin/env node
+
+'use strict'
+
+const keyroll = require('../')
+const utility = require('../cli')
+
+function space(n) {
+  return ' '.repeat(n)
+}
+
+/**
+ * output help list
+ */
+function showHelp() {
+  console.log('\n/// KEYROLL ///\n')
+  console.log('Usage\n')
+  console.log(space(2) + 'keyroll <action> [more query] \n')
+  console.log('Guide\n')
+  console.log(space(2) + 'use [root]')
+  console.log(space(2) + 'get [uuid] [tags]')
+  console.log(space(2) + 'set [uuid] <data / file>')
+  console.log(space(2) + 'tag <uuid> <tags>')
+  console.log()
+}
+
+/**
+ * output version
+ */
+function showSelf() {
+  var self = require('../package.json')
+  console.log(self.version)
+}
+
+function parseParams(argv) {
+  const regexp = /^([\-a-z0-9]+)\=(\S+)$/
+  const argkey = {
+    'use': ['root'],
+    'get': ['uuid', 'tags'],
+    'set': ['uuid', 'data', 'file'],
+    'tag': ['uuid', 'tags']
+  }
+  var o = { action: null, search: {}, enable: {} }
+  if (!argkey[argv[2]]) return o
+  o.action = argv[2]
+  var kwords = argkey[o.action]
+  for (var i = 3; i < argv.length; i ++) {
+    let match = argv[i].match(regexp)
+    if (match && kwords.indexOf(match[1]) >= 0) {
+      o.search[match[1]] = match[2]
+    } else {
+      o.search['argv' + (i - 3)] = argv[i]
+    }
+  }
+  // todo - filter switch for --xxx=abc
+  return o
+}
+
+function actionUse(root) {
+  // auto logout while lock screen + timeout
+}
+
+function actionGet(uuid, tags) {
+  if (!uuid && !tags) throw new Error('illegal search')
+  var volumn = utility.getCurrentVolumn()
+  // get uuid by tags, error when many results
+  var record = volumn.access(uuid)
+  console.log(record)
+}
+
+function actionSet(uuid, data, file) {
+  var volumn = utility.getCurrentVolumn()
+  var record = uuid ? volumn.access(uuid) : volumn.create()
+  record.setData(data)
+  volumn.commit()
+  // todo: --delete means
+  // volumn.delete()
+}
+
+function actionTag(uuid, tags) {
+  var volumn = utility.getCurrentVolumn()
+  var record = volumn.access(uuid)
+  record.appendTags(tag)
+  // todo: --delete means
+  // record.removeTags()
+}
+
+/**
+ * main cycle
+ */
+(function main() {
+  var params = parseParams(process.argv.filter(Boolean))
+  console.log(params)
+  var { action, search, enable } = params
+  switch (action) {
+    case 'use': actionUse(search.root); break
+    case 'get': actionGet(search.uuid, search.tags); break
+    case 'set': actionSet(search.uuid, search.data, search.file); break
+    case 'tag': actionTag(search.uuid, search.tags); break
+    default: showHelp()
+  }
+}())
