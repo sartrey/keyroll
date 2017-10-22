@@ -1,6 +1,6 @@
 {
   "name": "keyroll",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a light value storage",
   "main": "index.js",
   "bin": {

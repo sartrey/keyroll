@@ -6,6 +6,7 @@ const { Record, Volumn } = require('../')
 
 module.exports = {
   parseParams,
+  splitTagText,
   getCurrentVolumn
 }
 
@@ -31,6 +32,10 @@ function parseParams(argv) {
   }
   // todo - filter switch for --xxx=abc
   return o
+}
+
+function splitTagText(text) {
+  return text.split(/,|;|\s/).filter(Boolean)
 }
 
 async function getCurrentVolumn() {

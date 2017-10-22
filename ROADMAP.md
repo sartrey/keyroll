@@ -7,6 +7,7 @@
 ## Milestone 1
 1. local storage with custom root
 2. access token + encrypted stream
+3. optimized data format
 
 ## Milestone 2
 1. active instance for every storage

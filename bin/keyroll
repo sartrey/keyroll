@@ -42,6 +42,8 @@ function showSelf() {
   if (!command[action]) return showHelp()
   try {
     var volumn = await utility.getCurrentVolumn()
+    if (search.tags) search.tags = utility.splitTagText(search.tags)
+    console.log(search.tags)
     await command[action](volumn, search)
   } catch (error) {
     console.error(error)
