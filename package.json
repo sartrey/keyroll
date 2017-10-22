@@ -1,6 +1,6 @@
 {
   "name": "keyroll",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a light value storage",
   "main": "index.js",
   "bin": {
@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/sartrey/keyroll/issues"
   },
-  "homepage": "https://github.com/sartrey/keyroll#readme"
+  "homepage": "https://github.com/sartrey/keyroll#readme",
+  "dependencies": {
+    "uuid": "^3.1.0"
+  }
 }
