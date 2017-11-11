@@ -3,7 +3,7 @@
 'use strict'
 
 const keyroll = require('../')
-const { utility, command } = require('../cli')
+const { utility, command, console } = require('../cli')
 
 function space(n) {
   return ' '.repeat(n)
@@ -13,15 +13,10 @@ function space(n) {
  * output help list
  */
 function showHelp() {
-  console.log('\n/// KEYROLL ///\n')
-  console.log('Usage\n')
-  console.log(space(2) + 'keyroll <action> [more query] \n')
-  console.log('Guide\n')
-  console.log(space(2) + 'use [root]')
-  console.log(space(2) + 'get [uuid] [tags]')
-  console.log(space(2) + 'set [uuid] <data / file>')
-  console.log(space(2) + 'tag <uuid> <tags>')
-  console.log()
+  var fs = require('fs')
+  var path = require('path')
+  var help = fs.readFileSync(path.join(__dirname, 'guide.txt'), 'utf8')
+  console.log(help)
 }
 
 /**
@@ -37,15 +32,17 @@ function showSelf() {
  */
 (async function main() {
   var params = utility.parseParams(process.argv.filter(Boolean))
-  console.log(params)
   var { action, search, enable } = params
+  if (enable.verbose) console.log(params)
   if (!command[action]) return showHelp()
   try {
-    var volumn = await utility.getCurrentVolumn()
     if (search.tags) search.tags = utility.splitTagText(search.tags)
-    console.log(search.tags)
-    await command[action](volumn, search)
+    var volumn = await utility.getCurrentVolumn()
+    if (volumn) {
+      await command[action](volumn, search, enable)
+    }
   } catch (error) {
-    console.error(error)
+    console.logger.halt(error.message)
+    if (enable.verbose) console.error(error)
   }
 }())

@@ -1,0 +1,42 @@
+/// KEYROLL ///
+  
+keyroll <action> [more query] <enable>
+
+  [ action ]
+
+    use [root]
+     :: open storage
+      > keyroll use root="/root/your-home"
+
+    get [uuid] [tags]
+     :: read record from storage
+      > keyroll get
+      > keyroll get tags="tag1,tag2"
+      > keyroll get uuid="0"
+
+    set <=data / @file> [uuid] [tags]
+     :: write record into storage
+      > keyroll set data="your data"
+      > keyroll set @file="/root/your-home/your-file"
+      > keyroll set uuid="0" data="your data" tags="tag1,tag2"
+      > keyroll set uuid="0" @file="/root/your-home/your-file"
+
+    tag <uuid> <:tags>
+     :: tag record
+      > keyroll tag uuid="0" tags="tag1,tag2"
+
+  [ enable ]
+
+    --verbose
+     :: show more data
+
+  [ simple ]
+
+    >> kr use ">/root/your-home"
+    >> kr get ":tag1,tag2"
+    >> kr get 0
+    >> kr set "your data"
+    >> kr set "@/root/your-home/your-file"
+    >> kr set 0 "=your data" ":tag1,tag2"
+    >> kr set 0 "@/root/your-home/your-file"
+    >> kr tag 0 ":tag1,tag2"

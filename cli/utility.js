@@ -11,11 +11,11 @@ module.exports = {
 }
 
 function parseParams(argv) {
-  const regexp = /^([\-a-z0-9]+)\=(\S+)$/
+  const regexp = /^(\-\-)?([a-z0-9]+)\=?(\S+)?$/
   const argkey = {
     'use': ['root'],
     'get': ['uuid', 'tags'],
-    'set': ['uuid', 'data', 'file'],
+    'set': ['uuid', 'data', 'file', 'tags'],
     'tag': ['uuid', 'tags']
   }
   var o = { action: null, search: {}, enable: {} }
@@ -23,14 +23,17 @@ function parseParams(argv) {
   o.action = argv[2]
   var kwords = argkey[o.action]
   for (var i = 3; i < argv.length; i ++) {
+    // match = [all, --, key, value]
     let match = argv[i].match(regexp)
-    if (match && kwords.indexOf(match[1]) >= 0) {
-      o.search[match[1]] = match[2]
+    if (!match || !match[2]) continue
+    if (match[1] === '--') {
+      o.enable[match[2]] = true
+    } else if (kwords.indexOf(match[2]) >= 0) {
+      o.search[match[2]] = match[3]
     } else {
       o.search['argv' + (i - 3)] = argv[i]
     }
   }
-  // todo - filter switch for --xxx=abc
   return o
 }
 
