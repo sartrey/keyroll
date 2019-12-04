@@ -1,48 +1,105 @@
 #!/usr/bin/env node
 
-'use strict'
+const { spawn } = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const fetch = require('node-fetch');
 
-const keyroll = require('../')
-const { utility, command, console } = require('../cli')
+const product = 'keyroll';
+const homedir = os.homedir();
+const maindir = path.join(homedir, `.${product}`);
 
-function space(n) {
-  return ' '.repeat(n)
+process.on('unhandledRejection', function (reason) {
+  console.error(
+    'unhandled rejection',
+    reason && (reason.stack || reason.toString())
+  );
+});
+
+function parseCommand(args, keys) {
+  let command = '';
+  const regexps = keys.map(key => new RegExp(`^-?${key[0]}`, 'i'))
+  args.forEach(arg => {
+    const index = regexps.findIndex(e => e.test(arg));
+    if (index >= 0) command = keys[index];
+  });
+  return command;
 }
 
-/**
- * output help list
- */
-function showHelp() {
-  var fs = require('fs')
-  var path = require('path')
-  var help = fs.readFileSync(path.join(__dirname, 'guide.txt'), 'utf8')
-  console.log(help)
-}
-
-/**
- * output version
- */
-function showSelf() {
-  var self = require('../package.json')
-  console.log(self.version)
-}
-
-/**
- * main cycle
- */
-(async function main() {
-  var params = utility.parseParams(process.argv.filter(Boolean))
-  var { action, search, enable } = params
-  if (enable.verbose) console.log(params)
-  if (!command[action]) return showHelp()
-  try {
-    if (search.tags) search.tags = utility.splitTagText(search.tags)
-    var volumn = await utility.getCurrentVolumn()
-    if (volumn) {
-      await command[action](volumn, search, enable)
+function parseOptions(args, keys) {
+  const options = {};
+  const regexps = keys.map(key => new RegExp(`^--${key}=?`));
+  args.forEach(arg => {
+    const index = regexps.findIndex(e => e.test(arg));
+    if (index >= 0) {
+      const value = arg.replace(regexps[index], '');
+      options[keys[index]] = value || 'true';
     }
+  });
+  return options;
+}
+
+function showHelp() {
+  const guidePath = path.join(__dirname, 'guide.txt');
+  const guideText = fs.readFileSync(guidePath, 'utf8');
+  console.log(guideText);
+}
+
+function forkSelf() {
+  const cwd = process.cwd();
+  const argv = process.argv.filter(e => e !== 'fork');
+  const logFd = fs.openSync(path.join(maindir, 'log'), 'a');
+  const proc = spawn(argv[0], argv.slice(1), { 
+    cwd, detached: true, stdio: ['ignore', logFd, logFd]
+  });
+  console.log(`\n  ${product} - fork <${argv.slice(2).join(' ')}> at ${proc.pid}`);
+  const timeout = setTimeout(function () {
+    console.log(`  ${product} - fork done\n`);
+    proc.unref();
+    process.exit(0);
+  }, 1500);
+  proc.on('exit', function (code) {
+    if (code) console.log(`  ${product} - fork error code => ${code}\n`);
+    clearTimeout(timeout);
+    process.exit(code);
+  });
+}
+
+function stopSelf() {
+  const portFile = path.join(maindir, 'port');
+  try {
+    const port = fs.readFileSync(portFile, 'utf8');
+    fetch(`http://localhost:${port}/__/api/stopServer`)
+      .then(response => response.json())
+      .then(json => {
+        console.log(`\n  ${product} - server stopped\n`);
+      })
+      .catch(error => {
+        console.log(`\n  ${product} - server is not running\n`);
+      });
   } catch (error) {
-    console.logger.halt(error.message)
-    if (enable.verbose) console.error(error)
+    console.log(`\n  ${product} - server still running ? @_@ \n`);
   }
-}())
+}
+
+// main cycle
+(function main() {
+  const cwd = process.cwd();
+  const command = parseCommand(process.argv, ['help', 'stop', 'fork']);
+  const options = parseOptions(process.argv, ['port', 'path']);
+
+  if (command === 'help') return showHelp();
+  if (command === 'stop') return stopSelf();
+  if (command === 'fork') return forkSelf();
+
+  if (!options.path) {
+    options.path = cwd;
+  } else if (options.path === '~') {
+    options.path = homedir;
+  }
+  require('../')({
+    port: options.port,
+    path: options.path
+  });
+}());

@@ -1,9 +1,32 @@
-﻿# Keyroll
+﻿# keyroll
 
-`keyroll` is a light value storage.
+`keyroll` is a secure key-value storage toolkit.
 
 ## Usage
 
-### keyroll CLI
+### install as global dependency
 
-### keyroll API
+`npm install -g keyroll`
+
+### start server anywhere
+
+```sh
+# serve ~/.keyroll at 9988
+keyroll
+
+# serve ~/.keyroll at 8080
+keyroll --port=8080
+
+# fork server
+keyroll fork
+
+# stop server
+keyroll stop
+
+# show help
+keyroll help
+```
+
+### access homepage
+
+`http://localhost:YOUR-PORT`

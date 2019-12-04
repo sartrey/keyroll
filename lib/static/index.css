@@ -1,0 +1,60 @@
+* {
+    margin: 0;
+    padding: 0;
+  }
+  
+  html {
+    font-size: 16px;
+  }
+  
+  body {
+    color: #FFF176;
+    background: #424242;
+    font-family: "Trebuchet MS";
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+  }
+  
+  a {
+    color: #FFF176;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-transition: .5s;
+    transition: .5s
+  }
+  
+  a:hover {
+      color: #F9A825;
+    }
+  
+  .wrapper {
+    height: 100vh;
+    display: -webkit-box;
+    display: flex;
+    -webkit-box-align: center;
+            align-items: center;
+    -webkit-box-pack: center;
+            justify-content: center;
+  }
+  
+  .header {
+    -webkit-box-flex: 1;
+            flex: 1;
+    text-align: center;
+  }
+  
+  .header a {
+      display: block;
+    }
+  
+  .header .myself {
+      font-size: 8vw;
+    }
+  
+  .header .github {
+      font-size: 2vw;
+      margin: 1em;
+    }
+  

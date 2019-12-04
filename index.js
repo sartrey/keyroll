@@ -1,6 +1,18 @@
-'use strict'
+const http = require('http');
+const os = require('os');
+const { createServer } = require('./lib/kernel/server');
+const logger = require('./lib/kernel/logger.js');
 
-module.exports = {
-  Record: require('./lib/record.js'),
-  Volumn: require('./lib/volumn.js')
+/**
+ * start server
+ *
+ * @param {Object=} options
+ * @return {Object} { http.Server }
+ */
+function startServer(options) {
+  const version = require('./package.json').version;
+  logger.info(`version ${version}`);
+  return createServer(options).launch();
 }
+
+module.exports = startServer;
