@@ -1,52 +1,156 @@
-* {
-    margin: 0;
-    padding: 0;
-  }
-  
-  html {
-    font-size: 16px;
-  }
-  
-  body {
-    color: #FFF176;
-    background: #424242;
-    font-family: "Trebuchet MS";
-    user-select: none;
-  }
-  
-  a {
-    color: #FFF176;
-    text-decoration: none;
-    cursor: pointer;
-    transition: .5s;
-  
+.keyword {
+  font-size: 1.2rem;
+  padding: .75rem .75rem 0;
+
+  input {
+    font-size: 1.1rem;
+    width: calc(100% - 1rem - 4px);
+    padding: .5rem;
+    border: 2px solid #ddd;
+    transition: .2s;
+    
     &:hover {
-      color: #F9A825;
+      border-color: #666;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #333;
     }
   }
-  
-  .wrapper {
-    height: 100vh;
+}
+
+.panel {
+  flex: 1;
+  margin: .75rem;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 0 0 5px #999;
+
+  .panel-head {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 1rem;
+
+    .content {
+      flex: auto;
+
+      h1 {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #666;
+        text-shadow: 1px 1px 1px #fff;
+      }  
+    }
+
+    .actions {
+      flex: 0;
+    }
   }
-  
-  .header {
-    flex: 1;
-    text-align: center;
-  
+}
+
+.workspace {
+  display: flex;
+  flex-direction: row;
+}
+
+.file-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 .75rem;
+  list-style-type: none;
+
+  .file-item {
+    display: block;
+    box-sizing: border-box;
+    width: calc(25% - 6px);
+    margin: 3px;
+    min-width: 16rem;
+    color: #424242;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 0 0 1px rgba(0,0,0,.3);
+    transition: .2s;
+    transition-property: background, box-shadow;
+
+    &:hover {
+      color: #FFF176;
+      background: #424242;
+    }
+
     a {
       display: block;
-    }
-  
-    .myself {
-      font-size: 8vw;
-    }
-  
-    .github {
-      font-size: 2vw;
-      margin: 1em;
+      padding: 1rem;
+      cursor: pointer;
     }
   }
-  
+}
+
+.file-more {
+  display: flex;
+  margin: .75rem;
+  position: relative;
+
+  > a {
+    flex: 1;
+    margin-right: .75rem;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+}
+
+.modal-file-info {
+  .content {
+    display: flex;
+    flex-direction: row;
+    padding: .75rem;
+
+    .qrcode {
+      flex: 0;
+    }
+
+    .detail {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-left: .75rem;
+
+      * {
+        word-wrap: break-word;
+        word-break: break-all;
+      }
+
+      .detail-action {
+        flex: 1;
+
+        p {
+          i {
+            font-size: .8rem;
+            color: #aaa;
+            margin-bottom: .5rem;
+          }
+
+          margin: .75rem 0;
+        }
+      }
+
+      .detail-footer {
+        color: #888;
+        text-align: right;
+      }
+
+      a {
+        display: block;
+        color: #424242;
+        text-decoration: none;
+        cursor: pointer;
+        transition: .3s;
+
+        &:hover {
+          color: #F9A825;
+        }
+      }
+    }
+  }
+}
