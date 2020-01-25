@@ -31,9 +31,6 @@ header {
   -webkit-box-align: center;
           align-items: center;
   padding: 0 .75rem;
-  color: #FFF176;
-  background: #424242;
-  box-shadow: 0 1px 2px #BDBDBD;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -178,18 +175,13 @@ footer {
     }
 
 .panel {
-  -webkit-box-flex: 1;
-          flex: 1;
-  margin: .75rem;
-  border-radius: 5px;
   background: #fff;
-  box-shadow: 0 0 5px #999;
 }
 
 .panel .panel-head {
     display: -webkit-box;
     display: flex;
-    padding: 1rem;
+    padding: .75rem;
   }
 
 .panel .panel-head .content {
@@ -198,10 +190,8 @@ footer {
     }
 
 .panel .panel-head .content h1 {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #666;
-        text-shadow: 1px 1px 1px #fff;
+        font-size: 1.1rem;
+        font-weight: normal;
       }
 
 .panel .panel-head .actions {
@@ -215,6 +205,27 @@ footer {
   -webkit-box-orient: horizontal;
   -webkit-box-direction: normal;
           flex-direction: row;
+  height: 100%;
+}
+
+.panel-devices {
+  width: 18rem;
+  min-width: 18rem;
+  background: #37474f;
+  color: #fff;
+  box-shadow: 0 0 3px inset #333;
+}
+
+.panel-records {
+  -webkit-box-flex: 2;
+          flex: 2;
+  min-width: 24rem;
+  border-right: 1px solid #ddd;
+}
+
+.panel-content {
+  -webkit-box-flex: 3;
+          flex: 3;
 }
 
 .file-list {
@@ -339,6 +350,11 @@ body {
   background: #EEEEEE;
 }
 
+header {
+  color: #FFF176;
+  background: #263238;
+}
+
 .field {
   margin: .75rem;
 }
@@ -363,6 +379,7 @@ body {
     }
 
 .button {
+  color: #666;
   cursor: pointer;
   -webkit-transition: .3s;
   transition: .3s;

@@ -21,24 +21,18 @@
 }
 
 .panel {
-  flex: 1;
-  margin: .75rem;
-  border-radius: 5px;
   background: #fff;
-  box-shadow: 0 0 5px #999;
 
   .panel-head {
     display: flex;
-    padding: 1rem;
+    padding: .75rem;
 
     .content {
       flex: auto;
 
       h1 {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #666;
-        text-shadow: 1px 1px 1px #fff;
+        font-size: 1.1rem;
+        font-weight: normal;
       }  
     }
 
@@ -51,6 +45,25 @@
 .workspace {
   display: flex;
   flex-direction: row;
+  height: 100%;
+}
+
+.panel-devices {
+  width: 18rem;
+  min-width: 18rem;
+  background: #37474f;
+  color: #fff;
+  box-shadow: 0 0 3px inset #333;
+}
+
+.panel-records {
+  flex: 2;
+  min-width: 24rem;
+  border-right: 1px solid #ddd;
+}
+
+.panel-content {
+  flex: 3;
 }
 
 .file-list {

@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import Icon from '@mdi/react';
 import { mdiPlusBox } from '@mdi/js';
 import 'whatwg-fetch';
+import Button from './component/frame/Button';
 import Layout from './component/frame/Layout';
+import Panel from './component/frame/Panel';
 import './index.scss';
 import './theme.scss';
 
@@ -26,7 +28,7 @@ export default class extends Component {
 
   loadRecords(query) {
     let apiPath = '/__/api/getRecords'
-    fetch(apiPath).then(response => response.json())
+    return fetch(apiPath).then(response => response.json())
     .then(json => {
       if (json.state) {
         this.setState({
@@ -34,6 +36,17 @@ export default class extends Component {
         })
       }
     })
+  }
+
+  saveRecord() {
+    let apiPath = '/__/api/setRecord';
+    return fetch(apiPath, { method: 'POST' }).then(response => response.json())
+    .then(json => {
+      if (json.state) {
+        this.setState({
+        });
+      }
+    });
   }
 
   changeKeyword(e) {
@@ -48,6 +61,30 @@ export default class extends Component {
     this.setState({ modal: null })
   }
 
+  renderDevices() {
+    const { query, model } = this.state;
+    const { keyword } = query;
+    const { records } = model;
+    if (keyword) {
+      records = records.filter(record => record.domain.indexOf(keyword) >= 0)
+    }
+    const actions = [
+      { icon: mdiPlusBox, title: 'record', click: e => this.openModal('new-record') },
+      { icon: mdiPlusBox, title: 'record', click: e => this.openModal('new-record') }
+    ];
+    return (
+      <Panel name='devices'>
+        <ul>
+          {records.map((record, i) => (
+            <li className='file-item' key={i}>
+              <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
+            </li>
+          ))}
+        </ul>
+      </Panel>
+    );
+  }
+
   renderRecords() {
     const { query, model } = this.state;
     const { keyword } = query;
@@ -56,32 +93,22 @@ export default class extends Component {
       records = records.filter(record => record.domain.indexOf(keyword) >= 0)
     }
     return (
-      <div className='panel'>
-        <div className='panel-head'>
-          <div className='content'>
-            <h1>Records</h1>
-            <p></p>
-          </div>
-          <div className='actions'>
-            <a className='button' onClick={e => this.openModal('new-record')}>
-              <Icon path={mdiPlusBox} title="record" size={1} />
-            </a>
-          </div>
+      <Panel name='records'>
+        <div className='control-box'>
+          <Button name='new-record' icon={mdiPlusBox} title='new record' onClick={() => this.createRecord()} />
         </div>
-        <div className='panel-body'>
-          <ul>
-            {records.map((record, i) => (
-              <li className='file-item' key={i}>
-                <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+        <ul>
+          {records.map((record, i) => (
+            <li className='file-item' key={i}>
+              <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
+            </li>
+          ))}
+        </ul>
+      </Panel>
     );
   }
-
-  renderEntries() {
+  
+  renderContent() {
     const { query, model } = this.state;
     const { keyword } = query;
     const { records } = model;
@@ -89,28 +116,15 @@ export default class extends Component {
       records = records.filter(record => record.domain.indexOf(keyword) >= 0)
     }
     return (
-      <div className='panel'>
-        <div className='panel-head'>
-          <div className='content'>
-            <h1>Entries</h1>
-            <p></p>
-          </div>
-          <div className='actions'>
-            <a className='button' onClick={e => this.openModal('new-record')}>
-              <Icon path={mdiPlusBox} title="record" size={1} />
-            </a>
-          </div>
-        </div>
-        <div className='panel-body'>
-          <ul>
-            {records.map((record, i) => (
-              <li className='file-item' key={i}>
-                <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <Panel name='content' title='Content' actions={[]}>
+        <ul>
+          {records.map((record, i) => (
+            <li className='file-item' key={i}>
+              <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
+            </li>
+          ))}
+        </ul>
+      </Panel>
     );
   }
 
@@ -119,8 +133,9 @@ export default class extends Component {
     return (
       <Layout>
         <div className='workspace'>
+          {this.renderDevices()}
           {this.renderRecords()}
-          {this.renderEntries()}
+          {this.renderContent()}
         </div>
         {modal && modal.name === 'file-info'}
       </Layout>

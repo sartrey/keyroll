@@ -4,6 +4,11 @@ body {
   background: #EEEEEE;
 }
 
+header {
+  color: #FFF176;
+  background: #263238;
+}
+
 .field {
   margin: .75rem;
 
@@ -27,6 +32,7 @@ body {
 }
 
 .button {
+  color: #666;
   cursor: pointer;
   transition: .3s;
   user-select: none;
