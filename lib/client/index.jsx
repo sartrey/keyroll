@@ -1,101 +1,115 @@
 import React, { Component } from 'react';
-import Icon from '@mdi/react';
-import { mdiPlusBox } from '@mdi/js';
 import 'whatwg-fetch';
-import Button from './component/frame/Button';
-import Layout from './component/frame/Layout';
-import Panel from './component/frame/Panel';
+import { Layout, Button, Menu, Icon, Modal, Input } from 'antd';
+import NewRecordModal from './component/NewRecordModal';
+import Record from '../shared/record';
 import './index.scss';
-import './theme.scss';
 
 export default class extends Component {
   constructor(props) {
     super(props);
     this.state = {
       query: {
-        keyword: '',
       },
       model: {
+        devices: {},
         records: [],
       },
-      modal: null,
+      modal: {
+        'new-record': false
+      },
     };
   }
 
   componentDidMount() {
-    this.loadRecords()
+    this.scanDevices();
+    this.loadRecords();
   }
 
-  loadRecords(query) {
-    let apiPath = '/__/api/getRecords'
-    return fetch(apiPath).then(response => response.json())
+  scanDevices() {
+    let apiPath = '/__/data/scanDevices';
+    return fetch(apiPath)
+    .then(response => response.json())
     .then(json => {
       if (json.state) {
-        this.setState({
-          records: json.model
-        })
-      }
-    })
-  }
-
-  saveRecord() {
-    let apiPath = '/__/api/setRecord';
-    return fetch(apiPath, { method: 'POST' }).then(response => response.json())
-    .then(json => {
-      if (json.state) {
-        this.setState({
-        });
+        const { model } = this.state;
+        model.devices = json.model;
+        this.setState({ model });
       }
     });
   }
 
-  changeKeyword(e) {
-    this.setState({ keyword: e.target.value })
+  loadRecords(query) {
+    let apiPath = '/__/data/loadRecords'
+    return fetch(apiPath)
+    .then(response => response.json())
+    .then(json => {
+      if (json.state) {
+        const { model } = this.state;
+        model.records = json.model;
+        this.setState({ model });
+      }
+    })
   }
 
-  openModal(name, data) {
-    this.setState({ modal: { name, data } })
+  saveRecord(record) {
+    let apiPath = '/__/data/saveRecord';
+    return fetch(apiPath, {
+      method: 'POST',
+      body: JSON.stringify(record.toJSONObject())
+    })
+    .then(response => response.json())
+    .then(json => {
+      if (json.state) {
+      }
+    });
   }
 
-  closeModal() {
-    this.setState({ modal: null })
+  submitInput(type, data) {
+    const { modal } = this.state;
+    const record = new Record(data);
+    if (type === 'new-record') {
+      this.saveRecord(record)
+        .then(() => {
+          this.loadRecords(record);
+          modal['new-record'] = false;
+          this.setState({ modal });
+        });
+    }
+  }
+
+  showModal(name, hidden) {
+    const { modal } = this.state;
+    modal[name] = !hidden;
+    this.setState({ modal });
   }
 
   renderDevices() {
     const { query, model } = this.state;
-    const { keyword } = query;
-    const { records } = model;
-    if (keyword) {
-      records = records.filter(record => record.domain.indexOf(keyword) >= 0)
-    }
-    const actions = [
-      { icon: mdiPlusBox, title: 'record', click: e => this.openModal('new-record') },
-      { icon: mdiPlusBox, title: 'record', click: e => this.openModal('new-record') }
-    ];
+    const { devices } = model;
     return (
-      <Panel name='devices'>
-        <ul>
-          {records.map((record, i) => (
-            <li className='file-item' key={i}>
-              <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
-            </li>
-          ))}
-        </ul>
-      </Panel>
+      <Menu mode="inline" defaultSelectedKeys={['localhost']}>
+        {Object.keys(devices).map(deviceName => (
+          <Menu.Item key={deviceName}>
+            <Icon type="user" />
+            <span>{deviceName}</span>
+          </Menu.Item>
+        ))}
+      </Menu>
     );
   }
 
   renderRecords() {
-    const { query, model } = this.state;
+    const { query, model, modal } = this.state;
     const { keyword } = query;
     const { records } = model;
     if (keyword) {
       records = records.filter(record => record.domain.indexOf(keyword) >= 0)
     }
     return (
-      <Panel name='records'>
-        <div className='control-box'>
-          <Button name='new-record' icon={mdiPlusBox} title='new record' onClick={() => this.createRecord()} />
+      <div>
+        <div className="control-box">
+          <Button type="primary" icon="plus-square" onClick={e => this.showModal('new-record')}>New Record</Button>
         </div>
         <ul>
           {records.map((record, i) => (
@@ -104,40 +118,48 @@ export default class extends Component {
             </li>
           ))}
         </ul>
-      </Panel>
+        <NewRecordModal visible={modal['new-record']} onSubmit={input => this.submitInput('new-record', input)} />
+      </div>
     );
   }
   
-  renderContent() {
-    const { query, model } = this.state;
-    const { keyword } = query;
-    const { records } = model;
-    if (keyword) {
-      records = records.filter(record => record.domain.indexOf(keyword) >= 0)
-    }
-    return (
-      <Panel name='content' title='Content' actions={[]}>
-        <ul>
-          {records.map((record, i) => (
-            <li className='file-item' key={i}>
-              <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-    );
-  }
+  // renderContent() {
+  //   const { query, model } = this.state;
+  //   const { keyword } = query;
+  //   const { records } = model;
+  //   if (keyword) {
+  //     records = records.filter(record => record.domain.indexOf(keyword) >= 0)
+  //   }
+  //   return (
+  //     <Panel name='content' title='Content' actions={[]}>
+  //       <ul>
+  //         {records.map((record, i) => (
+  //           <li className='file-item' key={i}>
+  //             <a onClick={e => this.openModal('file-info', record)}>{record.domain}</a>
+  //           </li>
+  //         ))}
+  //       </ul>
+  //     </Panel>
+  //   );
+  // }
 
   render() {
-    const { modal } = this.state;
     return (
-      <Layout>
-        <div className='workspace'>
+      <Layout className="layout1">
+        <Layout.Sider className="sider-device" width="20rem">
+          <Layout.Header className="header">
+            <h1>KeyRoll</h1>
+          </Layout.Header>
           {this.renderDevices()}
-          {this.renderRecords()}
-          {this.renderContent()}
-        </div>
-        {modal && modal.name === 'file-info'}
+        </Layout.Sider>
+        <Layout className="layout2">
+          <Layout.Sider className="sider-record" width="30rem">
+            {this.renderRecords()}
+          </Layout.Sider>
+          <Layout.Content className="content">
+            main content
+          </Layout.Content>
+        </Layout>
       </Layout>
     )
   }

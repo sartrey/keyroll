@@ -1,5 +1,3 @@
-const http = require('http');
-const os = require('os');
 const { createServer } = require('./lib/kernel/server');
 const logger = require('./lib/kernel/logger.js');
 
