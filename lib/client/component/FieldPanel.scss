@@ -1,0 +1,14 @@
+.field-panel {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;;
+}
+
+.field-panel-head {
+  height: 6rem;
+}
+
+.field-list {
+  flex: 1;
+  overflow: auto;
+}

@@ -1,3 +1,21 @@
+.field-panel {
+  display: -webkit-box;
+  display: flex;
+  height: 100vh;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+          flex-direction: column;;
+}
+
+.field-panel-head {
+  height: 6rem;
+}
+
+.field-list {
+  -webkit-box-flex: 1;
+          flex: 1;
+  overflow: auto;
+}
 html, body, div#app {
   height: 100vh;
   overflow: hidden;

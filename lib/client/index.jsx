@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import 'whatwg-fetch';
 import { Layout, Button, Menu, Icon, Modal, Input } from 'antd';
+import { fetchData } from './component/queryKit';
 import NewRecordModal from './component/NewRecordModal';
-import NewFieldModal from './component/NewFieldModal';
-import Record from '../shared/record';
+import FieldPanel from './component/FieldPanel';
 import './index.scss';
 
 export default class extends Component {
@@ -15,7 +14,7 @@ export default class extends Component {
       model: {
         devices: {},
         records: [],
-        current: null,
+        currentRecord: null,
       },
       modal: {
         'new-record': false,
@@ -30,78 +29,57 @@ export default class extends Component {
   }
 
   scanDevices() {
-    let apiPath = '/__/data/scanDevices';
-    return fetch(apiPath)
-    .then(response => response.json())
-    .then(json => {
-      if (json.state) {
-        const { model } = this.state;
-        model.devices = json.model;
-        this.setState({ model });
-      }
+    return fetchData('scanDevices')
+    .then(resultModel => {
+      const { model } = this.state;
+      model.devices = resultModel;
+      this.setState({ model });
     });
   }
 
   loadRecord(query) {
-    let apiPath = '/__/data/loadRecord';
-    return fetch(apiPath)
-    .then(response => response.json())
-    .then(json => {
-      if (json.state) {
-        const { model } = this.state;
-        const i = model.records.findIndex(e => e.domain === query.domain);
-        if (i < 0) {
-          model.records.push(json.model);
-        } else {
-          model.records.splice(i, 1, json.model);
-        }
-        this.setState({ model });
+    return fetchData('loadRecord', query)
+    .then(resultModel => {
+      const { model } = this.state;
+      const i = model.records.findIndex(e => e.domain === query.domain);
+      if (i < 0) {
+        model.records.push(resultModel);
+      } else {
+        model.records.splice(i, 1, resultModel);
       }
+      this.setState({ model });
     });
   }
 
   loadRecords(query) {
-    let apiPath = '/__/data/loadRecords'
-    return fetch(apiPath)
-    .then(response => response.json())
-    .then(json => {
-      if (json.state) {
-        const { model } = this.state;
-        model.records = json.model;
-        console.log(model.records);
-        model.current = model.records[0];
-        this.setState({ model });
-      }
-    })
-  }
-
-  saveRecord(record) {
-    let apiPath = '/__/data/saveRecord';
-    return fetch(apiPath, {
-      method: 'POST',
-      body: JSON.stringify(record)
-    })
-    .then(response => response.json())
-    .then(json => {
-      if (json.state) {
-      }
+    return fetchData('loadRecords', query)
+    .then(resultModel => {
+      const { model } = this.state;
+      model.records = resultModel;
+      model.currentRecord = model.records[0];
+      this.setState({ model });
     });
   }
 
-  saveRecordField(record) {
-    console.log(record);
-    let apiPath = '/__/data/saveRecordField';
-    return fetch(apiPath, {
-      method: 'POST',
-      body: JSON.stringify(record)
-    })
-    .then(response => response.json())
-    .then(json => {
-      this.loadRecord();
+  saveRecord(input) {
+    return fetchData('saveRecord', {}, { record: input })
+    .then(resultModel => {
     });
   }
 
-  killRecordField() {
+  saveRecordField(input) {
+    const { model } = this.state;
+    const { currentRecord } = model;
+    return fetchData('saveRecordField', { domain: currentRecord.domain }, { field: input })
+    .then(resultModel => {
+      this.loadRecord({ domain: currentRecord.domain });
+    });
+  }
+
+  killRecordField(input) {
+    const { model } = this.state;
+    const { currentRecord } = model;
+    return fetchData('killRecordField', { domain: currentRecord.domain }, { field: input })
   }
 
   submitInput(type, data) {
@@ -111,16 +89,6 @@ export default class extends Component {
         .then(() => {
           this.loadRecords();
           modal['new-record'] = false;
-          this.setState({ modal });
-        });
-    }
-    if (type === 'new-field') {
-      const record = model.current;
-      record.fields.push(data);
-      this.saveRecordField(record)
-        .then(() => {
-          this.loadRecord({ domain: record.domain });
-          modal['new-field'] = false;
           this.setState({ modal });
         });
     }
@@ -170,30 +138,9 @@ export default class extends Component {
       </div>
     );
   }
-  
-  renderFields() {
-    const { query, model, modal } = this.state;
-    const { current } = model;
-    return (
-      <div>
-        <div className="control-box">
-          <Button type="primary" icon="plus-square" onClick={e => this.showModal('new-field')}>New Field</Button>
-        </div>
-        <ul>
-          {current && current.fields.map((field, i) => (
-            <li className='field-item' key={field.key}>
-              <p>{field.key}</p>
-              <p>{field.value}</p>
-              <p>{field.secure}</p>
-            </li>
-          ))}
-        </ul>
-        <NewFieldModal visible={modal['new-field']} onSubmit={input => this.submitInput('new-field', input)} />
-      </div>
-    );
-  }
 
   render() {
+    const { model } = this.state;
     return (
       <Layout className="layout1">
         <Layout.Sider className="sider-device" width="20rem">
@@ -207,7 +154,9 @@ export default class extends Component {
             {this.renderRecords()}
           </Layout.Sider>
           <Layout.Content className="content">
-            {this.renderFields()}
+            <FieldPanel model={model.currentRecord} 
+              onSubmitItem={item => this.saveRecordField(model.currentRecord, item)} 
+              onRemoveItem={item => this.killRecordField(model.currentRecord, item)} />
           </Layout.Content>
         </Layout>
       </Layout>
