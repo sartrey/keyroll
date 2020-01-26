@@ -70,7 +70,7 @@ function stopSelf() {
   const portFile = path.join(maindir, 'port');
   try {
     const port = fs.readFileSync(portFile, 'utf8');
-    fetch(`http://localhost:${port}/__/api/stopServer`)
+    fetch(`http://localhost:${port}/__/data/stopServer`)
       .then(response => response.json())
       .then(json => {
         console.log(`\n  ${product} - server stopped\n`);
