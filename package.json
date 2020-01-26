@@ -26,6 +26,7 @@
   "homepage": "https://github.com/sartrey/keyroll#readme",
   "dependencies": {
     "mime-types": "^2.1.26",
+    "nanoid": "^2.1.10",
     "node-fetch": "^2.6.0",
     "uuid": "^3.4.0"
   },

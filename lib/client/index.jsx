@@ -46,6 +46,7 @@ export default class extends Component {
         model.records.push(resultModel);
       } else {
         model.records.splice(i, 1, resultModel);
+        model.currentRecord = resultModel;
       }
       this.setState({ model });
     });
@@ -80,11 +81,15 @@ export default class extends Component {
     const { model } = this.state;
     const { currentRecord } = model;
     return fetchData('killRecordField', { domain: currentRecord.domain }, { field: input })
+    .then(resultModel => {
+      this.loadRecord({ domain: currentRecord.domain });
+    })
   }
 
   submitInput(type, data) {
     const { model, modal } = this.state;
     if (type === 'new-record') {
+      console.log(data);
       this.saveRecord(data)
         .then(() => {
           this.loadRecords();
@@ -155,8 +160,8 @@ export default class extends Component {
           </Layout.Sider>
           <Layout.Content className="content">
             <FieldPanel model={model.currentRecord} 
-              onSubmitItem={item => this.saveRecordField(model.currentRecord, item)} 
-              onRemoveItem={item => this.killRecordField(model.currentRecord, item)} />
+              onSubmitItem={item => this.saveRecordField(item)} 
+              onRemoveItem={item => this.killRecordField(item)} />
           </Layout.Content>
         </Layout>
       </Layout>
