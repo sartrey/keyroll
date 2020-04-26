@@ -1,14 +1,29 @@
 .volumn-area {
   display: flex;
   height: 100vh;
-  flex-direction: column;;
+  flex-direction: column;
+
+  .empty {
+    margin: .5rem;
+    padding: .5rem;
+    text-align: center;
+  }
 }
 
 .volumn-head {
-  height: 6rem;
+  margin: .5rem;
 }
 
 .record-list {
   flex: 1;
+  margin: .5rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #fcfcfc;
   overflow: auto;
+
+  > li {
+    padding: .5rem;
+    border-bottom: 1px solid #ccc;
+  }
 }

@@ -7,6 +7,11 @@ body {
   background: #f6f6f6;
 }
 
+ul {
+  padding: 0;
+  list-style: none;
+}
+
 .container {
   min-width: 60rem;
   height: 100%;
@@ -47,4 +52,12 @@ body {
 .content {
   flex: 1;
   background: #f6f6f6;
+}
+
+.device-list {
+  > li {
+    padding-left: 1rem !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
 }

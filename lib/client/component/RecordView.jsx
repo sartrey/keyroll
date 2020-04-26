@@ -92,8 +92,8 @@ export default class RecordView extends Component {
     }
     return (
       <li className='record-item'>
-        <div>{model.name}</div>
-        <div>{model.value}</div>
+        <div>name = {model.name}</div>
+        <div>value = {model.value}</div>
         <div>{model.secure}</div>
         <Button type="primary" shape="circle" icon="edit" onClick={e => this.activeInput()} />
         <Button type="primary" shape="circle" icon="delete" onClick={e => this.removeModel()} />

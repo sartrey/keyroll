@@ -23,7 +23,7 @@ class App extends Component {
     const { query } = this.state;
     const devices = state.get('devices');
     return (
-      <Menu mode='inline' defaultSelectedKeys={['localhost']}>
+      <Menu mode='inline' className='device-list' defaultSelectedKeys={['localhost']}>
         {Object.keys(devices).map(deviceName => (
           <Menu.Item key={deviceName}>
             <Icon type='user' />

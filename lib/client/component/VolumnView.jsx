@@ -42,15 +42,17 @@ class VolumnView extends Component {
     const volumn = state.get('current.volumn');
     if (!volumn) {
       return (
-        <div>empty</div>
+        <div className='volumn-area'>
+          <div className='empty'>empty</div>
+        </div>
       );
     }
     const records = state.get('records');
     return (
-      <div className="volumn-area">
-        <div className="volumn-head">
-          <div>{volumn.domain}</div>
-          <Button type="primary" icon="plus" onClick={() => this.createRecord()} />
+      <div className='volumn-area'>
+        <div className='volumn-head'>
+          <div>domain = {volumn.domain}</div>
+          <Button type='primary' icon='plus' onClick={() => this.createRecord()} />
         </div>
         <ul className='record-list'>
           {records.map((item, i) => (

@@ -2,6 +2,8 @@
   overflow: hidden;
   position: relative;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
   .volumn-list .ant-drawer {
@@ -14,6 +16,7 @@
 
   .volumn-list .header {
     display: flex;
+    flex-direction: row;
     padding: .5rem;
   }
 
@@ -21,23 +24,65 @@
       margin-right: .5rem;
     }
 
+  .volumn-list ul {
+    flex: 1;
+    margin: 0 .5rem .5rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fcfcfc;
+  }
+
+  .volumn-list ul > li.empty {
+        padding: .5rem;
+        text-align: center;
+      }
+
+  .volumn-list ul > li.active > a {
+          background: #ddd;
+        }
+
+  .volumn-list ul > li > a {
+        display: block;
+        padding: .5rem;
+        color: #666
+      }
+
+  .volumn-list ul > li > a:hover {
+          background: #ddd;
+        }
+
   .volumn-list .input-volumn input {
       margin-bottom: .5rem;
     }
 .volumn-area {
   display: flex;
   height: 100vh;
-  flex-direction: column;;
+  flex-direction: column;
 }
 
+  .volumn-area .empty {
+    margin: .5rem;
+    padding: .5rem;
+    text-align: center;
+  }
+
 .volumn-head {
-  height: 6rem;
+  margin: .5rem;
 }
 
 .record-list {
   flex: 1;
+  margin: .5rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #fcfcfc;
   overflow: auto;
 }
+
+.record-list > li {
+    padding: .5rem;
+    border-bottom: 1px solid #ccc;
+  }
 html, body, div#app {
   height: 100vh;
   overflow: hidden;
@@ -45,6 +90,11 @@ html, body, div#app {
 
 body {
   background: #f6f6f6;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
 }
 
 .container {
@@ -88,3 +138,9 @@ body {
   flex: 1;
   background: #f6f6f6;
 }
+
+.device-list > li {
+    padding-left: 1rem !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }

@@ -9,7 +9,8 @@ class VolumnList extends Component {
     super(props);
     this.state = {
       query: {
-        device: props.device
+        device: props.device,
+        volumn: null
       },
       input: {
         domain: ''
@@ -39,6 +40,12 @@ class VolumnList extends Component {
     this.setState({ stage });
   }
 
+  searchVolumn(value) {
+    const { query } = this.state;
+    query.volumn = value;
+    this.setState({ query });
+  }
+
   selectVolumn(value) {
     state.set('current.volumn', value);
     actions.findRecords({ domain: value.domain })
@@ -48,12 +55,17 @@ class VolumnList extends Component {
   }
 
   render() {
-    const { stage } = this.state;
-    const volumns = state.get('volumns');
+    const { stage, query } = this.state;
+    let volumns = state.get('volumns');
+    console.log('volumns', volumns, query);
+    if (query.volumn) {
+      volumns = volumns.filter(e => e.domain.indexOf(query.volumn) >= 0);
+    }
+    const current = state.get('current.volumn');
     return (
       <div className='volumn-list'>
         <div className='header'>
-          <Input.Search className='search' onSearch={value => console.log(value)} />
+          <Input.Search className='search' onChange={e => this.searchVolumn(e.target.value)} />
           <Button type='primary' icon='plus' className='create' onClick={e => this.changeStage('create')} />
         </div>
         <Drawer getContainer={false} placement='bottom' height='8rem'
@@ -67,12 +79,12 @@ class VolumnList extends Component {
         <ul>
           {volumns.length > 0
             ? volumns.map((item, i) => (
-              <li className='volumn-item' key={i}>
+              <li key={i} className={`volumn-item ${(current && item.domain === current.domain) ? 'active' : ''}`}>
                 <a onClick={e => this.selectVolumn(item)}>{item.domain}</a>
               </li>
               ))
             : (
-              <li className='volumn-item' key={-1}>nothing</li>
+              <li className='volumn-item empty' key={-1}>empty</li>
             )
           }
         </ul>

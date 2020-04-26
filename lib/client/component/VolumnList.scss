@@ -2,6 +2,8 @@
   overflow: hidden;
   position: relative;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 
   .ant-drawer {
     position: absolute;
@@ -13,10 +15,42 @@
 
   .header {
     display: flex;
+    flex-direction: row;
     padding: .5rem;
 
     .search {
       margin-right: .5rem;
+    }
+  }
+
+  ul {
+    flex: 1;
+    margin: 0 .5rem .5rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fcfcfc;
+
+    > li {
+      &.empty {
+        padding: .5rem;
+        text-align: center;
+      }
+
+      &.active {
+        > a {
+          background: #ddd;
+        }
+      }
+
+      > a {
+        display: block;
+        padding: .5rem;
+        color: #666;
+  
+        &:hover {
+          background: #ddd;
+        }
+      }
     }
   }
 
