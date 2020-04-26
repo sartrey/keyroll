@@ -1,0 +1,28 @@
+.volumn-list {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+
+  .ant-drawer {
+    position: absolute;
+
+    .ant-drawer-body {
+      padding: .5rem;
+    }
+  }
+
+  .header {
+    display: flex;
+    padding: .5rem;
+
+    .search {
+      margin-right: .5rem;
+    }
+  }
+
+  .input-volumn {
+    input {
+      margin-bottom: .5rem;
+    }
+  }
+}

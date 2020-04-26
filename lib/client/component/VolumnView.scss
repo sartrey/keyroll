@@ -1,0 +1,14 @@
+.volumn-area {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;;
+}
+
+.volumn-head {
+  height: 6rem;
+}
+
+.record-list {
+  flex: 1;
+  overflow: auto;
+}

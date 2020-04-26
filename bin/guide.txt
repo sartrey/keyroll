@@ -1,0 +1,14 @@
+
+  keyroll [command] [options]
+
+  example
+
+    keyroll
+    keyroll --port=8080
+    keyroll fork
+    keyroll stop
+    keyroll help
+
+  default
+
+    running at 9988

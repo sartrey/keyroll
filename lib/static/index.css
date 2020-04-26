@@ -1,0 +1,90 @@
+.volumn-list {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+  .volumn-list .ant-drawer {
+    position: absolute;
+  }
+
+  .volumn-list .ant-drawer .ant-drawer-body {
+      padding: .5rem;
+    }
+
+  .volumn-list .header {
+    display: flex;
+    padding: .5rem;
+  }
+
+  .volumn-list .header .search {
+      margin-right: .5rem;
+    }
+
+  .volumn-list .input-volumn input {
+      margin-bottom: .5rem;
+    }
+.volumn-area {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;;
+}
+
+.volumn-head {
+  height: 6rem;
+}
+
+.record-list {
+  flex: 1;
+  overflow: auto;
+}
+html, body, div#app {
+  height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  background: #f6f6f6;
+}
+
+.container {
+  min-width: 60rem;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.container h1 {
+    font-size: 1.1rem;
+  }
+
+.sider1 {
+  width: 20rem;
+  height: 100%;
+  overflow: auto;
+  background: #37474f;
+}
+
+.sider1 .header {
+    height: auto;
+    padding: 1rem;
+    line-height: 1em;
+  }
+
+.sider1 .header h1 {
+      margin: 0;
+      padding: 0;
+      color: #fff;
+    }
+
+.sider2 {
+  width: 25rem;
+  height: 100%;
+  background: #f6f6f6;
+  border-right: 1px solid #ccc;
+}
+
+.content {
+  flex: 1;
+  background: #f6f6f6;
+}

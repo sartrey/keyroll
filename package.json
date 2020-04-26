@@ -1,0 +1,44 @@
+{
+  "name": "keyroll",
+  "version": "0.2.0",
+  "description": "a secure key-value storage toolkit",
+  "main": "index.js",
+  "bin": {
+    "keyroll": "bin/keyroll"
+  },
+  "scripts": {
+    "start": "NODE_ENV=development node build.js",
+    "build": "NODE_ENV=production node build.js",
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sartrey/keyroll.git"
+  },
+  "keywords": [
+    "storage"
+  ],
+  "author": "Sartrey Lee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sartrey/keyroll/issues"
+  },
+  "homepage": "https://github.com/sartrey/keyroll#readme",
+  "dependencies": {
+    "@epiijs/minion": "^0.1.2",
+    "@noflux/react": "^1.0.0",
+    "nanoid": "^2.1.10",
+    "node-fetch": "^2.6.0"
+  },
+  "optionalDependencies": {
+    "chalk": "^3.0.0"
+  },
+  "devDependencies": {
+    "@epiijs/render": "^0.10.10",
+    "antd": "^4.1.0",
+    "material-design-icons": "^3.0.1",
+    "prop-types": "^15.7.2",
+    "qrcode.react": "^1.0.0",
+    "whatwg-fetch": "latest"
+  }
+}

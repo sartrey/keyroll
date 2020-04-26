@@ -1,0 +1,37 @@
+const path = require('path');
+const epiiMinion = require('@epiijs/minion');
+
+/**
+ * start server
+ *
+ * @param {Object=} options
+ * @return {Object} { http.Server }
+ */
+function startServer(options) {
+  const version = require('./package.json').version;
+  console.log(`version ${version}`);
+  if (!options.path) {
+    options.path = {};
+  }
+  if (!options.path.root) {
+    options.path.root = path.join(__dirname, 'lib')
+  }
+  return epiiMinion({
+    name: 'keyroll',
+    port: options.port,
+    path: options.path,
+    layout: {
+      styles: [
+        'assets/antd.min.css'
+      ],
+      scripts: [
+        'assets/react.development.js',
+        'assets/react-dom.development.js',
+        'assets/moment-with-locales.min.js',
+        'assets/antd-with-locales.min.js'
+      ]
+    }
+  });
+}
+
+module.exports = startServer;
