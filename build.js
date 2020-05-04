@@ -12,6 +12,9 @@ const config = {
     name: 'app',  // view container name, name='app' means div#app
     stub: 'epii', // window namespace, stub='epii' means window.epii.view = React view
   },
+  static: {
+    prefix: '__/file'
+  },
   extern: ['antd', 'react'],
   expert: {
     'skip-clean': false // default false

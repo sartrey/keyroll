@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Input } from 'antd';
+import { Button } from './design';
+import { Input } from 'antd';
 import * as actions from '../actions';
 // import './RecordItem.scss';
 
@@ -85,8 +86,8 @@ export default class RecordView extends Component {
           <Input placeholder='name' defaultValue={model.name} onChange={e => this.changeInput('name', e.target.value)} />
           <Input placeholder='value' defaultValue={model.value} onChange={e => this.changeInput('value', e.target.value)} />
           <div>{model.secure}</div>
-          <Button type="primary" shape="circle" icon="save" onClick={() => this.submitInput()} />
-          <Button type="primary" shape="circle" icon="close" onClick={() => this.cancelInput()} />
+          <Button icon="save" onClick={() => this.submitInput()} />
+          <Button icon="close" onClick={() => this.cancelInput()} />
         </li>
       );
     }
@@ -95,8 +96,8 @@ export default class RecordView extends Component {
         <div>name = {model.name}</div>
         <div>value = {model.value}</div>
         <div>{model.secure}</div>
-        <Button type="primary" shape="circle" icon="edit" onClick={e => this.activeInput()} />
-        <Button type="primary" shape="circle" icon="delete" onClick={e => this.removeModel()} />
+        <Button icon="edit" onClick={e => this.activeInput()} />
+        <Button icon="delete" onClick={e => this.removeModel()} />
       </li>
     );
   }

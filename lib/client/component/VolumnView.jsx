@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect, state } from '@noflux/react';
-import { Button } from 'antd';
+import { Button } from './design';
 import * as actions from '../actions';
 import RecordView from './RecordView';
 import './VolumnView.scss';
@@ -52,7 +52,7 @@ class VolumnView extends Component {
       <div className='volumn-area'>
         <div className='volumn-head'>
           <div>domain = {volumn.domain}</div>
-          <Button type='primary' icon='plus' onClick={() => this.createRecord()} />
+          <Button icon='add' onClick={() => this.createRecord()} />
         </div>
         <ul className='record-list'>
           {records.map((item, i) => (

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect, state } from '@noflux/react';
-import { Drawer, Button, Input } from 'antd';
+import { Button } from './design';
+import { Drawer, Input } from 'antd';
 import * as actions from '../actions';
 import './VolumnList.scss';
 
@@ -66,7 +67,7 @@ class VolumnList extends Component {
       <div className='volumn-list'>
         <div className='header'>
           <Input.Search className='search' onChange={e => this.searchVolumn(e.target.value)} />
-          <Button type='primary' icon='plus' className='create' onClick={e => this.changeStage('create')} />
+          <Button type='primary' icon='add' className='create' onClick={e => this.changeStage('create')} />
         </div>
         <Drawer getContainer={false} placement='bottom' height='8rem'
           visible={ stage === 'create' } closable={false} onClose={() => this.changeStage()}>

@@ -1,6 +1,6 @@
 {
   "name": "keyroll",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "a secure key-value storage toolkit",
   "main": "index.js",
   "bin": {
@@ -34,7 +34,7 @@
     "chalk": "^3.0.0"
   },
   "devDependencies": {
-    "@epiijs/render": "^0.10.10",
+    "@epiijs/render": "^0.13.1",
     "antd": "^4.1.0",
     "material-design-icons": "^3.0.1",
     "prop-types": "^15.7.2",
