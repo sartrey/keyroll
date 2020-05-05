@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect, state } from '@noflux/react';
 import * as actions from './actions';
+import { Input } from './component/design';
 import DeviceList from './component/DeviceList';
 import VolumnList from './component/VolumnList';
-import VolumnView from './component/VolumnView';
+import RecordList from './component/RecordList';
 import './index.scss';
 
 class App extends Component {
@@ -17,9 +18,13 @@ class App extends Component {
 
   componentDidMount() {
     actions.scanDevices();
+    actions.findVolumns();
   }
 
   render() {
+    const volumn = state.get('current.volumn');
+    const volumns = state.get('volumns');
+    const records = state.get('records');
     return (
       <div className='container'>
         <div className='sider1'>
@@ -29,10 +34,24 @@ class App extends Component {
           <DeviceList />
         </div>
         <div className='sider2'>
-          <VolumnList />
+          <div className='header'>
+            <Input onChange={e => this.searchVolumn(e.target.value)} />
+          </div>
+          <VolumnList model={volumns} />
         </div>
         <div className='content'>
-          <VolumnView />
+          { volumn ? (
+            <div className='volumn-view'>
+              <div className='volumn-head'>
+                <div>domain = {volumn.domain}</div>
+              </div>
+              <RecordList model={records} />
+            </div>
+          ) : (
+            <div className='volumn-view'>
+              <div className='empty'>empty</div>
+            </div>
+          ) }
         </div>
       </div>
     )

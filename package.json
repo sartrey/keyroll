@@ -1,7 +1,7 @@
 {
   "name": "keyroll",
-  "version": "0.2.2",
-  "description": "a secure key-value storage toolkit",
+  "version": "0.2.3",
+  "description": "A secure key-value storage toolkit.",
   "main": "index.js",
   "bin": {
     "keyroll": "bin/keyroll"
@@ -35,7 +35,6 @@
   },
   "devDependencies": {
     "@epiijs/render": "^0.13.1",
-    "antd": "^4.1.0",
     "material-design-icons": "^3.0.1",
     "prop-types": "^15.7.2",
     "qrcode.react": "^1.0.0",

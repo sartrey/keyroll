@@ -15,7 +15,7 @@ const config = {
   static: {
     prefix: '__/file'
   },
-  extern: ['antd', 'react'],
+  extern: ['react'],
   expert: {
     'skip-clean': false // default false
   },

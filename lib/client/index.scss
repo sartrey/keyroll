@@ -61,3 +61,19 @@ ul {
     margin-bottom: 0 !important;
   }
 }
+
+.volumn-view {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+
+  .empty {
+    margin: .5rem;
+    padding: .5rem;
+    text-align: center;
+  }
+
+  .volumn-head {
+    margin: .5rem;
+  }  
+}

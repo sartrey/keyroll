@@ -1,97 +1,43 @@
 import React, { Component } from 'react';
-import { connect, state } from '@noflux/react';
+import { createEditableList } from './higher/editable';
 import { Button } from './design';
-import { Drawer, Input } from 'antd';
+import VolumnListItem from './VolumnListItem';
 import * as actions from '../actions';
-import './VolumnList.scss';
+import { state } from '@noflux/react';
 
-class VolumnList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      query: {
-        device: props.device,
-        volumn: null
-      },
-      input: {
-        domain: ''
-      },
-      stage: ''
-    };
-  }
-
-  componentDidMount() {
-    const { query } = this.state;
-    actions.findVolumns(query);
-  }
-
-  changeInput(name, event) {
-    const { input } = this.state;
-    input[name] = event.target.value;
-    this.setState({ input });
-  }
-
-  submitInput() {
-    const { query, input } = this.state;
-    actions.editVolumn(query, input);
-    this.changeStage();
-  }
-
-  changeStage(stage) {
-    this.setState({ stage });
-  }
-
-  searchVolumn(value) {
-    const { query } = this.state;
-    query.volumn = value;
-    this.setState({ query });
-  }
-
-  selectVolumn(value) {
-    state.set('current.volumn', value);
-    actions.findRecords({ domain: value.domain })
-      .then(model => {
-        state.set('records', model);
-      });
-  }
-
+class EmptyVolumn extends Component {
   render() {
-    const { stage, query } = this.state;
-    let volumns = state.get('volumns');
-    console.log('volumns', volumns, query);
-    if (query.volumn) {
-      volumns = volumns.filter(e => e.domain.indexOf(query.volumn) >= 0);
-    }
-    const current = state.get('current.volumn');
     return (
-      <div className='volumn-list'>
-        <div className='header'>
-          <Input.Search className='search' onChange={e => this.searchVolumn(e.target.value)} />
-          <Button type='primary' icon='add' className='create' onClick={e => this.changeStage('create')} />
-        </div>
-        <Drawer getContainer={false} placement='bottom' height='8rem'
-          visible={ stage === 'create' } closable={false} onClose={() => this.changeStage()}>
-          <div className='input-volumn'>
-            <h1>Volumn Info</h1>
-            <Input placeholder='domain.com' onChange={e => this.changeInput('domain', e)} />
-            <Button type='primary' onClick={e => this.submitInput()}>Confirm</Button>
-          </div>
-        </Drawer>
-        <ul>
-          {volumns.length > 0
-            ? volumns.map((item, i) => (
-              <li key={i} className={`volumn-item ${(current && item.domain === current.domain) ? 'active' : ''}`}>
-                <a onClick={e => this.selectVolumn(item)}>{item.domain}</a>
-              </li>
-              ))
-            : (
-              <li className='volumn-item empty' key={-1}>empty</li>
-            )
-          }
-        </ul>
+      <div>
+        empty
+        <Button icon='add' onClick={this.props.onCreate} />
       </div>
     );
   }
 }
 
-export default connect(VolumnList);
+export default createEditableList(
+  [
+    VolumnListItem,
+    EmptyVolumn
+  ],
+  {
+    className: 'volumn',
+    reactKey: 'domain',
+    dataSource: {
+      select: async (item) => {
+        console.log(item);
+        const records = await actions.findRecords({ domain: item.domain });
+        state.set('current.volumn', item);
+        state.set('records', records);
+      },
+      delete: (item) => {
+        actions.killVolumn();
+      },
+      update: async (item, next) => {
+        await actions.editVolumn({}, next);
+        return next;
+      }
+    }
+  }
+);
