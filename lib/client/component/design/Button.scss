@@ -1,5 +1,32 @@
 .button {
-  box-sizing: border-box;
-  border-radius: 5px;
+  border: 1px solid #ccc;
+  border-radius: .3rem;
+  text-align: left;
   outline: none;
+  line-height: 1.5rem;
+
+  > * {
+    vertical-align: top;
+  }
+
+  i {
+    font-size: 1.5rem;
+  }
+
+  span {
+    margin: 0 .25rem;
+    font-size: 1.1rem;
+  }
+
+  &.small {
+    line-height: 1rem;
+
+    i {
+      font-size: 1rem;
+    }
+
+    span {
+      font-size: .9rem;
+    }
+  }
 }

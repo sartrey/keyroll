@@ -1,6 +1,15 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 html, body, div#app {
   height: 100vh;
   overflow: hidden;
+}
+
+html {
+  font-size: 14px;
 }
 
 body {
@@ -24,10 +33,10 @@ ul {
 }
 
 .sider1 {
-  width: 20rem;
+  width: 16rem;
   height: 100%;
   overflow: auto;
-  background: #369;
+  background: #01579B;
 
   .header {
     height: auto;
@@ -35,8 +44,6 @@ ul {
     line-height: 1em;
     
     h1 {
-      margin: 0;
-      padding: 0;
       color: #fff;
     }
   }
@@ -45,8 +52,6 @@ ul {
 .sider2 {
   width: 25rem;
   height: 100%;
-  background: #f6f6f6;
-  border-right: 1px solid #ccc;
 }
 
 .content {

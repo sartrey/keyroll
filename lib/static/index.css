@@ -1,3 +1,13 @@
+.device-list ul li {
+      box-sizing: border-box;
+      margin-left: .75rem;
+      padding: .5rem .75rem;
+      line-height: 1.5rem;
+      border-right: 1px solid #eee;
+      border-radius: .5rem 0 0 .5rem;
+      color: #01579B;
+      background: #fff;
+    }
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
@@ -11,9 +21,7 @@
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
   display: inline-block;
-  line-height: 1;
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
@@ -27,30 +35,210 @@
 }
 
 .button {
-  box-sizing: border-box;
-  border-radius: 5px;
+  border: 1px solid #ccc;
+  border-radius: .3rem;
+  text-align: left;
   outline: none;
+  line-height: 1.5rem;
 }
+
+  .button > * {
+    vertical-align: top;
+  }
+
+  .button i {
+    font-size: 1.5rem;
+  }
+
+  .button span {
+    margin: 0 .25rem;
+    font-size: 1.1rem;
+  }
+
+.button.small {
+    line-height: 1rem;
+  }
+
+.button.small i {
+      font-size: 1rem;
+    }
+
+.button.small span {
+      font-size: .9rem;
+    }
 .input {
   box-sizing: border-box;
   width: 100%;
-  padding: .2rem .4rem;
+  padding: .5rem;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: .5rem;
   outline: none
 }
 .input:hover {
   }
-.device-list ul li {
-      box-sizing: border-box;
-      padding: .75rem 1rem;
-      border-right: 5px solid #369;
-      color: #369;
-      background: #fff;
+.volumn-list {
+  background: #f6f6f6;
+  border-right: 1px solid #ccc;
+  overflow: hidden;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+  .volumn-list .header {
+    display: flex;
+    flex-direction: row;
+    padding: .75rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .volumn-list .header input {
+      transition: .3s cubic-bezier(0.33, 1, 0.68, 1)
     }
+
+  .volumn-list .header input:hover {
+        border-color: #999;
+      }
+
+  .volumn-list .header button {
+      margin-left: .5rem;
+      padding: .2rem .5rem 0 .5rem;
+    }
+
+  .volumn-list .header button i {
+        font-size: 1.2rem;
+      }
+
+  .volumn-list .viewer {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .volumn-list .viewer .logo {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: .5rem;
+      background: #ddd;
+    }
+
+  .volumn-list .viewer .info {
+      flex: 1;
+      margin-left: .5rem;
+    }
+
+  .volumn-list .viewer .info .action {
+        margin-top: .2rem;
+        padding-top: .3rem;
+      }
+
+  .volumn-list .viewer .info .action .button {
+          margin-right: .5rem;
+          padding: 0 .5rem;
+          border-color: transparent;
+          border-radius: .5rem;
+        }
+
+  .volumn-list ul {
+    flex: 1;
+    overflow: auto;
+    background: #f3f3f3;
+  }
+
+  .volumn-list li {
+    padding: .75rem .75rem;
+    border-bottom: 1px solid #eee;
+    background: #fcfcfc;
+    transition: .3s cubic-bezier(0.33, 1, 0.68, 1)
+  }
+
+  .volumn-list li:hover {
+      background: #f6f6f6;
+    }
+
+  .volumn-list li.empty {
+      padding: .5rem;
+      text-align: center;
+    }
+
+  .volumn-list li.active {
+      color: #fff;
+      background: #0277BD;
+    }
+
+.input-volumn input {
+    margin-bottom: .5rem;
+  }
+.record-list {
+  height: 100%;
+  overflow: auto;
+}
+
+  .record-list .header {
+    margin: .75rem;
+  }
+
+  .record-list .header > .detail {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: .75rem;  
+    }
+
+  .record-list .header > .detail .logo {
+        width: 6rem;
+        height: 6rem;
+        border-radius: 1rem;
+        background: #ddd;
+      }
+
+  .record-list .header > .detail .info {
+        margin-left: .5rem;
+      }
+
+  .record-list .header > .action .button {
+        padding: .5rem;        
+      }
+
+  .record-list ul {
+    margin: .75rem;
+    border: 1px solid #ddd;
+    border-radius: .75rem;
+  }
+
+  .record-list li {
+    padding: .5rem;
+    border-bottom: 1px solid #ccc;
+    background: #fcfcfc;
+    transition: .3s cubic-bezier(0.33, 1, 0.68, 1)
+  }
+
+  .record-list li:first-of-type {
+      border-radius: .75rem .75rem 0 0;
+    }
+
+  .record-list li:last-of-type {
+      border-radius: 0 0 .75rem .75rem;
+      border: none;
+    }
+
+  .record-list li:only-of-type {
+      border-radius: .75rem;
+    }
+
+  .record-list li:hover {
+      background: #f3f3f3;
+    }
+* {
+  margin: 0;
+  padding: 0;
+}
+
 html, body, div#app {
   height: 100vh;
   overflow: hidden;
+}
+
+html {
+  font-size: 14px;
 }
 
 body {
@@ -74,10 +262,10 @@ ul {
   }
 
 .sider1 {
-  width: 20rem;
+  width: 16rem;
   height: 100%;
   overflow: auto;
-  background: #369;
+  background: #01579B;
 }
 
 .sider1 .header {
@@ -87,16 +275,12 @@ ul {
   }
 
 .sider1 .header h1 {
-      margin: 0;
-      padding: 0;
       color: #fff;
     }
 
 .sider2 {
   width: 25rem;
   height: 100%;
-  background: #f6f6f6;
-  border-right: 1px solid #ccc;
 }
 
 .content {

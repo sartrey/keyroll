@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Button } from '../design';
 
 export function createEditableListItem(components, options) {
   const [
@@ -75,10 +74,12 @@ export function createEditableListItem(components, options) {
   
     render() {
       const { stage } = this.state;
-      const { model } = this.props;
+      const { model, selected } = this.props;
+      const classes = [fullClassName];
+      if (selected) classes.push('active');
       if (stage === 'editor') {
         return (
-          <li className={fullClassName}>
+          <li className={classes.join(' ')}>
             <Editor model={model}
               onCancel={() => this.cancelInput()}
               onUpdate={() => this.raiseUpdate()}
@@ -87,8 +88,8 @@ export function createEditableListItem(components, options) {
         );
       }
       return (
-        <li className={fullClassName}>
-          <Viewer model={model}
+        <li className={classes.join(' ')}>
+          <Viewer model={model} selected={selected}
             onSelect={() => this.raiseSelect()}
             onActive={() => this.activeInput()}
             onRemove={() => this.raiseRemove()} />
@@ -102,7 +103,8 @@ export function createEditableListItem(components, options) {
 export function createEditableList(components, options) {
   const [
     EditableListItem,
-    EmptyView
+    HeaderView,
+    FooterView
   ] = components;
   const {
     className,
@@ -114,9 +116,14 @@ export function createEditableList(components, options) {
     constructor(props) {
       super(props);
       this.state = {
-        model: props.model || []
+        model: props.model || [],
+        query: {
+          selectedItem: null
+        }
       };
       this.idgen = 1;
+      if (HeaderView) HeaderView.prototype.parent = this;
+      if (FooterView) FooterView.prototype.parent = this;
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -134,6 +141,9 @@ export function createEditableList(components, options) {
     }
   
     async selectItem(item) {
+      const { query } = this.state;
+      query.selectedItem = item;
+      this.setState({ query });
       await dataSource.select(item);
     }
 
@@ -163,17 +173,25 @@ export function createEditableList(components, options) {
     }
 
     render() {
-      const { model } = this.state;
+      const { model, query } = this.state;
       return (
-        <ul className={fullClassName}>
-          <li><Button icon='add' onClick={() => this.createItem()} /></li>
-          {model.map((item) => (
-            <EditableListItem key={item[reactKey] || `temp-${item.$temp}`} model={item} 
-              onSelect={() => this.selectItem(item)}
-              onRemove={() => this.removeItem(item)} 
-              onUpdate={(input) => this.updateItem(item, input)} />
-          ))}
-        </ul>
+        <div className={fullClassName}>
+          { HeaderView && (<HeaderView />) }
+          { model.length > 0 && (
+            <ul>
+            {model.map((item) => {
+              const selected = item === query.selectedItem;
+              return (
+                <EditableListItem key={item[reactKey] || `temp-${item.$temp}`} model={item} selected={selected}
+                  onSelect={() => this.selectItem(item)}
+                  onRemove={() => this.removeItem(item)} 
+                  onUpdate={(input) => this.updateItem(item, input)} />
+              );
+            })}
+            </ul>
+          ) }
+          { FooterView && (<FooterView />) }
+        </div>
       );
     }
   }

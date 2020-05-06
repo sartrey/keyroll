@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { createEditableList } from './higher/editable';
-import { Button } from './design';
+import { Button, Input } from './design';
 import VolumnListItem from './VolumnListItem';
 import * as actions from '../actions';
 import { state } from '@noflux/react';
+import './VolumnList.scss';
 
-class EmptyVolumn extends Component {
+class VolumnListHeader extends Component {
   render() {
     return (
-      <div>
-        empty
-        <Button icon='add' onClick={this.props.onCreate} />
+      <div className='header'>
+        <Input onChange={e => this.filterVolumn(e.target.value)} />
+        <Button icon='add' onClick={() => this.parent.createItem()} />
       </div>
     );
   }
@@ -19,15 +20,15 @@ class EmptyVolumn extends Component {
 export default createEditableList(
   [
     VolumnListItem,
-    EmptyVolumn
+    VolumnListHeader
   ],
   {
     className: 'volumn',
-    reactKey: 'domain',
+    reactKey: 'name',
     dataSource: {
       select: async (item) => {
         console.log(item);
-        const records = await actions.findRecords({ domain: item.domain });
+        const records = await actions.findRecords({ volumn: item.name });
         state.set('current.volumn', item);
         state.set('records', records);
       },

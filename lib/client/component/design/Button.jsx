@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, cls } from 'react';
 import Icon from './Icon';
 import './Button.scss';
 
 export default class Button extends Component {
   render() {
-    const { icon } = this.props;
+    const { size, icon, children } = this.props;
     return (
-      <button className='button' onClick={this.props.onClick}>
+      <button className={cls('button', size)} onClick={this.props.onClick}>
         <Icon name={icon} />
-        {this.props.children}
+        { children && (<span>{children}</span>) }
       </button>
     );
   }

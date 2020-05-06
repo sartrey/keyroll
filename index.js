@@ -21,14 +21,10 @@ function startServer(options) {
     port: options.port,
     path: options.path,
     layout: {
-      styles: [
-        'assets/antd.min.css'
-      ],
+      styles: [],
       scripts: [
         'assets/react.development.js',
         'assets/react-dom.development.js',
-        'assets/moment-with-locales.min.js',
-        'assets/antd-with-locales.min.js'
       ]
     }
   });

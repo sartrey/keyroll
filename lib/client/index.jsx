@@ -1,7 +1,20 @@
 import React, { Component } from 'react';
+
+React.cls = function concatClassNames() {
+  let names = arguments;
+  if (arguments.length === 1) {
+    names = arguments[0];
+  } else {
+    names = Array.prototype.slice.call(arguments);
+  }
+  if (Array.isArray(names)) {
+    return names.filter(Boolean).join(' ');
+  }
+  return names;
+}
+
 import { connect, state } from '@noflux/react';
 import * as actions from './actions';
-import { Input } from './component/design';
 import DeviceList from './component/DeviceList';
 import VolumnList from './component/VolumnList';
 import RecordList from './component/RecordList';
@@ -22,7 +35,6 @@ class App extends Component {
   }
 
   render() {
-    const volumn = state.get('current.volumn');
     const volumns = state.get('volumns');
     const records = state.get('records');
     return (
@@ -34,24 +46,10 @@ class App extends Component {
           <DeviceList />
         </div>
         <div className='sider2'>
-          <div className='header'>
-            <Input onChange={e => this.searchVolumn(e.target.value)} />
-          </div>
           <VolumnList model={volumns} />
         </div>
         <div className='content'>
-          { volumn ? (
-            <div className='volumn-view'>
-              <div className='volumn-head'>
-                <div>domain = {volumn.domain}</div>
-              </div>
-              <RecordList model={records} />
-            </div>
-          ) : (
-            <div className='volumn-view'>
-              <div className='empty'>empty</div>
-            </div>
-          ) }
+          <RecordList model={records} />
         </div>
       </div>
     )

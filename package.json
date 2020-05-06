@@ -1,6 +1,6 @@
 {
   "name": "keyroll",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A secure key-value storage toolkit.",
   "main": "index.js",
   "bin": {

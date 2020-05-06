@@ -1,13 +1,61 @@
 .record-list {
-  flex: 1;
-  margin: .5rem;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background: #fcfcfc;
+  height: 100%;
   overflow: auto;
 
-  > li {
+  .header {
+    margin: .75rem;
+
+    > .detail {
+      display: flex;
+      flex-direction: row;
+      margin-bottom: .75rem;
+
+      .logo {
+        width: 6rem;
+        height: 6rem;
+        border-radius: 1rem;
+        background: #ddd;
+      }
+  
+      .info {
+        margin-left: .5rem;
+      }  
+    }
+
+    > .action {
+      .button {
+        padding: .5rem;        
+      }
+    }
+  }
+
+  ul {
+    margin: .75rem;
+    border: 1px solid #ddd;
+    border-radius: .75rem;
+  }
+
+  li {
     padding: .5rem;
     border-bottom: 1px solid #ccc;
+    background: #fcfcfc;
+    transition: .3s cubic-bezier(0.33, 1, 0.68, 1);
+
+    &:first-of-type {
+      border-radius: .75rem .75rem 0 0;
+    }
+
+    &:last-of-type {
+      border-radius: 0 0 .75rem .75rem;
+      border: none;
+    }
+
+    &:only-of-type {
+      border-radius: .75rem;
+    }
+
+    &:hover {
+      background: #f3f3f3;
+    }
   }
 }
