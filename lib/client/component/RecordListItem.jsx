@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Input } from './design';
 import { createEditableListItem } from './higher/editable';
-// import './RecordListItem.scss';
 
 class RecordEditor extends Component {
   render() {
@@ -39,6 +38,6 @@ export default createEditableListItem(
     RecordViewer
   ],
   {
-    className: 'record'
+    entityName: 'record'
   }
 );

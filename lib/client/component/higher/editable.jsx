@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, cls } from 'react';
+import { connect, state } from '@noflux/react';
 
 export function createEditableListItem(components, options) {
   const [
@@ -6,10 +7,10 @@ export function createEditableListItem(components, options) {
     Viewer
   ] = components;
   const {
-    className,
+    entityName,
     validator
   } = options;
-  const fullClassName = `${className}-list-item`;
+  const className = `${entityName}-list-item`;
   class EditableListItem extends Component {
     constructor(props) {
       super(props);
@@ -55,8 +56,6 @@ export function createEditableListItem(components, options) {
     }
   
     raiseUpdate() {
-      console.log('raiseUpdate')
-      const { model } = this.props;
       const { input } = this.state;
       if (validator) {
         const error = validator(input);
@@ -75,24 +74,20 @@ export function createEditableListItem(components, options) {
     render() {
       const { stage } = this.state;
       const { model, selected } = this.props;
-      const classes = [fullClassName];
-      if (selected) classes.push('active');
-      if (stage === 'editor') {
-        return (
-          <li className={classes.join(' ')}>
+      return (
+        <li className={cls(className, selected && 'active')}>
+          { stage === 'editor' && (
             <Editor model={model}
               onCancel={() => this.cancelInput()}
               onUpdate={() => this.raiseUpdate()}
               onChange={(key, value) => this.changeInput(key, value)} />
-          </li>
-        );
-      }
-      return (
-        <li className={classes.join(' ')}>
-          <Viewer model={model} selected={selected}
-            onSelect={() => this.raiseSelect()}
-            onActive={() => this.activeInput()}
-            onRemove={() => this.raiseRemove()} />
+          ) }
+          { stage === 'viewer' && (
+            <Viewer model={model} selected={selected}
+              onSelect={() => this.raiseSelect()}
+              onActive={() => this.activeInput()}
+              onRemove={() => this.raiseRemove()} />
+          ) }
         </li>
       );
     }
@@ -107,11 +102,11 @@ export function createEditableList(components, options) {
     FooterView
   ] = components;
   const {
-    className,
-    reactKey = 'key',
-    dataSource
+    entityName,
+    entityKey = 'key',
+    dataSource,
   } = options;
-  const fullClassName = `${className}-list`;
+  const className = `${entityName}-list`;
   class EditableList extends Component {
     constructor(props) {
       super(props);
@@ -141,10 +136,10 @@ export function createEditableList(components, options) {
     }
   
     async selectItem(item) {
+      await dataSource.select(item);
       const { query } = this.state;
       query.selectedItem = item;
       this.setState({ query });
-      await dataSource.select(item);
     }
 
     async removeItem(item) {
@@ -153,7 +148,6 @@ export function createEditableList(components, options) {
       }
       const { model } = this.state;
       const i = model.indexOf(item);
-      console.log('removeItem', i);
       if (i >= 0) {
         model.splice(i, 1);
         this.setState({ model });
@@ -161,11 +155,9 @@ export function createEditableList(components, options) {
     }
   
     async updateItem(item, next) {
-      console.log(item, next);
       const result = await dataSource.update(item, next);
       const { model } = this.state;
       const i = model.indexOf(item);
-      console.log('updateItem', i);
       if (i >= 0) {
         model.splice(i, 1, result);
         this.setState({ model });
@@ -175,19 +167,19 @@ export function createEditableList(components, options) {
     render() {
       const { model, query } = this.state;
       return (
-        <div className={fullClassName}>
+        <div className={className}>
           { HeaderView && (<HeaderView />) }
           { model.length > 0 && (
             <ul>
-            {model.map((item) => {
-              const selected = item === query.selectedItem;
+            { model.map((item) => {
+              const selected = query.selectedItem && item[entityKey] === query.selectedItem[entityKey];
               return (
-                <EditableListItem key={item[reactKey] || `temp-${item.$temp}`} model={item} selected={selected}
+                <EditableListItem key={item[entityKey] || `temp-${item.$temp}`} model={item} selected={selected}
                   onSelect={() => this.selectItem(item)}
                   onRemove={() => this.removeItem(item)} 
                   onUpdate={(input) => this.updateItem(item, input)} />
               );
-            })}
+            }) }
             </ul>
           ) }
           { FooterView && (<FooterView />) }
@@ -195,5 +187,5 @@ export function createEditableList(components, options) {
       );
     }
   }
-  return EditableList;
+  return connect(EditableList);
 }

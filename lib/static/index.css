@@ -1,13 +1,3 @@
-.device-list ul li {
-      box-sizing: border-box;
-      margin-left: .75rem;
-      padding: .5rem .75rem;
-      line-height: 1.5rem;
-      border-right: 1px solid #eee;
-      border-radius: .5rem 0 0 .5rem;
-      color: #01579B;
-      background: #fff;
-    }
 @font-face {
   font-family: 'Material Icons';
   font-style: normal;
@@ -17,7 +7,7 @@
        url(/__/file/assets/MaterialIcons-Regular.woff2) format('woff2');
 }
 
-.material-icons {
+.icon {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
@@ -76,11 +66,31 @@
 }
 .input:hover {
   }
+.device-list ul li {
+      display: flex;
+      box-sizing: border-box;
+      margin-left: .75rem;
+      padding: .5rem .75rem;
+      border-right: 1px solid #eee;
+      border-radius: .5rem 0 0 .5rem;
+      color: #01579B;
+      background: #fff;
+      cursor: pointer;
+    }
+
+      .device-list ul li span {
+        flex: 1;
+      }
+
+      .device-list ul li .icon {
+        line-height: 1.5rem;
+      }
 .volumn-list {
   background: #f6f6f6;
   border-right: 1px solid #ccc;
   overflow: hidden;
   display: flex;
+  width: 20rem;
   height: 100%;
   flex-direction: column;
 }
@@ -169,6 +179,7 @@
     margin-bottom: .5rem;
   }
 .record-list {
+  flex: 1;
   height: 100%;
   overflow: auto;
 }
@@ -227,6 +238,40 @@
   .record-list li:hover {
       background: #f3f3f3;
     }
+.access-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0277BD;
+}
+
+  .access-mask > div {
+    width: 20rem;
+    margin: calc(25vh - 5rem) auto;
+  }
+
+  .access-mask > div .icon {
+      display: block;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+      color: #fff;
+      text-align: center;
+    }
+
+  .access-mask > div input {
+      display: block;
+      font-size: 1.5rem;
+      box-sizing: border-box;
+      width: 100%;
+      margin: .5rem 0;
+      padding: .5rem;
+      border: 2px solid #01579B;
+      border-radius: .5rem;
+      text-align: center;
+      outline: none;
+    }
 * {
   margin: 0;
   padding: 0;
@@ -250,6 +295,10 @@ ul {
   list-style: none;
 }
 
+.hide {
+  display: none;
+}
+
 .container {
   min-width: 60rem;
   height: 100%;
@@ -261,52 +310,28 @@ ul {
     font-size: 1.1rem;
   }
 
-.sider1 {
+.side {
   width: 16rem;
   height: 100%;
   overflow: auto;
   background: #01579B;
+  box-shadow: inset -1px 0 3px rgba(0,75,100,.5);
 }
 
-.sider1 .header {
+.side .header {
     height: auto;
     padding: 1rem;
-    line-height: 1em;
+    line-height: 1.8rem;
   }
 
-.sider1 .header h1 {
+.side .header h1 {
       color: #fff;
     }
 
-.sider2 {
-  width: 25rem;
-  height: 100%;
-}
-
-.content {
-  flex: 1;
-  background: #f6f6f6;
-}
-
-.device-list > li {
-    padding-left: 1rem !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
-
-.volumn-view {
+.main {
   display: flex;
-  height: 100vh;
-  flex-direction: column;  
+  flex: 1;
+  height: 100%;
+  position: relative;
 }
-
-.volumn-view .empty {
-    margin: .5rem;
-    padding: .5rem;
-    text-align: center;
-  }
-
-.volumn-view .volumn-head {
-    margin: .5rem;
-  }
 

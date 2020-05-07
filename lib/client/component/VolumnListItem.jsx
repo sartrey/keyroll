@@ -43,6 +43,6 @@ export default createEditableListItem(
     VolumnViewer
   ],
   {
-    className: 'volumn'
+    entityName: 'volumn'
   }
 );

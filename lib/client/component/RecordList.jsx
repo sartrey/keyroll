@@ -8,7 +8,8 @@ import './RecordList.scss';
 
 class RecordListHeader extends Component {
   render() {
-    const volumn = state.get('current.volumn');
+    const volumns = state.get('volumns');
+    const volumn = volumns[state.get('current.volumn')];
     if (!volumn) {
       return (
         <div className='header'>
@@ -40,8 +41,8 @@ export default createEditableList(
     RecordListHeader
   ],
   {
-    className: 'record',
-    reactKey: 'id',
+    entityName: 'record',
+    entityKey: 'id',
     dataSource: {
       delete: (item) => {
         return actions.killRecord();

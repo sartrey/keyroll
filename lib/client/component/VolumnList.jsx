@@ -23,13 +23,14 @@ export default createEditableList(
     VolumnListHeader
   ],
   {
-    className: 'volumn',
-    reactKey: 'name',
+    entityName: 'volumn',
+    entityKey: 'name',
     dataSource: {
       select: async (item) => {
-        console.log(item);
+        const volumns = state.get('volumns');
+        const index = volumns.findIndex(e => e.name === item.name);
+        state.set('current.volumn', index);
         const records = await actions.findRecords({ volumn: item.name });
-        state.set('current.volumn', item);
         state.set('records', records);
       },
       delete: (item) => {

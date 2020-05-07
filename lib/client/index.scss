@@ -21,6 +21,10 @@ ul {
   list-style: none;
 }
 
+.hide {
+  display: none;
+}
+
 .container {
   min-width: 60rem;
   height: 100%;
@@ -32,16 +36,17 @@ ul {
   }
 }
 
-.sider1 {
+.side {
   width: 16rem;
   height: 100%;
   overflow: auto;
   background: #01579B;
+  box-shadow: inset -1px 0 3px rgba(0,75,100,.5);
 
   .header {
     height: auto;
     padding: 1rem;
-    line-height: 1em;
+    line-height: 1.8rem;
     
     h1 {
       color: #fff;
@@ -49,36 +54,9 @@ ul {
   }
 }
 
-.sider2 {
-  width: 25rem;
-  height: 100%;
-}
-
-.content {
-  flex: 1;
-  background: #f6f6f6;
-}
-
-.device-list {
-  > li {
-    padding-left: 1rem !important;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-  }
-}
-
-.volumn-view {
+.main {
   display: flex;
-  height: 100vh;
-  flex-direction: column;
-
-  .empty {
-    margin: .5rem;
-    padding: .5rem;
-    text-align: center;
-  }
-
-  .volumn-head {
-    margin: .5rem;
-  }  
+  flex: 1;
+  height: 100%;
+  position: relative;
 }

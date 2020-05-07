@@ -4,6 +4,7 @@ import './Input.scss';
 export default class Input extends Component {
   render() {
     const {
+      type,
       defaultValue,
       onChange
     } = this.props;

@@ -18,20 +18,18 @@ import * as actions from './actions';
 import DeviceList from './component/DeviceList';
 import VolumnList from './component/VolumnList';
 import RecordList from './component/RecordList';
+import AccessMask from './component/AccessMask';
 import './index.scss';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      query: {},
-    };
     actions.initState();
   }
 
-  componentDidMount() {
-    actions.scanDevices();
-    actions.findVolumns();
+  async componentDidMount() {
+    await actions.scanDevices();
+    await actions.findVolumns();
   }
 
   render() {
@@ -39,17 +37,16 @@ class App extends Component {
     const records = state.get('records');
     return (
       <div className='container'>
-        <div className='sider1'>
+        <div className='side'>
           <div className='header'>
             <h1>KeyRoll</h1>
           </div>
           <DeviceList />
         </div>
-        <div className='sider2'>
+        <div className='main'>
           <VolumnList model={volumns} />
-        </div>
-        <div className='content'>
           <RecordList model={records} />
+          <AccessMask />
         </div>
       </div>
     )
