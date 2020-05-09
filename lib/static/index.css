@@ -249,15 +249,13 @@
 
   .access-mask > div {
     width: 20rem;
-    margin: calc(25vh - 5rem) auto;
+    margin: 25vh auto 0;
   }
 
-  .access-mask > div .icon {
-      display: block;
-      font-size: 3rem;
-      margin-bottom: 2rem;
+  .access-mask > div h1 {
+      font-size: 1.1rem;
+      font-weight: normal;
       color: #fff;
-      text-align: center;
     }
 
   .access-mask > div input {
@@ -265,7 +263,7 @@
       font-size: 1.5rem;
       box-sizing: border-box;
       width: 100%;
-      margin: .5rem 0;
+      margin: .5rem 0 .6rem;
       padding: .5rem;
       border: 2px solid #01579B;
       border-radius: .5rem;

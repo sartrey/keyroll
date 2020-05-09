@@ -16,7 +16,7 @@ function startServer(options) {
   if (!options.path.root) {
     options.path.root = path.join(__dirname, 'lib')
   }
-  return epiiMinion({
+  return epiiMinion.start({
     name: 'keyroll',
     port: options.port,
     path: options.path,

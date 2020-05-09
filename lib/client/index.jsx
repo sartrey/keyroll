@@ -14,7 +14,7 @@ React.cls = function concatClassNames() {
 }
 
 import { connect, state } from '@noflux/react';
-import * as actions from './actions';
+import store from './store';
 import DeviceList from './component/DeviceList';
 import VolumnList from './component/VolumnList';
 import RecordList from './component/RecordList';
@@ -24,17 +24,10 @@ import './index.scss';
 class App extends Component {
   constructor(props) {
     super(props);
-    actions.initState();
-  }
-
-  async componentDidMount() {
-    await actions.scanDevices();
-    await actions.findVolumns();
+    store.initialize();
   }
 
   render() {
-    const volumns = state.get('volumns');
-    const records = state.get('records');
     return (
       <div className='container'>
         <div className='side'>
@@ -44,8 +37,8 @@ class App extends Component {
           <DeviceList />
         </div>
         <div className='main'>
-          <VolumnList model={volumns} />
-          <RecordList model={records} />
+          <VolumnList />
+          <RecordList />
           <AccessMask />
         </div>
       </div>

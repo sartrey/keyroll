@@ -1,17 +1,23 @@
 import React, { Component } from 'react';
 import { connect, state } from '@noflux/react';
+import { action } from '../store';
 import { Icon } from './design';
-import * as actions from '../actions';
 import './DeviceList.scss';
 
 class DeviceList extends Component {
-  componentDidMount() {
-    actions.scanDevices();
+  async componentDidMount() {
+    await action.scanDevices();
   }
 
-  lockDevice(device) {
+  async lockDevice(device) {
     if (device.secure.locked) return;
-    actions.lockDevice({ name: device.name });
+    device = await action.lockDevice({
+      device: { name: device.name }
+    });
+    device.selected = true;
+    const devices = state.get('devices')
+      .map(e => e.name === device.name ? device : e);
+    state.set('devices', devices);
   }
 
   render() {

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
+import { state } from '@noflux/react';
+import { action } from '../store';
 import { createEditableList } from './higher/editable';
 import { Button, Input } from './design';
 import VolumnListItem from './VolumnListItem';
-import * as actions from '../actions';
-import { state } from '@noflux/react';
 import './VolumnList.scss';
 
 class VolumnListHeader extends Component {
@@ -26,18 +26,38 @@ export default createEditableList(
     entityName: 'volumn',
     entityKey: 'name',
     dataSource: {
+      source: () => {
+        return state.get('volumns');
+      },
       select: async (item) => {
-        const volumns = state.get('volumns');
-        const index = volumns.findIndex(e => e.name === item.name);
-        state.set('current.volumn', index);
-        const records = await actions.findRecords({ volumn: item.name });
-        state.set('records', records);
+        const volumns = state.get('volumns').map(e => {
+          if (e.name === item.name) {
+            item.selected = true;
+            return item;
+          }
+          e.selected = false;
+          return e;
+        });
+        state.set('volumns', volumns);
+        const device = state.get('devices').find(e => e.selected);
+        await action.findRecords({
+          device: { name: device.name },
+          volumn: { name: item.name }
+        });
       },
       delete: (item) => {
-        actions.killVolumn();
+        const device = state.get('devices').find(e => e.selected);
+        action.killVolumn({
+          device: { name: device.name },
+          volumn: { name: item.name }
+        });
       },
       update: async (item, next) => {
-        await actions.editVolumn({}, next);
+        const device = state.get('devices').find(e => e.selected);
+        await action.editVolumn({
+          device: { name: device.name },
+          volumn: next
+        });
         return next;
       }
     }

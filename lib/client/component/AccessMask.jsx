@@ -1,7 +1,7 @@
 import React, { Component, cls } from 'react';
 import { connect, state } from '@noflux/react';
-import { Icon } from './design';
-import * as actions from '../actions';
+import { action } from '../store';
+import { Icon, Button } from './design';
 import './AccessMask.scss';
 
 class AccessMask extends Component {
@@ -11,8 +11,7 @@ class AccessMask extends Component {
       input: {
         code: ''
       },
-      error: {
-      }
+      error: null
     };
   }
 
@@ -26,66 +25,77 @@ class AccessMask extends Component {
     if (key === 13) action();
   }
 
-  lockDevice(name) {
-    const { input } = this.state;
-    return actions.lockDevice({ name, code: input.code })
-      .then(() => {})
-      .catch((error) => {});
+  randomCode() {
+    throw new Error('not support');
   }
 
-  unlockDevice(name, code) {   
-    const { input } = this.state; 
-    return actions.unlockDevice({ name, code: input.code })
-      .then(() => {
-        input.code = '';
-        this.setState({ input });
-      })
+  lockDevice(device) {
+    const { input } = this.state;
+    return action.lockDevice({ 
+      device: { name: device.name, code: input.code }
+    })
+      .then(() => {})
       .catch((error) => {
-        this.setState({
-          error: { message: error.message }
-        });
+        this.setState({ error: error.code })
       });
   }
 
-  renderCodeUpdate() {
-    const devices = state.get('devices');
-    const currentDevice = devices[state.get('current.device')];
+  async unlockDevice(device) {   
+    const { input } = this.state; 
+    device = await action.unlockDevice({ 
+      device: { name: device.name, code: input.code }
+    });
+    device.selected = true;
+    const devices = state.get('devices')
+      .map(e => e.name === device.name ? device : e);
+    state.set('devices', devices);
+    input.code = ''
+    this.setState({ input });
+  }
+
+  renderSecretPanel(device) {
     const { input, error } = this.state;
+    if (!device) return;
+    if (!device.secure.secret && device.total > 0) {
+      return (
+        <div>
+          <h1>danger</h1>
+          <p>your device is broken</p>
+        </div>
+      );
+    }
     return (
       <div>
-        <Icon name='lock' />
+        <h1>create secret</h1>
         <input type='password' value={input.code}
           onChange={e => this.changeInput('code', e.target.value)}
-          onKeyUp={e => this.handleEnter(e.keyCode, () => this.lockDevice(currentDevice.name))} />
-        <button onClick={() => this.randomCode()}>random</button>
+          onKeyUp={e => this.handleEnter(e.keyCode, () => this.lockDevice(device))} />
+        <Button onClick={() => this.randomCode()}>random</Button>
       </div>
     );
   }
 
-  renderCodeVerify() {
-    const devices = state.get('devices');
-    const currentDevice = devices[state.get('current.device')];
+  renderAccessPanel(device) {
     const { input, error } = this.state;
     return (
       <div>
-        <Icon name='lock' />
+        <h1>verify secret</h1>
         <input type='password' value={input.code}
           onChange={e => this.changeInput('code', e.target.value)} 
-          onKeyUp={e => this.handleEnter(e.keyCode, () => this.unlockDevice(currentDevice.name))} />
+          onKeyUp={e => this.handleEnter(e.keyCode, () => this.unlockDevice(device))} />
       </div>
     );
   }
 
   render() {
     const devices = state.get('devices');
-    const currentDevice = devices[state.get('current.device')];
-    if (!currentDevice) {
-      return (<div className='access-mask' />);
-    }
-    const canAccess = !currentDevice.secure.notSet && !currentDevice.secure.locked;
+    const currentDevice = devices.find(e => e.selected);
+    const willBlockAccess = !currentDevice || !currentDevice.secure.secret || currentDevice.secure.locked;
     return (
-      <div className={cls('access-mask', canAccess && 'hide')}>
-        { currentDevice.secure.notSet ? this.renderCodeUpdate() : this.renderCodeVerify() }
+      <div className={cls('access-mask', !willBlockAccess && 'hide')}>
+        { (currentDevice && currentDevice.secure.secret)
+        ? this.renderAccessPanel(currentDevice)
+        : this.renderSecretPanel(currentDevice) }
       </div>
     );
   }

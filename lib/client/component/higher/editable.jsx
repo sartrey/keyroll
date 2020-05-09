@@ -111,21 +111,11 @@ export function createEditableList(components, options) {
     constructor(props) {
       super(props);
       this.state = {
-        model: props.model || [],
-        query: {
-          selectedItem: null
-        }
+        model: []
       };
       this.idgen = 1;
       if (HeaderView) HeaderView.prototype.parent = this;
       if (FooterView) FooterView.prototype.parent = this;
-    }
-
-    static getDerivedStateFromProps(props, state) {
-      if (state.model !== props.model) {
-        state.model = props.model;
-      }
-      return state;
     }
 
     createItem() {
@@ -137,9 +127,6 @@ export function createEditableList(components, options) {
   
     async selectItem(item) {
       await dataSource.select(item);
-      const { query } = this.state;
-      query.selectedItem = item;
-      this.setState({ query });
     }
 
     async removeItem(item) {
@@ -164,17 +151,32 @@ export function createEditableList(components, options) {
       }
     }
 
+    reconcileModel() {
+      const innerModel = this.state.model;
+      const outerModel = dataSource.source();
+      const model = [];
+      innerModel.forEach(e => {
+        if (e.$temp) model.push(e);
+      });
+      console.log('outerModel', outerModel);
+      outerModel.forEach(eo => {
+        const e = innerModel.find(ei => ei[entityKey] === eo[entityKey]);
+        model.push(e || eo);
+      });
+      console.log('reconsile', model);
+      return model;
+    }
+
     render() {
-      const { model, query } = this.state;
+      const model = this.reconcileModel();
       return (
         <div className={className}>
           { HeaderView && (<HeaderView />) }
           { model.length > 0 && (
             <ul>
             { model.map((item) => {
-              const selected = query.selectedItem && item[entityKey] === query.selectedItem[entityKey];
               return (
-                <EditableListItem key={item[entityKey] || `temp-${item.$temp}`} model={item} selected={selected}
+                <EditableListItem key={item[entityKey] || `temp-${item.$temp}`} model={item} selected={item.selected}
                   onSelect={() => this.selectItem(item)}
                   onRemove={() => this.removeItem(item)} 
                   onUpdate={(input) => this.updateItem(item, input)} />

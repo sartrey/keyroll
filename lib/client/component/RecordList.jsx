@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { createEditableList } from './higher/editable';
 import { Button } from './design';
 import RecordListItem from './RecordListItem';
-import { state } from '@noflux/react';
-import * as actions from '../actions';
+import { connect, state } from '@noflux/react';
+import { action } from '../store';
 import './RecordList.scss';
 
 class RecordListHeader extends Component {
   render() {
-    const volumns = state.get('volumns');
-    const volumn = volumns[state.get('current.volumn')];
+    const volumn = state.get('volumns').find(e => e.selected);
+    console.log('volumn', volumn);
     if (!volumn) {
       return (
         <div className='header'>
@@ -38,17 +38,52 @@ class RecordListHeader extends Component {
 export default createEditableList(
   [
     RecordListItem,
-    RecordListHeader
+    connect(RecordListHeader)
   ],
   {
     entityName: 'record',
     entityKey: 'id',
     dataSource: {
-      delete: (item) => {
-        return actions.killRecord();
+      source: () => {
+        return state.get('records');
+      },
+      select: () => {},
+      delete: async (item) => {
+        const device = state.get('devices').find(e => e.selected);
+        const volumn = state.get('volumns').find(e => e.selected);
+        const records = state.get('records');
+        await action.killRecord({
+          device: { name: device.name },
+          volumn: { name: volumn.name },
+          record: { id: item.id }
+        });
+        const index = records.findIndex(e => e.id === item.id);
+        if (index >= 0) {
+          state.cursor('records').splice(index, 1);
+        }
       },
       update: async (item, next) => {
-        await actions.editRecord({}, next);
+        const device = state.get('devices').find(e => e.selected);
+        const volumn = state.get('volumns').find(e => e.selected);
+        const record = { type: next.type, name: next.name, value: next.value };
+        if (!item.$temp) {
+          record.id = next.id;
+        }
+        await action.editRecord({
+          device: { name: device.name },
+          volumn: { name: volumn.name },
+          record
+        })
+          .then(result => {
+            record.id = result.id;
+          });
+        if (item.$temp) {
+          state.cursor('records').push(record);
+        } else {
+          const records = state.get('records');
+          const index = records.findIndex(e => e.id === item.id);
+          state.cursor('records').splice(index, 1, record);
+        }
         return next;
       }
     }
