@@ -9,11 +9,13 @@
   > div {
     width: 20rem;
     margin: 25vh auto 0;
+    color: #fff;
 
     h1 {
-      font-size: 1.1rem;
+      font-size: 1.5rem;
       font-weight: normal;
       color: #fff;
+      text-shadow: 0 0 1px #333;
     }
 
     input {
@@ -27,6 +29,7 @@
       border-radius: .5rem;
       text-align: center;
       outline: none;
+      color: #333;
     }
   }
 }

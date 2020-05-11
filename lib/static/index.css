@@ -216,7 +216,7 @@
   }
 
   .record-list li {
-    padding: .5rem;
+    padding: .5rem .75rem;
     border-bottom: 1px solid #ccc;
     background: #fcfcfc;
     transition: .3s cubic-bezier(0.33, 1, 0.68, 1)
@@ -238,6 +238,14 @@
   .record-list li:hover {
       background: #f3f3f3;
     }
+
+  .record-list .record-viewer .field-name {
+      color: #999;
+      font-size: .8rem;
+    }
+
+  .record-list .record-viewer .field-value {
+    }
 .access-mask {
   position: absolute;
   top: 0;
@@ -250,12 +258,14 @@
   .access-mask > div {
     width: 20rem;
     margin: 25vh auto 0;
+    color: #fff;
   }
 
   .access-mask > div h1 {
-      font-size: 1.1rem;
+      font-size: 1.5rem;
       font-weight: normal;
       color: #fff;
+      text-shadow: 0 0 1px #333;
     }
 
   .access-mask > div input {
@@ -269,6 +279,7 @@
       border-radius: .5rem;
       text-align: center;
       outline: none;
+      color: #333;
     }
 * {
   margin: 0;

@@ -72,12 +72,12 @@ export function createEditableListItem(components, options) {
     }
   
     render() {
-      const { stage } = this.state;
+      const { stage, input } = this.state;
       const { model, selected } = this.props;
       return (
         <li className={cls(className, selected && 'active')}>
           { stage === 'editor' && (
-            <Editor model={model}
+            <Editor model={model} input={input}
               onCancel={() => this.cancelInput()}
               onUpdate={() => this.raiseUpdate()}
               onChange={(key, value) => this.changeInput(key, value)} />
@@ -158,12 +158,10 @@ export function createEditableList(components, options) {
       innerModel.forEach(e => {
         if (e.$temp) model.push(e);
       });
-      console.log('outerModel', outerModel);
       outerModel.forEach(eo => {
         const e = innerModel.find(ei => ei[entityKey] === eo[entityKey]);
         model.push(e || eo);
       });
-      console.log('reconsile', model);
       return model;
     }
 

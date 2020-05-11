@@ -56,7 +56,7 @@ class AccessMask extends Component {
   renderSecretPanel(device) {
     const { input, error } = this.state;
     if (!device) return;
-    if (!device.secure.secret && device.total > 0) {
+    if (!device.protect.secret && device.size > 0) {
       return (
         <div>
           <h1>danger</h1>
@@ -90,10 +90,10 @@ class AccessMask extends Component {
   render() {
     const devices = state.get('devices');
     const currentDevice = devices.find(e => e.selected);
-    const willBlockAccess = !currentDevice || !currentDevice.secure.secret || currentDevice.secure.locked;
+    const willBlockAccess = !currentDevice || !currentDevice.protect.secret || currentDevice.protect.locked;
     return (
       <div className={cls('access-mask', !willBlockAccess && 'hide')}>
-        { (currentDevice && currentDevice.secure.secret)
+        { (currentDevice && currentDevice.protect.secret)
         ? this.renderAccessPanel(currentDevice)
         : this.renderSecretPanel(currentDevice) }
       </div>

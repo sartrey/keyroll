@@ -65,9 +65,9 @@ export default createEditableList(
       update: async (item, next) => {
         const device = state.get('devices').find(e => e.selected);
         const volumn = state.get('volumns').find(e => e.selected);
-        const record = { type: next.type, name: next.name, value: next.value };
-        if (!item.$temp) {
-          record.id = next.id;
+        const record = { ...next };
+        if (item.$temp) {
+          record.id = undefined;
         }
         await action.editRecord({
           device: { name: device.name },
@@ -76,6 +76,7 @@ export default createEditableList(
         })
           .then(result => {
             record.id = result.id;
+            // todo - show value ?
           });
         if (item.$temp) {
           state.cursor('records').push(record);
