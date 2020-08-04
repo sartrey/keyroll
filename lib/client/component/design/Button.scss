@@ -4,6 +4,13 @@
   text-align: left;
   outline: none;
   line-height: 1.5rem;
+  background: #f3f3f3;
+  transition: .2s;
+
+  &:hover {
+    background: #fff;
+    cursor: pointer;
+  }
 
   > * {
     vertical-align: top;

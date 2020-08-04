@@ -10,20 +10,12 @@
   .header {
     display: flex;
     flex-direction: row;
-    padding: .75rem;
+    padding: .5rem;
     border-bottom: 1px solid #ddd;
-
-    input {
-      transition: .3s cubic-bezier(0.33, 1, 0.68, 1);
-
-      &:hover {
-        border-color: #999;
-      }
-    }
 
     button {
       margin-left: .5rem;
-      padding: .2rem .5rem 0 .5rem;
+      padding: 0 .5rem;
 
       i {
         font-size: 1.2rem;
@@ -54,7 +46,7 @@
           margin-right: .5rem;
           padding: 0 .5rem;
           border-color: transparent;
-          border-radius: .5rem;
+          border-radius: .3rem;
         }
       }
     }
@@ -67,10 +59,10 @@
   }
 
   li {
-    padding: .75rem .75rem;
+    padding: .5rem;
     border-bottom: 1px solid #eee;
     background: #fcfcfc;
-    transition: .3s cubic-bezier(0.33, 1, 0.68, 1);
+    transition: .3s;
 
     &:hover {
       background: #f6f6f6;

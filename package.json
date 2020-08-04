@@ -1,6 +1,6 @@
 {
   "name": "keyroll",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "A secure key-value storage toolkit.",
   "main": "index.js",
   "bin": {
@@ -25,19 +25,19 @@
   },
   "homepage": "https://github.com/sartrey/keyroll#readme",
   "dependencies": {
-    "@epiijs/minion": "^1.2.0",
+    "@epiijs/minion": "^1.3.0",
     "@noflux/react": "^1.0.0",
-    "nanoid": "^2.1.10",
+    "nanoid": "^3.1.12",
     "node-fetch": "^2.6.0"
   },
   "optionalDependencies": {
     "chalk": "^3.0.0"
   },
   "devDependencies": {
-    "@epiijs/render": "^0.13.1",
+    "@epiijs/render": "^0.14.2",
     "material-design-icons": "^3.0.1",
     "prop-types": "^15.7.2",
     "qrcode.react": "^1.0.0",
-    "whatwg-fetch": "latest"
+    "whatwg-fetch": "^3.4.0"
   }
 }

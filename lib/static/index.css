@@ -30,29 +30,29 @@
   text-align: left;
   outline: none;
   line-height: 1.5rem;
+  background: #f3f3f3;
+  transition: .2s
 }
-
-  .button > * {
+.button:hover {
+    background: #fff;
+    cursor: pointer;
+  }
+.button > * {
     vertical-align: top;
   }
-
-  .button i {
+.button i {
     font-size: 1.5rem;
   }
-
-  .button span {
+.button span {
     margin: 0 .25rem;
     font-size: 1.1rem;
   }
-
 .button.small {
     line-height: 1rem;
   }
-
 .button.small i {
       font-size: 1rem;
     }
-
 .button.small span {
       font-size: .9rem;
     }
@@ -61,18 +61,23 @@
   width: 100%;
   padding: .5rem;
   border: 1px solid #ccc;
-  border-radius: .5rem;
-  outline: none
+  border-radius: .3rem;
+  outline: none;
+  transition: .2s
 }
 .input:hover {
+    border-color: #999;
+  }
+.input:focus {
+    border-color: #666;
   }
 .device-list ul li {
       display: flex;
       box-sizing: border-box;
       margin-left: .75rem;
-      padding: .5rem .75rem;
+      padding: .5rem .7rem;
       border-right: 1px solid #eee;
-      border-radius: .5rem 0 0 .5rem;
+      border-radius: .3rem 0 0 .3rem;
       color: #01579B;
       background: #fff;
       cursor: pointer;
@@ -98,21 +103,13 @@
   .volumn-list .header {
     display: flex;
     flex-direction: row;
-    padding: .75rem;
+    padding: .5rem;
     border-bottom: 1px solid #ddd;
   }
 
-  .volumn-list .header input {
-      transition: .3s cubic-bezier(0.33, 1, 0.68, 1)
-    }
-
-  .volumn-list .header input:hover {
-        border-color: #999;
-      }
-
   .volumn-list .header button {
       margin-left: .5rem;
-      padding: .2rem .5rem 0 .5rem;
+      padding: 0 .5rem;
     }
 
   .volumn-list .header button i {
@@ -145,7 +142,7 @@
           margin-right: .5rem;
           padding: 0 .5rem;
           border-color: transparent;
-          border-radius: .5rem;
+          border-radius: .3rem;
         }
 
   .volumn-list ul {
@@ -155,10 +152,10 @@
   }
 
   .volumn-list li {
-    padding: .75rem .75rem;
+    padding: .5rem;
     border-bottom: 1px solid #eee;
     background: #fcfcfc;
-    transition: .3s cubic-bezier(0.33, 1, 0.68, 1)
+    transition: .3s
   }
 
   .volumn-list li:hover {
@@ -329,7 +326,7 @@ ul {
 
 .side .header {
     height: auto;
-    padding: 1rem;
+    padding: .75rem 1rem;
     line-height: 1.8rem;
   }
 

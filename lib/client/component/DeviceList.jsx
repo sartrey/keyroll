@@ -10,7 +10,7 @@ class DeviceList extends Component {
   }
 
   async lockDevice(device) {
-    if (device.protect.locked) return;
+    if (device.secure.locked) return;
     device = await action.lockDevice({
       device: { name: device.name }
     });
@@ -28,7 +28,7 @@ class DeviceList extends Component {
           {devices.map(device => (
             <li key={device.name} onClick={() => this.lockDevice(device)}>
               <span>{device.name}</span>
-              <Icon name={device.protect.locked ? 'lock' : 'lock_open'} />
+              <Icon name={device.secure.locked ? 'lock' : 'lock_open'} />
             </li>
           ))}
         </ul>

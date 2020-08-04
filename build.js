@@ -22,8 +22,10 @@ const config = {
 };
 
 if (process.env.NODE_ENV === 'development') {
-  epiiRender.watch(config);
-  require('./')(config);
+  epiiRender.watch(config)
+    .then(() => {
+      require('./')(config);
+    });
 } else {
   epiiRender.build(config);
 }

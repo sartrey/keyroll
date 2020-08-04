@@ -45,11 +45,14 @@ export default createEditableList(
           volumn: { name: item.name }
         });
       },
-      delete: (item) => {
+      delete: async (item) => {
         const device = state.get('devices').find(e => e.selected);
-        action.killVolumn({
+        await action.killVolumn({
           device: { name: device.name },
           volumn: { name: item.name }
+        });
+        await action.findVolumns({
+          device: { name: device.name }
         });
       },
       update: async (item, next) => {
@@ -57,6 +60,9 @@ export default createEditableList(
         await action.editVolumn({
           device: { name: device.name },
           volumn: next
+        });
+        await action.findVolumns({
+          device: { name: device.name }
         });
         return next;
       }
