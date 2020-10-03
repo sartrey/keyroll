@@ -1,32 +1,6 @@
-﻿# keyroll
+# KeyRoll
 
-`keyroll` is a secure key-value storage toolkit.
+## Project Structure
 
-## Usage
-
-### install as global dependency
-
-`npm install -g keyroll`
-
-### start server anywhere
-
-```sh
-# serve ~/.keyroll at 9988
-keyroll
-
-# serve ~/.keyroll at 8080
-keyroll --port=8080
-
-# fork server
-keyroll fork
-
-# stop server
-keyroll stop
-
-# show help
-keyroll help
-```
-
-### access homepage
-
-`http://localhost:YOUR-PORT`
+`model` directory contains a low-level secure key-value storage library.
+`views` directory contains several frontend apps.
