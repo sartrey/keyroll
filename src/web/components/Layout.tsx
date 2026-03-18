@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   FileTextOutlined,
-  SettingOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import './Layout.less';
 
@@ -12,13 +12,13 @@ const { Header, Sider, Content } = AntLayout;
 const navItems = [
   { path: '/', icon: <DashboardOutlined />, label: 'Dashboard' },
   { path: '/records', icon: <FileTextOutlined />, label: 'Records' },
-  { path: '/settings', icon: <SettingOutlined />, label: 'Settings' },
+  { path: '/settings', icon: <SettingOutlined />, label: 'Settings' }
 ];
 
 export default function Layout() {
   const location = useLocation();
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer, borderRadiusLG }
   } = theme.useToken();
 
   return (
@@ -34,9 +34,9 @@ export default function Layout() {
           items={navItems.map((item) => ({
             key: item.path,
             icon: item.icon,
-            label: (
+            label: 
               <Link to={item.path}>{item.label}</Link>
-            ),
+            
           }))}
         />
       </Sider>
@@ -48,7 +48,7 @@ export default function Layout() {
               padding: 24,
               minHeight: 360,
               background: colorBgContainer,
-              borderRadius: borderRadiusLG,
+              borderRadius: borderRadiusLG
             }}
           >
             <Outlet />

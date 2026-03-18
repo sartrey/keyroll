@@ -1,57 +1,69 @@
-import { Table, Button, Input, Form, Space, message, Card, Popconfirm } from 'antd';
+import { Table, Button, Input, Form, Space, message, Card, Popconfirm, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, IRecord } from '../api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+import { listRecords, putRecord, deleteRecord } from '../services/records';
+import type { IRecord } from '../../shared/types';
 
 export default function Records() {
-  const queryClient = useQueryClient();
   const [form] = Form.useForm();
+  const [records, setRecords] = useState<IRecord[]>([]);
   const [filterPrefix, setFilterPrefix] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const { data: records = [] } = useQuery({
-    queryKey: ['records', { prefix: filterPrefix }],
-    queryFn: () => api.records.list({ prefix: filterPrefix || undefined }),
-  });
+  // 加载记录列表
+  const loadRecords = async (prefix?: string) => {
+    setLoading(true);
+    try {
+      const data = await listRecords({ prefix: prefix || undefined });
+      setRecords(data);
+    } catch {
+      message.error('Failed to load records');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const putMutation = useMutation({
-    mutationFn: ({ recordKey, body }: { recordKey: string; body: any }) =>
-      api.records.put(recordKey, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['records'] });
-      message.success('Record saved successfully');
-      form.resetFields();
-    },
-    onError: () => {
-      message.error('Failed to save record');
-    },
-  });
+  useEffect(() => {
+    loadRecords(filterPrefix || undefined);
+  }, []);
 
-  const deleteMutation = useMutation({
-    mutationFn: (recordKey: string) => api.records.delete(recordKey),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['records'] });
-      message.success('Record deleted successfully');
-    },
-    onError: () => {
-      message.error('Failed to delete record');
-    },
-  });
+  const handleFilter = () => {
+    loadRecords(filterPrefix || undefined);
+  };
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: any) => {
     if (!values.recordKey) {
       message.error('Please enter record key');
       return;
     }
-    putMutation.mutate({
-      recordKey: values.recordKey,
-      body: {
+    setSaving(true);
+    try {
+      await putRecord(values.recordKey, {
         recordType: values.recordType || 'plain',
         recordValue: values.recordValue,
         contentType: values.contentType || 'text/plain',
-        secureLevel: values.secureLevel || 0,
-      },
-    });
+        secureLevel: values.secureLevel || 0
+      });
+      message.success('Record saved successfully');
+      form.resetFields();
+      loadRecords(filterPrefix || undefined);
+    } catch {
+      message.error('Failed to save record');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (recordKey: string) => {
+    try {
+      await deleteRecord(recordKey);
+      message.success('Record deleted successfully');
+      loadRecords(filterPrefix || undefined);
+    } catch {
+      message.error('Failed to delete record');
+    }
   };
 
   const columns = [
@@ -59,31 +71,31 @@ export default function Records() {
       title: 'Key',
       dataIndex: 'recordKey',
       key: 'recordKey',
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: 'Type',
       dataIndex: 'recordType',
       key: 'recordType',
       width: 80,
-      render: (type: string) => (
+      render: (type: string) => 
         <span style={{ fontFamily: 'monospace', backgroundColor: type === 'plain' ? '#e6f7ff' : '#fff7e6', padding: '2px 6px', borderRadius: 4 }}>
           {type}
         </span>
-      ),
+      
     },
     {
       title: 'Value',
       dataIndex: 'recordValue',
       key: 'recordValue',
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: 'Content-Type',
       dataIndex: 'contentType',
       key: 'contentType',
       width: 150,
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: 'Secure',
@@ -93,30 +105,30 @@ export default function Records() {
       render: (level: number) => {
         const colors = ['#52c41a', '#faad14', '#ff4d4f'];
         return <span style={{ color: colors[level] }}>{level}</span>;
-      },
+      }
     },
     {
       title: 'Updated',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 160,
-      render: (ts: number) => new Date(ts * 1000).toLocaleString(),
+      render: (ts: number) => new Date(ts * 1000).toLocaleString()
     },
     {
       title: 'Action',
       key: 'action',
       width: 80,
-      render: (_: any, record: IRecord) => (
+      render: (_: any, record: IRecord) => 
         <Popconfirm
           title="Delete this record?"
-          onConfirm={() => deleteMutation.mutate(record.recordKey)}
+          onConfirm={() => handleDelete(record.recordKey)}
           okText="Delete"
           cancelText="Cancel"
         >
           <Button type="text" danger icon={<DeleteOutlined />} />
         </Popconfirm>
-      ),
-    },
+      
+    }
   ];
 
   return (
@@ -133,10 +145,10 @@ export default function Records() {
             <Input placeholder="/plain/localhost/user.name" style={{ width: 220 }} />
           </Form.Item>
           <Form.Item name="recordType" label="Type">
-            <Input.Select style={{ width: 100 }} defaultValue="plain">
-              <Input.Select.Option value="plain">plain</Input.Select.Option>
-              <Input.Select.Option value="refer">refer</Input.Select.Option>
-            </Input.Select>
+            <Select style={{ width: 100 }} defaultValue="plain">
+              <Select.Option value="plain">plain</Select.Option>
+              <Select.Option value="refer">refer</Select.Option>
+            </Select>
           </Form.Item>
           <Form.Item
             name="recordValue"
@@ -149,14 +161,14 @@ export default function Records() {
             <Input placeholder="text/plain" style={{ width: 140 }} defaultValue="text/plain" />
           </Form.Item>
           <Form.Item name="secureLevel" label="Secure">
-            <Input.Select style={{ width: 80 }} defaultValue={0}>
-              <Input.Select.Option value={0}>0</Input.Select.Option>
-              <Input.Select.Option value={1}>1</Input.Select.Option>
-              <Input.Select.Option value={2}>2</Input.Select.Option>
-            </Input.Select>
+            <Select style={{ width: 80 }} defaultValue={0}>
+              <Select.Option value={0}>0</Select.Option>
+              <Select.Option value={1}>1</Select.Option>
+              <Select.Option value={2}>2</Select.Option>
+            </Select>
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" icon={<PlusOutlined />} loading={putMutation.isPending}>
+            <Button type="primary" htmlType="submit" icon={<PlusOutlined />} loading={saving}>
               Save
             </Button>
           </Form.Item>
@@ -171,7 +183,11 @@ export default function Records() {
             value={filterPrefix}
             onChange={(e) => setFilterPrefix(e.target.value)}
             allowClear
+            onPressEnter={handleFilter}
           />
+          <Button type="primary" onClick={handleFilter}>
+            Search
+          </Button>
         </Space>
       </Card>
 
@@ -180,6 +196,7 @@ export default function Records() {
         dataSource={records}
         rowKey="recordKey"
         pagination={{ pageSize: 20 }}
+        loading={loading}
       />
     </div>
   );

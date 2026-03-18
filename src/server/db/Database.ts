@@ -1,21 +1,23 @@
-import SqliteDatabase from 'better-sqlite3';
 import { join } from 'path';
 import { homedir } from 'os';
 import { mkdirSync, existsSync } from 'fs';
+
+import SqliteDatabase from 'better-sqlite3';
+
 import type { IRecord, ERecordType } from '../../shared/types.js';
 
 // 数据目录：~/.keyroll
-const DATA_DIR = join(homedir(), '.keyroll');
+const DataDir = join(homedir(), '.keyroll');
 
 // 确保数据目录存在
-if (!existsSync(DATA_DIR)) {
-  mkdirSync(DATA_DIR, { recursive: true });
+if (!existsSync(DataDir)) {
+  mkdirSync(DataDir, { recursive: true });
 }
 
 export class DataStore {
   private db: SqliteDatabase.Database;
 
-  constructor(dbPath: string = join(DATA_DIR, 'keyroll.db')) {
+  constructor(dbPath: string = join(DataDir, 'keyroll.db')) {
     this.db = new SqliteDatabase(dbPath);
     // 单文件存储模式，不启用 WAL
   }
@@ -58,15 +60,15 @@ export class DataStore {
     return int === 0 ? 'plain' : 'refer';
   }
 
-  private rowToRecord(row: any): IRecord {
+  private rowToRecord(row: Record<string, unknown>): IRecord {
     return {
-      recordKey: row.record_key,
-      recordType: this.intToRecordType(row.record_type),
-      recordValue: row.record_value,
-      contentType: row.content_type,
-      secureLevel: row.secure_level,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      recordKey: row.record_key as string,
+      recordType: this.intToRecordType(row.record_type as number),
+      recordValue: row.record_value as string,
+      contentType: row.content_type as string,
+      secureLevel: row.secure_level as number,
+      createdAt: row.created_at as number,
+      updatedAt: row.updated_at as number
     };
   }
 
@@ -86,44 +88,44 @@ export class DataStore {
         deleted_at = NULL
     `);
     stmt.run(
-      record.recordKey,
-      this.recordTypeToInt(record.recordType),
-      record.recordValue,
-      record.contentType,
-      record.secureLevel
+        record.recordKey,
+        this.recordTypeToInt(record.recordType),
+        record.recordValue,
+        record.contentType,
+        record.secureLevel
     );
   }
 
   /**
    * 获取所有记录（支持前缀过滤）
    */
-  getRecords(options?: { prefix?: string; domain?: string; type?: ERecordType; secureLevel?: number }): IRecord[] {
+  getRecords(options?: { prefix?: string; domain?: string; type?: ERecordType; secureLevel?: number; }): IRecord[] {
     let sql = 'SELECT * FROM records WHERE deleted_at IS NULL';
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (options?.prefix) {
-      sql += " AND record_key LIKE ?";
+      sql += ' AND record_key LIKE ?';
       params.push(options.prefix + '%');
     }
 
     if (options?.domain) {
-      sql += " AND record_key LIKE ?";
+      sql += ' AND record_key LIKE ?';
       params.push(`/%/${options.domain}/%`);
     }
 
     if (options?.type) {
-      sql += " AND record_type = ?";
+      sql += ' AND record_type = ?';
       params.push(this.recordTypeToInt(options.type));
     }
 
     if (options?.secureLevel !== undefined) {
-      sql += " AND secure_level = ?";
+      sql += ' AND secure_level = ?';
       params.push(options.secureLevel);
     }
 
     const stmt = this.db.prepare(sql);
     const rows = stmt.all(...params);
-    return rows.map(row => this.rowToRecord(row));
+    return rows.map((row) => this.rowToRecord(row as Record<string, unknown>));
   }
 
   /**
@@ -132,8 +134,10 @@ export class DataStore {
   getRecord(recordKey: string): IRecord | null {
     const stmt = this.db.prepare('SELECT * FROM records WHERE record_key = ? AND deleted_at IS NULL');
     const row = stmt.get(recordKey);
-    if (!row) return null;
-    return this.rowToRecord(row);
+    if (!row) {
+      return null;
+    }
+    return this.rowToRecord(row as Record<string, unknown>);
   }
 
   /**

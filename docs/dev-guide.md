@@ -1,5 +1,30 @@
 # 开发指南
 
+## 快速命令
+
+```bash
+# 安装依赖
+npm install
+
+# 开发模式（server + web）
+npm run dev
+
+# 单独启动 server
+npm run dev:server
+
+# 单独启动 web
+npm run dev:web
+
+# 构建
+npm run build
+
+# 生产启动
+npm start
+
+# CLI
+npm run cli -- <command>
+```
+
 ## 快速开始
 
 ```bash
@@ -78,6 +103,18 @@ src/
 | 函数/变量 | camelCase | `getUserData` |
 | 常量 | UPPER_SNAKE_CASE | `API_VERSION` |
 | 类型/接口 | PascalCase | `User`, `UserProfile` |
+
+### 类型命名
+
+- **非必要不要使用 `as` 重命名类型**。应优先考虑如何在类型定义时区分类型命名。
+  - 错误：`import { IRecord as KeyrollRecord } from './types'`
+  - 正确：在定义时就用清晰的名称 `export interface KeyrollRecord { ... }`
+
+### React / AntD 组件
+
+- 使用 AntD 组件时使用正确导出的组件，不要臆造不存在的子组件
+  - 错误：`<Input.Select>`, `<Input.Select.Option>`
+  - 正确：`<Select>`, `<Select.Option>`
 
 ### Git 提交
 

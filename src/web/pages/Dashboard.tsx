@@ -1,13 +1,22 @@
 import { Card, Row, Col, Statistic } from 'antd';
 import { FileTextOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../api';
+import { useState, useEffect } from 'react';
+
+import { listRecords } from '../services/records';
+import type { IRecord } from '../../shared/types';
 
 export default function Dashboard() {
-  const { data: records = [] } = useQuery({
-    queryKey: ['records'],
-    queryFn: () => api.records.list(),
-  });
+  const [records, setRecords] = useState<IRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listRecords().then(data => {
+      setRecords(data);
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, []);
 
   const plainCount = records.filter(r => r.recordType === 'plain').length;
   const referCount = records.filter(r => r.recordType === 'refer').length;
@@ -24,7 +33,7 @@ export default function Dashboard() {
           <Card>
             <Statistic
               title="Total Records"
-              value={records.length}
+              value={loading ? 0 : records.length}
               prefix={<FileTextOutlined />}
               valueStyle={{ color: '#1890ff' }}
             />

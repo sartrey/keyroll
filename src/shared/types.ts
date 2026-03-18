@@ -16,4 +16,4 @@ export interface IAPIResponse<T> {
   success: boolean;
 }
 
-export const API_VERSION = 'v1';
+export const ApiVersion = 'v1';

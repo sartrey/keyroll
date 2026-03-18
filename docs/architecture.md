@@ -1,4 +1,4 @@
-# 架构与数据模型
+# 架构设计
 
 ## 系统概览
 
@@ -15,6 +15,7 @@ keyroll/
 │   └── shared/     # 共享类型和工具
 ├── dist/           # 构建输出
 ├── docs/           # 工程文档
+├── logs/           # 开发日志
 └── package.json    # 单一包配置
 ```
 
@@ -69,49 +70,15 @@ keyroll/
 | tsx | ^4.19.3 | TypeScript 执行环境 |
 | concurrently | ^9.1.2 | 并行运行命令 |
 
-## 数据模型
-
-### 数据库设计
+## 数据库设计
 
 - 使用 SQLite 单文件存储（不启用 WAL）
 - 数据目录：`~/.keyroll/`
 - 数据库文件：`~/.keyroll/keyroll.db`
 
-### 表结构
+详细数据模型参见 [数据模型文档](data-model.md)。
 
-**records（记录表）**
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| record_key | TEXT | 主键，路径式 URN |
-| record_type | TINYINT | 0=plain, 1=refer |
-| record_value | TEXT | 存储内容 |
-| content_type | TEXT | 内容类型 |
-| secure_level | INTEGER | 安全等级 (0/1/2) |
-| created_at | INTEGER | 创建时间戳（秒） |
-| updated_at | INTEGER | 更新时间戳（秒） |
-| deleted_at | INTEGER | 删除时间戳（秒），NULL 表示未删除 |
-
-### Key 格式
-
-```
-/<type>/<domain>/<namespace>/<name>
-```
-
-示例：
-- `/plain/localhost/user.profile/name`
-- `/refer/github.com/user.repo/main`
-
-### 索引设计
-
-```sql
--- record_key 本身是主键
-CREATE INDEX idx_records_type ON records(record_type);
-CREATE INDEX idx_records_secure ON records(secure_level);
-CREATE INDEX idx_records_type_key ON records(record_type, record_key);
-```
-
-### 设计约束
+## 设计约束
 
 1. 主键使用 `record_key` 路径式 URN，支持前缀匹配查询
 2. 时间戳使用 Unix 秒级整数
