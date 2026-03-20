@@ -1,6 +1,6 @@
-import { join } from 'path';
-import { homedir } from 'os';
-import { mkdirSync, existsSync } from 'fs';
+import { join } from 'node:path';
+import { homedir } from 'node:os';
+import { mkdirSync, existsSync } from 'node:fs';
 
 import SqliteDatabase from 'better-sqlite3';
 

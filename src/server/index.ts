@@ -1,6 +1,6 @@
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { readFile } from 'fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
@@ -32,7 +32,7 @@ await fastify.register(fastifyStatic, {
 
 // SPA 路由回退
 fastify.setNotFoundHandler(async (request, reply) => {
-  const indexHtml = await readFile(join(WebRoot, 'index.html'), 'utf-8');
+  const indexHtml = await fs.promises.readFile(join(WebRoot, 'index.html'), 'utf-8');
   reply.type('text/html').send(indexHtml);
 });
 
@@ -49,6 +49,10 @@ const start = async (): Promise<void> => {
 const db = Database.getInstance();
 db.initialize();
 
-void start();
+// Only auto-start when run directly (not when spawned by CLI)
+const isMain = process.argv[1]?.includes('server/index');
+if (isMain) {
+  void start();
+}
 
-export { fastify };
+export { fastify, start };

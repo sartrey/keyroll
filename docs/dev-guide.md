@@ -79,6 +79,33 @@ npm start
 - 文件使用 `.ts` / `.tsx` 扩展名
 - React 组件使用函数式 + Hooks
 
+### Node.js 模块导入规范
+
+- **所有 Node.js 原生模块必须使用 `node:*` 前缀**
+  - 正确：`import fs from 'node:fs'`
+  - 正确：`import { spawn } from 'node:child_process'`
+  - 错误：`import fs from 'fs'`
+  - 错误：`import { spawn } from 'child_process'`
+
+- **对于有 promise API 的模块，优先使用 `fs.promises` 方式**
+  - 正确：`import fs from 'node:fs'` + `await fs.promises.readFile(...)`
+  - 正确：`import { readFile } from 'node:fs/promises'`
+  - 避免：`import { readFile } from 'node:fs'` (callback API)
+
+### 文案展示规范
+
+- **CLI 输出不使用冒号**，使用空白字符分隔键和值
+  - 正确：`Name              keyroll`
+  - 错误：`Name: keyroll`
+
+- **CLI 命令输出前后保留空行**，与其他终端输出区分
+
+- **Web 界面不使用冒号**，使用 margin/padding 或网格布局表达间距
+
+- **状态命令输出精简**
+  - 标题行只显示产品名称，不显示描述
+  - 产品信息各字段独立一行，不重复标题
+
 ### 目录规范
 
 ```
