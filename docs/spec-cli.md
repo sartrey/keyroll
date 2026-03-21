@@ -27,34 +27,31 @@ keyroll <command> [options]
 
 | 命令 | 说明 |
 |------|------|
-| `keyroll start` | 启动服务器 |
-| `keyroll status` | 检查服务器状态 |
+| `keyroll start` | 启动后台 server 进程 |
+| `keyroll stop` | 关闭后台 server 进程 |
+| `keyroll status` | 显示服务器状态（默认命令） |
 
-### 数据管理
+### 设计原则
 
-| 命令 | 说明 |
-|------|------|
-| `keyroll volume:list` | 列出所有数据卷 |
-| `keyroll volume:create <name>` | 创建新数据卷 |
+CLI **不提供**任何直接读写数据的命令，原因：
+- 数据访问需要通过 API 认证流程
+- 数据读写由 Web UI 提供图形界面
+- CLI 仅负责服务器生命周期管理
 
 ## 命令示例
 
 ```bash
-# 启动服务器（默认端口 3000）
+# 启动服务器（后台运行）
 keyroll start
-
-# 启动服务器（指定端口）
-keyroll start -p 8080
 
 # 查看状态
 keyroll status
 
-# 列出数据卷
-keyroll volume:list
-
-# 创建数据卷
-keyroll volume:create my-data
+# 停止服务器
+keyroll stop
 ```
+
+**注意**：CLI 不提供数据读写命令，数据访问请通过 Web UI 或直接调用 API。
 
 ## 输出规范
 

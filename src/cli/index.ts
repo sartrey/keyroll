@@ -26,10 +26,8 @@ const keyrollDir = join(os.homedir(), '.keyroll');
 const pidFile = join(keyrollDir, 'server.pid');
 const portFile = join(keyrollDir, 'server.port');
 
-// Random port in range 49152-65535 (ephemeral port range)
-function getRandomPort(): number {
-  return Math.floor(Math.random() * (65535 - 49152 + 1)) + 49152;
-}
+// Default port
+const DEFAULT_PORT = 3000;
 
 function isServerRunning(): boolean {
   if (!fs.existsSync(pidFile)) {
@@ -62,7 +60,7 @@ function getServerInfo(): { running: boolean; pid?: number; port?: number; } {
 program
     .command('start')
     .description('Start the server in background')
-    .option('-p, --port <port>', 'Port number (default: random)')
+    .option('-p, --port <port>', 'Port number (default: 3000)')
     .action((options) => {
       if (isServerRunning()) {
         console.log();
@@ -74,9 +72,9 @@ program
       if (!fs.existsSync(keyrollDir)) {
         fs.mkdirSync(keyrollDir, { recursive: true });
       }
-      const port = options.port ? parseInt(options.port, 10) : getRandomPort();
+      const port = options.port ? parseInt(options.port, 10) : DEFAULT_PORT;
       const spinner = ora('Starting server...').start();
-      const serverPath = join(__dirname, '../server/index.js');
+      const serverPath = join(__dirname, '../../dist/server/index.js');
       const logFile = join(keyrollDir, 'server.log');
       const logStream = fs.openSync(logFile, 'a');
       const child = spawn('node', [serverPath], {

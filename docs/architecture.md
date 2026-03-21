@@ -6,58 +6,68 @@ Keyroll 是一个 **local-first personal data storage** 系统，核心设计理
 
 ## 项目结构
 
+```mermaid
+blockDiagram
+    block: src
+        block: server
+            note: 服务端\nFastify + better-sqlite3
+        end
+        block: cli
+            note: 命令行工具\nCommander
+        end
+        block: web
+            note: Web 前端\nReact + Vite
+        end
+        block: shared
+            note: 共享类型和工具
+        end
+    end
+    block: dist
+    end
+    block: docs
+    end
+    block: package.json
+    end
 ```
-keyroll/
-├── src/
-│   ├── server/     # 服务端（Fastify + better-sqlite3）
-│   ├── cli/        # 命令行工具（Commander）
-│   ├── web/        # Web 前端（React + Vite）
-│   └── shared/     # 共享类型和工具
-├── dist/           # 构建输出
-├── docs/           # 工程文档
-├── logs/           # 开发日志
-└── package.json    # 单一包配置
-```
+
+**目录说明**:
+
+| 目录 | 说明 |
+|------|------|
+| `src/server/` | 服务端（Fastify + better-sqlite3） |
+| `src/cli/` | 命令行工具（Commander） |
+| `src/web/` | Web 前端（React + Vite） |
+| `src/shared/` | 共享类型和工具 |
+| `dist/` | 构建输出 |
+| `docs/` | 工程文档 |
+| `package.json` | 单一包配置 |
 
 ## 系统架构
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Web UI    │────▶│   Server    │◀───▶│   SQLite    │
-│  (React)    │     │ (Background)│     │  Database   │
-└─────────────┘     └──────┬──────┘     └─────────────┘
-                           │
-                    ┌──────┴──────┐
-                    │    CLI      │
-                    │ (Commander) │
-                    └─────────────┘
+```mermaid
+flowchart LR
+    Web[Web UI<br/>React] -->|API Request| Server[Server<br/>Background]
+    Server -->|Query| DB[SQLite<br/>Database]
+    CLI[CLI<br/>Commander] -->|start/stop/status| Server
 ```
 
 ## 运行时架构
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                   User's Terminal                        │
-│  ┌─────────────┐                                        │
-│  │  keyroll    │◀─── start/stop/status commands         │
-│  │   (CLI)     │                                        │
-│  └─────────────┘                                        │
-└─────────────────────────────────────────────────────────┘
-                           │
-                           │ controls
-                           ▼
-┌─────────────────────────────────────────────────────────┐
-│               Background Server Process                  │
-│  ┌─────────────┐     ┌─────────────┐                    │
-│  │  Fastify    │◀───▶│   SQLite    │                    │
-│  │   Server    │     │  Database   │                    │
-│  └─────────────┘     └─────────────┘                    │
-│                                                           │
-│  ┌─────────────┐                                         │
-│  │  Web UI     │ (served via static files)              │
-│  │  (React)    │                                         │
-│  └─────────────┘                                         │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph UserTerminal[User's Terminal]
+        CLI[keyroll<br/>CLI]
+    end
+
+    subgraph BackgroundServer[Background Server Process]
+        Server[Fastify<br/>Server]
+        DB[SQLite<br/>Database]
+        Web[Web UI<br/>React]
+    end
+
+    CLI -->|start/stop/status| Server
+    Server -->|Query| DB
+    Server -->|Serve static files| Web
 ```
 
 ## 模块划分
@@ -71,14 +81,18 @@ keyroll/
 
 ## CLI 职责
 
-CLI 是用户与 Keyroll 交互的主要接口，负责：
+CLI 是用户与 Keyroll 交互的主要接口，**仅负责服务器生命周期管理**：
 
 | 功能 | 说明 |
 |------|------|
 | `start` | 启动后台 server 进程 |
 | `stop` | 关闭后台 server 进程 |
 | `status` | 兜底命令，显示产品概要信息（名称、描述、版本、后台进程状态、可用命令列表） |
-| 其他子命令 | 数据管理、设备管理等操作 |
+
+**设计原则**：
+- CLI **不提供**任何直接读写数据的命令
+- 数据访问需要通过 API 认证流程
+- 数据读写由 Web UI 提供图形界面
 
 ## 技术栈
 
