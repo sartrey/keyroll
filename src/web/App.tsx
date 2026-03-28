@@ -1,9 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 
-import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Records from './pages/Records';
-import Settings from './pages/Settings';
+import Layout from './components/layout';
+import Dashboard from './pages/dashboard';
+import Records from './pages/records';
+import Settings from './pages/settings';
 
 function App() {
   return (

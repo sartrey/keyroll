@@ -5,7 +5,7 @@ import {
   FileTextOutlined,
   SettingOutlined
 } from '@ant-design/icons';
-import './Layout.less';
+import './layout.less';
 
 const { Header, Sider, Content } = AntLayout;
 

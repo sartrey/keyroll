@@ -1,6 +1,6 @@
 # 认证 API 详细规范
 
-**版本**: 7.0
+**版本**: 8.0
 **状态**: 设计完成
 **关联文档**: [API 设计规范](../spec-api.md), [用户认证与安全](../features/auth-security.md)
 
@@ -11,21 +11,54 @@
 本文档定义 Keyroll 系统的认证 API 详细规范。
 
 **设计原则**：
-- **Passkey**：优先登录方式，支持多个 Passkey
-- **Password**：备用登录 + MasterKey 解密
+- **Passkey 优先**：优先登录方式，支持多个 Passkey
+- **Password 备用**：备用登录 + MasterKey 解密
 - **Passkey 流程独立**：不耦合初始化，可随时添加/移除
-- **Password 登录能力动态切换**：
-  - 有 passwordHash = 可登录
-  - 无 passwordHash = 仅解密，不可登录
-- **自动切换**：
-  - 创建第一个 Passkey → 删除 passwordHash
-  - 移除最后一个 Passkey → 重建 passwordHash
+- **Password 登录能力**：
+  - 有 passwordHash 且无 Passkey = 可登录
+  - 有 Passkey = Password 仅用于 MasterKey 解密，不可登录
+- **初始化是启动自检**：服务端启动时检查 credentials.json，无需初始化 API
+- **首次配置**：支持 CLI (`keyroll init`) 和 Web 引导页面两种方式
 
 ---
 
 ## 流程概览
 
-### 初始化流程时序图
+### 服务端启动自检流程
+
+```mermaid
+sequenceDiagram
+    participant Server as 服务端
+    participant DB as credentials.json
+    participant CLI as CLI/Web 配置
+
+    Server->>DB: 检查 credentials.json
+    alt 文件存在且有效
+        Server->>Server: 加载 MasterKey 到内存
+        Server-->>Server: 正常启动，等待认证
+    else 文件不存在或无效
+        Server-->>CLI: 进入未初始化状态
+        CLI->>CLI: 引导用户配置
+        CLI->>Server: 生成 MasterKey + RecoveryCode
+        CLI->>Server: 可选：设置 Password
+        CLI->>DB: 保存 credentials.json
+        Server->>Server: 加载 MasterKey 到内存
+        Server-->>Server: 正常启动
+    end
+```
+
+### 系统状态检查时序图
+
+```mermaid
+sequenceDiagram
+    participant Client as 客户端
+    participant Server as 服务端
+
+    Client->>Server: GET /authn/status
+    Server->>Server: 检查初始化状态
+    Server->>Server: 检查可用登录方式
+    Server-->>Client: { initialized, passkeysExist, passwordLoginAvailable }
+```
 
 ```mermaid
 sequenceDiagram
@@ -45,6 +78,14 @@ sequenceDiagram
     Server-->>Client: recoveryCode
     Note over Client: Password 可登录<br/>（因为有 passwordHash）
 ```
+
+### 服务端启动自检流程说明
+
+| 步骤 | 说明 |
+|------|------|
+| 检查 credentials.json | 文件是否存在且格式正确 |
+| 未初始化 | 进入配置模式，等待 CLI 或 Web 配置 |
+| 已初始化 | 加载 MasterKey 到内存，正常启动 |
 
 ### Passkey 注册流程时序图
 
@@ -178,10 +219,11 @@ sequenceDiagram
 
 | 流程 | API 端点 | 说明 |
 |------|----------|------|
-| 初始化 | `/authn/initiate` | 一次性操作，生成 MasterKey、设置 Password |
+| 系统状态检查 | `GET /authn/status` | 检查初始化状态和可用登录方式 |
 | Passkey 创建 | `/authn/passkeys/create` | 无 challengeId 时生成挑战，有 challengeId 时验证并保存 |
 | Passkey 删除 | `/authn/passkeys/delete` | 移除已注册的 Passkey |
 | Passkey 登录 | `/authn/passkeys/verify` | 无 challengeId 时生成挑战，有 challengeId 时验证并颁发 Token |
+| Password 创建 | `/authn/password/create` | 可选，设置 Password（首次配置或重设） |
 | Password 登录 | `/authn/password/verify` (usageType: "signin") | 使用 Password 登录（无 Passkey 时） |
 | Password 解密 | `/authn/password/verify` (usageType: "master") | 验证 Password，解密 MasterKey |
 | Password 更新 | `/authn/password/update` | RecoveryCode 恢复后重设 Password |
@@ -231,20 +273,91 @@ sequenceDiagram
 | `PasswordInvalid` | 401 | Password 格式错误或验证失败 |
 | `PasswordAttemptExceeded` | 429 | Password 尝试次数超限 |
 | `PasswordLoginDisabled` | 403 | Password 登录已禁用（有 Passkey） |
-| `AlreadyInitialized` | 409 | 系统已初始化（重复调用 init） |
 | `NotInitialized` | 503 | 系统未初始化 |
 | `ServerError` | 500 | 服务器内部错误 |
 | `ServiceUnavailable` | 503 | 服务不可用 |
 
 ---
 
-## 系统初始化
+## 系统状态检查
 
-### POST /authn/initiate
+### GET /authn/status
 
-初始化系统，生成 MasterKey、RecoveryCode，并设置 Password。
+检查系统初始化状态和可用的登录方式。
 
-**前置条件**：系统未初始化
+**前置条件**：无
+
+**请求**
+```http
+GET /authn/status
+```
+
+**响应（成功）**
+```json
+{
+  "traceId": "uuid-v4",
+  "content": {
+    "initialized": true,
+    "passkeysExist": true,
+    "passwordLoginAvailable": false
+  }
+}
+```
+
+**响应说明**
+- `initialized`: 系统是否已初始化（credentials.json 存在且有效）
+- `passkeysExist`: 是否有已注册的 Passkey
+- `passwordLoginAvailable`: Password 登录是否可用（有 passwordHash 且无 Passkey）
+
+**状态组合说明**
+
+| initialized | passkeysExist | passwordLoginAvailable | 说明 |
+|-------------|---------------|------------------------|------|
+| false | - | - | 系统未初始化，需要首次配置 |
+| true | true | false | 有 Passkey，Password 仅用于解密 |
+| true | false | true | 无 Passkey，Password 可登录 |
+| true | false | false | 仅 RecoveryCode 可恢复 |
+
+**错误响应**
+| errorId | HTTP |
+|---------|------|
+| `ServerError` | 500 |
+
+---
+
+## 系统初始化（启动自检）
+
+系统初始化是服务端启动时的自检流程，不是 API 端点。
+
+**检查流程**：
+1. 检查 `~/.keyroll/credentials.json` 是否存在
+2. 验证文件格式和必需字段
+3. 如果未初始化，进入配置等待状态
+4. 如果已初始化，加载 MasterKey 到内存
+
+**首次配置方式**：
+- **CLI**: `keyroll init` 命令
+- **Web**: 访问页面时自动跳转到配置向导
+
+**配置完成后**：
+- 生成 MasterKey（随机 256 位）
+- 生成 RecoveryCode + recoverySeed
+- 可选：设置 Password
+- 保存 credentials.json
+- MasterKey 加载到内存
+- 正常启动服务
+
+---
+
+## Password 管理
+
+### POST /authn/password/create
+
+设置或更新 Password。
+
+**前置条件**：
+- 系统已初始化
+- 已认证（持有 AccessToken 或通过 RecoveryCode 验证）
 
 **请求**
 ```json
@@ -255,29 +368,29 @@ sequenceDiagram
 
 **请求说明**
 - `password`: 6 位数字字符串
-- 用于加密 MasterKey 和生成 passwordHash
+- 如果已有 passwordHash，此操作会更新密码
 
 **响应（成功）**
 ```json
 {
   "traceId": "uuid-v4",
   "content": {
-    "recoveryCode": "A1B2-C3D4-E5F6-G7H8-I9J0"
+    "message": "Password 设置成功"
   }
 }
 ```
 
 **响应说明**
-- `recoveryCode`: 5 组 4 位大写字符，用于紧急恢复
-- 用户需要安全保存（纸印或离线存储）
-- 此代码仅展示一次，后续无法再次获取
-- 初始化后，Password 具备登录能力（因为有 passwordHash）
+- 服务端生成新的 passwordSalt
+- 使用新 password + "master" + passwordSalt 加密 MasterKey
+- 计算新的 passwordHash（如果有 Passkey，passwordHash 仅用于解密，不可登录）
 
 **错误响应**
 | errorId | HTTP |
 |---------|------|
 | `InvalidRequest` | 400 |
-| `AlreadyInitialized` | 409 |
+| `NotInitialized` | 503 |
+| `TokenInvalid` | 401 |
 
 ---
 
@@ -396,7 +509,9 @@ sequenceDiagram
 
 **响应说明**
 - 服务端移除指定的 Passkey
-- **如果这是最后一个 Passkey**：重建 passwordHash，Password 登录能力恢复
+- **如果这是最后一个 Passkey（移除后 passkeys 数组为空）**：
+  - passwordHash 自动具备登录能力
+  - Password 登录能力恢复
 
 **错误响应**
 | errorId | HTTP |
@@ -507,8 +622,8 @@ Password 验证，支持登录和解密两种用途。
 **前置条件**：系统已初始化
 
 **请求逻辑**：
-- `usageType: "signin"`：登录认证，验证 passwordHash，颁发 AccessToken
-- `usageType: "master"`：解密 MasterKey，验证 password 并解密 masterKeySecret
+- `usageType: "signin"`：登录认证（仅在无 Passkey 时可用）
+- `usageType: "master"`：解密 MasterKey（需要 AccessToken）
 
 ---
 
@@ -557,6 +672,7 @@ Password 验证，支持登录和解密两种用途。
 
 **前置条件**：
 - 已通过认证（持有 AccessToken）
+- passwordHash 存在（无论是否有 Passkey）
 
 **请求**
 ```json
@@ -624,7 +740,9 @@ Authorization: Bearer <access_token>
 **响应说明**
 - 服务端复用内存中的 MasterKey
 - 使用新 Password + 新 passwordSalt 加密 MasterKey
-- 重建 passwordHash（Password 登录能力恢复）
+- 重建 passwordHash
+- **如果有 Passkey**：Password 仅用于解密，不可登录
+- **如果无 Passkey**：Password 可登录
 
 **错误响应**
 | errorId | HTTP |
@@ -665,6 +783,7 @@ Authorization: Bearer <access_token>
 - 使用派生密钥解密 recovery.masterKeySecret 得到 MasterKey
 - MasterKey 加载到内存
 - **清理现有 passwordHash**
+- **如果有 Passkey**：Passkey 登录能力保持不变
 - 客户端需调用 `/authn/password/update` 更新 Password
 
 **错误响应**
@@ -741,6 +860,9 @@ Authorization: Bearer <access_token>
 - 使用 scrypt 密钥派生（N=2^14, r=8, p=1），暴力破解成本高
 - passwordHash 用于登录验证，不传输明文密码
 - 速率限制：最多 5 次尝试/15 分钟
+- **Password 登录能力**：
+  - 无 Passkey 时，Password 可登录
+  - 有 Passkey 时，Password 仅用于 MasterKey 解密，不可登录
 
 | 错误码 | 说明 |
 |--------|------|

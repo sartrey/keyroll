@@ -110,26 +110,53 @@ npm start
 
 ```
 src/
-├── server/         # 服务端代码
-│   ├── api/        # API 路由
-│   └── db/         # 数据库层
-├── cli/            # 命令行工具
-├── web/            # Web 前端
-│   ├── components/ # React 组件
-│   ├── pages/      # 页面组件
-│   └── api.ts      # API 客户端
-└── shared/         # 共享类型和工具
+├── server/
+│   ├── controllers/      # API 控制器（按模型命名：authn, model）
+│   ├── middlewares/      # 中间件（按功能命名：authn）
+│   ├── services/         # 业务服务
+│   │   ├── config.ts     # 统一配置（UserDataDir 等）
+│   │   ├── credential-manager.ts
+│   │   ├── crypto.ts
+│   │   ├── database.ts
+│   │   ├── session.ts
+│   │   └── rate-limiter.ts
+│   └── index.ts
+├── cli/
+├── web/
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   ├── app.tsx
+│   └── index.tsx         # Web 入口（标准约定）
+└── shared/
 ```
 
 ### 命名约定
 
 | 类型 | 命名风格 | 示例 |
 |------|----------|------|
-| 文件/目录 | kebab-case | `user-profile.tsx` |
+| 文件/目录 | kebab-case | `user-profile.ts`, `authn.ts`, `credential-manager.ts` |
 | 组件 | PascalCase | `UserProfile` |
 | 函数/变量 | camelCase | `getUserData` |
-| 常量 | UPPER_SNAKE_CASE | `API_VERSION` |
-| 类型/接口 | PascalCase | `User`, `UserProfile` |
+| 常量 | UPPER_SNAKE_CASE | `API_VERSION`, `UserDataDir` |
+| 类型/接口 | PascalCase + I 前缀 | `IRecord`, `ICredentialsData` |
+
+### 文件命名原则
+
+1. **避免冗余信息**
+   - 在 `services/` 目录下，文件名不需要 `-service` 后缀
+   - Manager 类使用 `-manager` 后缀（如 `credential-manager.ts`）
+   - 工具函数使用简洁命名（如 `crypto.ts`, `database.ts`）
+
+2. **controllers 按模型命名**
+   - `authn.ts` - 认证 API 控制器
+   - `model.ts` - 数据模型 API 控制器
+
+3. **middlewares 按功能命名**
+   - `authn.ts` - 认证中间件（区别于 authz 授权）
+
+4. **Web 入口使用标准命名**
+   - `index.tsx` - Web 应用入口文件
 
 ### 类型命名
 

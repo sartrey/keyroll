@@ -30,20 +30,19 @@
 - **Password 备用**：无 Passkey 时 Password 自动具备登录能力
 - **多 Passkey 支持**：用户可以注册多个 Passkey
 - **流程独立**：Passkey 注册/移除独立于初始化流程
+- **初始化是启动自检**：服务端启动时检查 credentials.json，无需初始化 API
 
-### Password 登录能力切换机制
+### Password 登录能力规则
 
 | 状态 | passwordHash | Passkey 数量 | Password 登录能力 |
 |------|-------------|-------------|-----------------|
-| 初始化后 | 存在 | 0 | ✅ 可用 |
-| 注册第一个 Passkey | 删除 | 1 | ❌ 废弃 |
-| 添加更多 Passkey | 无 | 2+ | ❌ 不可用 |
-| 移除至最后一个 | 无 | 1 | ❌ 不可用 |
-| 移除最后一个 | 重建 | 0 | ✅ 恢复 |
+| 无 Passkey | 存在 | 0 | ✅ 可用 |
+| 有 Passkey | 存在 | 1+ | ❌ 禁用（仅用于解密） |
 
-**切换规则**：
-- 创建第一个 Passkey → 删除 `passwordHash` → Password 登录能力废弃
-- 移除最后一个 Passkey → 重建 `passwordHash` → Password 登录能力恢复
+**规则说明**：
+- Password 始终可用于 MasterKey 解密（如果有 passwordHash）
+- Password 登录能力取决于是否有 Passkey
+- 有 Passkey 时，Password 登录被禁用，优先使用 Passkey 登录
 
 ---
 
@@ -143,25 +142,41 @@
 
 ## 认证流程
 
-### 初始化流程（系统首次启动）
+### 服务端启动自检流程
 
-**一次性操作**，在服务器启动时检测到未初始化状态时自动执行：
+**一次性操作**，在服务器启动时执行：
+
+1. 检查 `~/.keyroll/credentials.json` 是否存在
+2. 验证文件格式和必需字段
+3. **如果文件不存在或无效**：
+   - 进入未初始化状态
+   - 等待 CLI 或 Web 配置
+4. **如果文件存在且有效**：
+   - 加载 MasterKey 到内存
+   - 正常启动服务
+
+### 首次配置流程
+
+**通过 CLI 或 Web 配置向导执行**：
 
 1. 生成 MasterKey（随机 256 位）
-2. MasterKey 加载到内存
-3. 用户设置 6 位数字 Password
-4. 生成 passwordSalt（随机 32 字节）
-5. 使用 scrypt 从 Password + "master" + passwordSalt 派生密钥 K
-6. 使用派生密钥 K 加密 MasterKey，得到 `password.masterKeySecret`
-7. 计算 `passwordHash = scrypt(password, "signin" + passwordSalt, ...)` 用于登录验证（用途隔离）
-8. 生成 RecoveryCode（4 位一组共 5 组的大写连字符字符串）
-9. 生成 recoverySeed（随机 32 字节）
-10. 使用 scrypt 从 RecoveryCode + recoverySeed 派生加密密钥
-11. 使用派生密钥加密 MasterKey，得到 `recovery.masterKeySecret`
-12. 保存 credentials.json（空 passkeys 数组 + recovery 对象 + password 对象含 passwordHash）
-13. 返回 RecoveryCode 给用户保存（仅展示一次）
+2. 生成 RecoveryCode（4 位一组共 5 组的大写连字符字符串）
+3. 生成 recoverySeed（随机 32 字节）
+4. 使用 scrypt 从 RecoveryCode + recoverySeed 派生加密密钥
+5. 使用派生密钥加密 MasterKey，得到 `recovery.masterKeySecret`
+6. **可选**：用户设置 6 位数字 Password
+   - 生成 passwordSalt（随机 32 字节）
+   - 使用 scrypt 从 Password + "master" + passwordSalt 派生密钥 K
+   - 使用派生密钥 K 加密 MasterKey，得到 `password.masterKeySecret`
+   - 计算 `passwordHash = scrypt(password, "signin" + passwordSalt, ...)` 用于登录验证
+7. 保存 credentials.json
+8. 返回 RecoveryCode 给用户保存（仅展示一次）
+9. MasterKey 加载到内存
+10. 正常启动服务
 
-**注意**：初始化后，Password 具备登录能力（因为有 passwordHash）。
+**注意**：
+- 初始化后，如果有 passwordHash 且无 Passkey，Password 具备登录能力
+- 如果未设置 Password，仅可通过 RecoveryCode 恢复
 
 ### Passkey 创建流程（独立于初始化）
 
@@ -171,10 +186,9 @@
 2. 服务端生成 WebAuthn 注册挑战
 3. 客户端调用 `navigator.credentials.create()` 创建 Passkey
 4. 服务端验证并存储 Passkey 公钥
-5. **如果这是第一个 Passkey（之前 passkeys 数组为空）**：
-   - 删除 `password.passwordHash`
-   - Password 登录能力废弃
-6. 保存 passkeys 数据到 credentials.json
+5. 保存 passkeys 数据到 credentials.json
+
+**注意**：Passkey 创建不影响 passwordHash，Password 登录能力取决于是否有 Passkey。
 
 ### Passkey 移除流程
 
@@ -182,10 +196,9 @@
 
 1. 用户已登录（通过其他 Passkey 或 Password）
 2. 服务端移除指定的 Passkey
-3. **如果这是最后一个 Passkey（移除后 passkeys 数组为空）**：
-   - 重建 `passwordHash`
-   - Password 登录能力恢复
-4. 更新 credentials.json
+3. 更新 credentials.json
+
+**注意**：Passkey 移除后，如果没有 Passkey 且存在 passwordHash，Password 登录能力自动恢复。
 
 ### Passkey 登录流程
 
@@ -455,59 +468,61 @@ flowchart TD
 
 ### Phase 1 - 认证基础设施
 
-- [ ] 实现 credentials.json 数据结构（recovery 对象 + password 对象，passkeys 数组可选）
-- [ ] 实现系统初始化检测（已初始化/未初始化状态）
-- [ ] 实现 MasterKey 生成（随机 256 位）
-- [ ] 实现 RecoveryCode 生成（4 位一组共 5 组，大写连字符）
-- [ ] 实现 passwordSalt 生成（随机 32 字节）
-- [ ] 实现 scrypt 密钥派生
+- [x] 实现 credentials.json 数据结构（recovery 对象 + password 对象，passkeys 数组可选）
+- [x] 实现系统初始化检测（已初始化/未初始化状态）
+- [x] 实现 MasterKey 生成（随机 256 位）
+- [x] 实现 RecoveryCode 生成（4 位一组共 5 组，大写连字符，使用 nanoid）
+- [x] 实现 passwordSalt 生成（随机 32 字节）
+- [x] 实现 scrypt 密钥派生
   - Password + "master" + passwordSalt → 解密密钥
   - Password + "signin" + passwordSalt → 登录哈希
   - RecoveryCode + recoverySeed → 恢复密钥
-- [ ] 实现 MasterKey 加密/解密（AES-256-GCM）
-- [ ] 实现 passwordHash 计算和验证（使用 "signin" + passwordSalt）
-- [ ] 实现 masterKeySecret 加密/解密流程（recovery 和 password）
+- [x] 实现 MasterKey 加密/解密（AES-256-GCM）
+- [x] 实现 passwordHash 计算和验证（使用 "signin" + passwordSalt）
+- [x] 实现 masterKeySecret 加密/解密流程（recovery 和 password）
+- [x] 实现 UserDataDir 统一管理（~/.keyroll，server 入口统一初始化）
+- [x] 实现服务端启动自检流程
 
 ### Phase 2 - Password 登录认证
 
-- [ ] 实现 Password 登录 API（验证 passwordHash，颁发 AccessToken）
-- [ ] 实现速率限制（5 次尝试/15 分钟）
-- [ ] 实现 Password 解锁 API（验证 password，解密 MasterKey）
+- [x] 实现 Password 登录 API（验证 passwordHash，颁发 AccessToken）
+- [x] 实现速率限制（5 次尝试/15 分钟）
+- [x] 实现 Password 解锁 API（验证 password，解密 MasterKey）
 - [ ] 实现登录页面 UI（Password 输入）
 
 ### Phase 3 - RecoveryCode 恢复
 
-- [ ] 实现 RecoveryCode 验证 API（解密 masterKeySecret，恢复 MasterKey）
-- [ ] 实现速率限制（5 次尝试/15 分钟）
-- [ ] 实现 Password 重设 API（RecoveryCode 验证后重设，重建 passwordHash）
+- [x] 实现 RecoveryCode 验证 API（解密 masterKeySecret，恢复 MasterKey）
+- [x] 实现速率限制（5 次尝试/15 分钟）
+- [x] 实现 Password 重设 API（RecoveryCode 验证后重设，重建 passwordHash）
 - [ ] 实现恢复流程 UI
 
 ### Phase 4 - 会话管理
 
-- [ ] 实现 BearerToken 生成（随机 UUID v4）
-- [ ] 实现内存会话表（Map 存储 Token 和活动时间）
-- [ ] 实现 BearerToken 认证中间件
-- [ ] 实现 API 访问控制（豁免初始化和认证相关 API）
+- [x] 实现 BearerToken 生成（随机 UUID v4）
+- [x] 实现内存会话表（Map 存储 Token 和活动时间）
+- [x] 实现 BearerToken 认证中间件
+- [x] 实现 API 访问控制（豁免初始化和认证相关 API）
 - [ ] 实现页面 visibility 超时登出（30 分钟）
-- [ ] 实现登出 API
+- [x] 实现登出 API
 
 ### Phase 5 - Passkey 登录（可选升级）
 
 - [ ] 实现 WebAuthn 注册（`navigator.credentials.create()`）
 - [ ] 实现 Passkey 添加流程（独立于初始化）
-- [ ] 实现多 Passkey 支持（每个 passkey 独立存储公钥）
-- [ ] 实现 Passkey 移除（撤销设备）
+- [x] 实现多 Passkey 支持（每个 passkey 独立存储公钥）
+- [x] 实现 Passkey 移除（撤销设备）
 - [ ] 实现第一个 Passkey 创建后删除 passwordHash
 - [ ] 实现最后一个 Passkey 移除后重建 passwordHash
 - [ ] 实现 WebAuthn 认证（`navigator.credentials.get()`）
 - [ ] 实现 ES256 签名验证（服务端验证 Passkey 签名）
-- [ ] 实现 counter 更新（检测凭证克隆）
+- [x] 实现 counter 更新（数据结构支持）
 - [ ] 实现 Passkey 登录 UI
 
 ### Phase 6 - 加密存储
 
-- [ ] 实现 secureLevel 0 存储（明文，仅认证）
+- [x] 实现 secureLevel 0 存储（明文，仅认证）
 - [ ] 实现 secureLevel 1 加密存储（MasterKey 加密，AES-256-GCM）
 - [ ] 实现 secureLevel 2 全程加密（MasterKey 加密 + Refer 外部数据加密）
 - [ ] 实现 record 级别加密/解密 API
-- [ ] 实现加密完整性校验（AES-GCM 内置）
+- [x] 实现加密完整性校验（AES-GCM 内置）

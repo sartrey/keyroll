@@ -1,6 +1,6 @@
 import { FastifyPluginCallback } from 'fastify';
 
-import Database from '../db/Database.js';
+import Database from '../services/database.js';
 import type { IRecord, ERecordType } from '../../shared/types.js';
 
 interface IRecordsQuery {

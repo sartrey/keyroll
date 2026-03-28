@@ -6,8 +6,14 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 
-import Database from './db/Database.js';
-import { registerApiRoutes } from './api/index.js';
+import Database from './services/database.js';
+import { registerApiRoutes } from './controllers/model.js';
+import { registerAuthnRoutes } from './controllers/authn.js';
+import { CredentialsManager } from './services/index.js';
+import { ensureUserDataDir } from './services/config.js';
+
+// 初始化用户数据目录
+ensureUserDataDir();
 
 const DirName = dirname(fileURLToPath(import.meta.url));
 const Port = Number(process.env.PORT) || 3000;
@@ -22,7 +28,10 @@ await fastify.register(cors, {
   origin: true
 });
 
-// API 路由
+// 认证 API 路由
+await fastify.register(registerAuthnRoutes, { prefix: '/api/authn' });
+
+// 数据 API 路由
 await fastify.register(registerApiRoutes, { prefix: '/api' });
 
 // 静态文件服务
@@ -46,8 +55,19 @@ const start = async (): Promise<void> => {
   }
 };
 
+// 初始化数据库
 const db = Database.getInstance();
 db.initialize();
+
+// 启动自检：检查 credentials.json
+const credentialsManager = CredentialsManager.getInstance();
+if (credentialsManager.load()) {
+  console.log('[Authn] Credentials loaded successfully');
+  const status = credentialsManager.getSystemStatus();
+  console.log('[Authn] System status:', JSON.stringify(status));
+} else {
+  console.log('[Authn] System not initialized. Run "keyroll init" or visit the web setup wizard.');
+}
 
 // Only auto-start when run directly (not when spawned by CLI)
 const isMain = process.argv[1]?.includes('server/index');

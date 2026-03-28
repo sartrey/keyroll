@@ -1,23 +1,14 @@
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import { mkdirSync, existsSync } from 'node:fs';
 
 import SqliteDatabase from 'better-sqlite3';
 
 import type { IRecord, ERecordType } from '../../shared/types.js';
 
-// 数据目录：~/.keyroll
-const DataDir = join(homedir(), '.keyroll');
-
-// 确保数据目录存在
-if (!existsSync(DataDir)) {
-  mkdirSync(DataDir, { recursive: true });
-}
-
 export class DataStore {
   private db: SqliteDatabase.Database;
 
-  constructor(dbPath: string = join(DataDir, 'keyroll.db')) {
+  constructor(dbPath: string = join(homedir(), '.keyroll', 'keyroll.db')) {
     this.db = new SqliteDatabase(dbPath);
     // 单文件存储模式，不启用 WAL
   }
