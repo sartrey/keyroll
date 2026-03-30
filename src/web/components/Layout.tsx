@@ -1,10 +1,13 @@
-import { Layout as AntLayout, Menu, theme } from 'antd';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Layout as AntLayout, Menu, theme, Dropdown, Avatar } from 'antd';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   DashboardOutlined,
   FileTextOutlined,
-  SettingOutlined
+  SettingOutlined,
+  LogoutOutlined,
+  UserOutlined
 } from '@ant-design/icons';
+import { clearAccessToken } from '../services/auth';
 import './layout.less';
 
 const { Header, Sider, Content } = AntLayout;
@@ -17,9 +20,24 @@ const navItems = [
 
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG }
   } = theme.useToken();
+
+  const handleLogout = () => {
+    clearAccessToken();
+    navigate('/auth');
+  };
+
+  const userMenuItems = [
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: '登出',
+      onClick: handleLogout
+    }
+  ];
 
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
@@ -34,14 +52,27 @@ export default function Layout() {
           items={navItems.map((item) => ({
             key: item.path,
             icon: item.icon,
-            label: 
+            label:
               <Link to={item.path}>{item.label}</Link>
-            
+
           }))}
         />
       </Sider>
       <AntLayout>
-        <Header style={{ padding: '0 16px', background: colorBgContainer }} />
+        <Header style={{
+          padding: '0 16px',
+          background: colorBgContainer,
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center'
+        }}>
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Avatar icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />
+              <span style={{ color: '#262626' }}>用户</span>
+            </div>
+          </Dropdown>
+        </Header>
         <Content style={{ margin: '16px' }}>
           <div
             style={{

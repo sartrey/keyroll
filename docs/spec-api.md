@@ -113,16 +113,13 @@ Authorization: Bearer <access_token>
 
 | 路径 | 说明 | 认证 |
 |------|------|------|
-| `/authn/initiate` | 系统初始化，设置密码 | 否 |
-| `/authn/passkeys/authenticate` | Passkey 登录认证 | 否 |
-| `/authn/passkeys/register` | Passkey 注册 | 是 |
-| `/authn/passkeys/complete` | Passkey 注册完成 | 是 |
-| `/authn/passkeys/remove` | Passkey 移除 | 是 |
-| `/authn/passkeys/verify` | Passkey 签名验证 | 否 |
+| `/authn/password/create` | 系统初始化/设置密码 | 否（未初始化时）/ 是（已初始化时） |
+| `/authn/passkeys/create` | Passkey 注册 | 是 |
+| `/authn/passkeys/verify` | Passkey 登录认证 | 否 |
+| `/authn/passkeys/delete` | Passkey 移除 | 是 |
 | `/authn/recovery/verify` | 验证 RecoveryCode，进入重设密码流程 | 否 |
-| `/authn/password/login` | 验证密码登录（无 Passkey 时） | 否 |
-| `/authn/password/verify` | 验证密码，解密 MasterKey | 是 |
-| `/authn/password/reset` | 重设密码（RecoveryCode 恢复后） | 是 |
+| `/authn/password/verify` | 验证密码（登录或解密 MasterKey） | 否（登录）/ 是（解密） |
+| `/authn/password/update` | 重设密码（RecoveryCode 恢复后） | 否 |
 | `/authn/sessions/delete` | 删除会话（登出） | 是 |
 
 ---

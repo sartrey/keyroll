@@ -431,11 +431,12 @@ flowchart TD
 | `/api/authn/passkeys/*` | 豁免 | Passkey 认证相关 |
 | `/api/authn/password/*` | 豁免 | Password 认证相关 |
 | `/api/authn/recovery/*` | 豁免 | RecoveryCode 恢复相关 |
-| `/api/authn/initiate` | 豁免 | 系统初始化 |
 | `/api/authn/sessions/*` | 需要 BearerToken | 会话管理 |
 | 其他 API | 需要 BearerToken | 认证后可访问 |
 
-**注意**：Passkey 和 Password 的 API 端点虽然豁免认证，但内部有独立的认证逻辑（如 challenge 验证、passwordHash 比对等）。
+**注意**：
+- Passkey 和 Password 的 API 端点虽然豁免认证，但内部有独立的认证逻辑（如 challenge 验证、passwordHash 比对等）
+- `/api/authn/password/create` 在系统未初始化时无需认证，系统已初始化时需要 BearerToken
 
 ---
 
@@ -450,7 +451,7 @@ flowchart TD
 ### 权限检查流程
 
 1. 请求到达服务端
-2. 检查是否为豁免认证的 API（`/api/authn/passkeys/*`、`/api/authn/password/*`、`/api/authn/recovery/*`、`/api/authn/initiate`）
+2. 检查是否为豁免认证的 API（`/api/authn/passkeys/*`、`/api/authn/password/*`、`/api/authn/recovery/*`）
 3. 检查 `Authorization: Bearer <token>` header
 4. 验证 Token 是否有效（存在于内存会话中且未超时）
 5. 无效则返回 `401 Unauthorized`
@@ -488,7 +489,7 @@ flowchart TD
 - [x] 实现 Password 登录 API（验证 passwordHash，颁发 AccessToken）
 - [x] 实现速率限制（5 次尝试/15 分钟）
 - [x] 实现 Password 解锁 API（验证 password，解密 MasterKey）
-- [ ] 实现登录页面 UI（Password 输入）
+- [x] 实现登录页面 UI（Password 输入）
 
 ### Phase 3 - RecoveryCode 恢复
 
@@ -508,16 +509,16 @@ flowchart TD
 
 ### Phase 5 - Passkey 登录（可选升级）
 
-- [ ] 实现 WebAuthn 注册（`navigator.credentials.create()`）
-- [ ] 实现 Passkey 添加流程（独立于初始化）
+- [x] 实现 WebAuthn 注册（`navigator.credentials.create()`）- 前端
+- [x] 实现 Passkey 添加流程（独立于初始化）
 - [x] 实现多 Passkey 支持（每个 passkey 独立存储公钥）
 - [x] 实现 Passkey 移除（撤销设备）
 - [ ] 实现第一个 Passkey 创建后删除 passwordHash
 - [ ] 实现最后一个 Passkey 移除后重建 passwordHash
-- [ ] 实现 WebAuthn 认证（`navigator.credentials.get()`）
+- [x] 实现 WebAuthn 认证（`navigator.credentials.get()`）- 前端
 - [ ] 实现 ES256 签名验证（服务端验证 Passkey 签名）
 - [x] 实现 counter 更新（数据结构支持）
-- [ ] 实现 Passkey 登录 UI
+- [x] 实现 Passkey 登录 UI
 
 ### Phase 6 - 加密存储
 

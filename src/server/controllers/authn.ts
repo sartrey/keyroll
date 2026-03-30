@@ -92,9 +92,10 @@ export const registerAuthnRoutes: FastifyPluginCallback = async (fastify) => {
 
   /**
    * POST /authn/password/create
-   * 设置或更新 Password（需要认证）
+   * 设置或更新 Password。
+   * 如果系统未初始化，可以直接调用（初始化）；如果已初始化，需要 AccessToken。
    */
-  fastify.post('/create', { preHandler: [authMiddleware] }, async (request, reply) => {
+  fastify.post('/password/create', async (request, reply) => {
     const body = request.body as { password?: string; };
 
     if (!body?.password) {
@@ -113,12 +114,36 @@ export const registerAuthnRoutes: FastifyPluginCallback = async (fastify) => {
       });
     }
 
+    const isInitialized = credentialsManager.isInitialized();
+
+    // 如果系统已初始化，需要认证
+    if (isInitialized) {
+      // 检查是否通过认证中间件（authMiddleware 会设置 request.user）
+      if (!(request as any).user) {
+        return reply.code(401).send({
+          traceId: randomUUID(),
+          errorId: 'TokenInvalid',
+          content: { message: 'Authentication required' }
+        });
+      }
+    }
+
     try {
-      credentialsManager.setPassword(body.password);
-      return {
-        traceId: randomUUID(),
-        content: { message: 'Password 设置成功' }
-      };
+      if (isInitialized) {
+        // 已初始化：更新 Password
+        credentialsManager.setPassword(body.password);
+        return {
+          traceId: randomUUID(),
+          content: { message: 'Password 设置成功' }
+        };
+      } else {
+        // 未初始化：初始化系统
+        const recoveryCode = credentialsManager.initialize(body.password);
+        return {
+          traceId: randomUUID(),
+          content: { recoveryCode }
+        };
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       return reply.code(500).send({
@@ -133,7 +158,7 @@ export const registerAuthnRoutes: FastifyPluginCallback = async (fastify) => {
    * POST /authn/password/verify
    * Password 验证（登录或解密）
    */
-  fastify.post('/verify', async (request, reply) => {
+  fastify.post('/password/verify', async (request, reply) => {
     const body = request.body as IPasswordVerifyBody | undefined;
 
     if (!body?.password || !body?.usageType) {
@@ -231,7 +256,7 @@ export const registerAuthnRoutes: FastifyPluginCallback = async (fastify) => {
    * POST /authn/password/update
    * 更新 Password（RecoveryCode 恢复后）
    */
-  fastify.post('/update', async (request, reply) => {
+  fastify.post('/password/update', async (request, reply) => {
     const body = request.body as IPasswordUpdateBody | undefined;
 
     if (!body?.password) {

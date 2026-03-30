@@ -17,8 +17,8 @@
 - **Password 登录能力**：
   - 有 passwordHash 且无 Passkey = 可登录
   - 有 Passkey = Password 仅用于 MasterKey 解密，不可登录
-- **初始化是启动自检**：服务端启动时检查 credentials.json，无需初始化 API
-- **首次配置**：支持 CLI (`keyroll init`) 和 Web 引导页面两种方式
+- **初始化是启动自检**：服务端启动时检查 credentials.json，无需独立初始化 API
+- **首次配置**：通过组合原子 API 完成（`/password/create` + `/password/verify`）
 
 ---
 
@@ -66,17 +66,22 @@ sequenceDiagram
     participant Server as 服务端
     participant DB as credentials.json
 
-    Client->>Server: POST /authn/initiate<br/>(password: 6 位数字)
+    Client->>Server: GET /authn/status
+    Server-->>Client: { initialized: false }
+    Note over Client: 未初始化，进入配置流程
+    Client->>Server: POST /authn/password/create<br/>(password: 6 位数字)
     Server->>Server: 1. 生成 MasterKey (32 字节)
-    Server->>Server: 2. MasterKey 加载到内存
-    Server->>Server: 3. 生成 passwordSalt
-    Server->>Server: 4. 用 password + "master" + passwordSalt<br/>派生密钥，加密 MasterKey
-    Server->>Server: 5. 用 password + "signin" + passwordSalt<br/>计算 passwordHash（用于登录验证）
-    Server->>Server: 6. 生成 RecoveryCode + recoverySeed
-    Server->>Server: 7. 用 RecoveryCode + recoverySeed<br/>派生密钥，加密 MasterKey
-    Server->>DB: 8. 保存 password + recovery<br/>(passkeys 为空)
+    Server->>Server: 2. 生成 passwordSalt
+    Server->>Server: 3. 用 password + "master" + passwordSalt<br/>派生密钥，加密 MasterKey
+    Server->>Server: 4. 用 password + "signin" + passwordSalt<br/>计算 passwordHash（用于登录验证）
+    Server->>Server: 5. 生成 RecoveryCode + recoverySeed
+    Server->>Server: 6. 用 RecoveryCode + recoverySeed<br/>派生密钥，加密 MasterKey
+    Server->>DB: 7. 保存 password + recovery<br/>(passkeys 为空)
     Server-->>Client: recoveryCode
-    Note over Client: Password 可登录<br/>（因为有 passwordHash）
+    Note over Client: 初始化完成，Password 可登录
+    Client->>Server: POST /authn/password/verify<br/>(password, usageType: "signin")
+    Server-->>Client: accessToken
+    Note over Client: 登录成功
 ```
 
 ### 服务端启动自检流程说明
@@ -160,7 +165,7 @@ sequenceDiagram
 
     Note over Server,DB: 无 passkeys，有 passwordHash
 
-    Client->>Server: POST /authn/password/login<br/>(password, usageType: "signin")
+    Client->>Server: POST /authn/password/verify<br/>(password, usageType: "signin")
     Server->>DB: 读取 passwordSalt + passwordHash
     Server->>Server: 用 password + "signin" + passwordSalt<br/>派生 H，比对 passwordHash
     alt 验证通过
@@ -356,8 +361,8 @@ GET /authn/status
 设置或更新 Password。
 
 **前置条件**：
-- 系统已初始化
-- 已认证（持有 AccessToken 或通过 RecoveryCode 验证）
+- 系统未初始化：无前置条件，可直接调用（初始化）
+- 系统已初始化：需要已认证（持有 AccessToken）
 
 **请求**
 ```json
@@ -368,29 +373,28 @@ GET /authn/status
 
 **请求说明**
 - `password`: 6 位数字字符串
-- 如果已有 passwordHash，此操作会更新密码
+- 系统未初始化时：调用此 API 完成初始化，返回 RecoveryCode
+- 系统已初始化时：需要 AccessToken 认证，更新密码
 
 **响应（成功）**
 ```json
 {
   "traceId": "uuid-v4",
   "content": {
-    "message": "Password 设置成功"
+    "recoveryCode": "XXXX-XXXX-XXXX-XXXX-XXXX"
   }
 }
 ```
 
 **响应说明**
-- 服务端生成新的 passwordSalt
-- 使用新 password + "master" + passwordSalt 加密 MasterKey
-- 计算新的 passwordHash（如果有 Passkey，passwordHash 仅用于解密，不可登录）
+- 系统未初始化时：返回 RecoveryCode
+- 系统已初始化时：返回成功消息
 
 **错误响应**
 | errorId | HTTP |
 |---------|------|
 | `InvalidRequest` | 400 |
-| `NotInitialized` | 503 |
-| `TokenInvalid` | 401 |
+| `TokenInvalid` | 401 | 系统已初始化但未提供认证 |
 
 ---
 

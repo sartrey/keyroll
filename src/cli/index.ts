@@ -63,7 +63,7 @@ program
     .command('init')
     .description('Initialize the system (first-time setup)')
     .option('-p, --port <port>', 'Port number for server (default: 3000)')
-    .action(async (options) => {
+    .action(async (options: { port?: string }) => {
       const port = options.port ? parseInt(options.port, 10) : DEFAULT_PORT;
 
       // Check if already initialized
@@ -201,6 +201,13 @@ program
       // Ensure keyroll dir exists
       if (!fs.existsSync(keyrollDir)) {
         fs.mkdirSync(keyrollDir, { recursive: true });
+      }
+      // Check if initialized (warning only, don't block)
+      if (!fs.existsSync(credentialsFile)) {
+        console.log();
+        console.log(chalk.yellow('System not initialized'));
+        console.log(chalk.gray('Open ') + chalk.cyan(`http://localhost:${options.port ? parseInt(options.port, 10) : DEFAULT_PORT}`) + chalk.gray(' in browser to initialize.'));
+        console.log();
       }
       const port = options.port ? parseInt(options.port, 10) : DEFAULT_PORT;
       const spinner = ora('Starting server...').start();
