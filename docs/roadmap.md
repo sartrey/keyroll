@@ -2,7 +2,7 @@
 
 **Keyroll** 是一个 single-user、local-first 的个人数据存储系统。
 
-核心目标：提供一个简单、可靠的数据存储层，让开发者可以轻松地以结构化方式存储和管理个人数据。
+核心目标：提供一个简单、可靠的数据存储层，让开发者以结构化方式存储和管理个人数据。
 
 ---
 
@@ -12,12 +12,11 @@
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
-| 本地凭证存储 | 🟢 | credentials.json 独立存储认证凭证 |
-| Password 认证 | 🟢 | 6 位数字 PIN，用途隔离设计（登录 vs 解密） |
+| 本地凭证存储 | 🟢 | keyroll.db inner 记录存储认证凭证 |
+| Password 认证 | 🟢 | 6-16 位数字密码，AES-GCM authTag 验证 |
 | RecoveryCode 恢复 | 🟢 | 紧急恢复机制，5 组 4 位大写字符 |
-| Passkey 数据结构 | 🟢 | 支持多 Passkey，公钥/counter 存储 |
-| Passkey WebAuthn | 🟡 | 注册和认证流程已实现，待测试验证 |
 | 服务端启动自检 | 🟢 | 启动时自动检测初始化状态 |
+| 多密钥设计 | 🟢 | 支持多个加密 blob（recovery/password），可扩展 Pin Code 等 |
 
 ### 会话管理
 
@@ -26,15 +25,15 @@
 | BearerToken 认证 | 🟢 | UUID v4，内存会话表 |
 | API 访问控制 | 🟢 | 认证中间件，豁免端点配置 |
 | 30 分钟超时登出 | 🔴 | 客户端 visibility 检测待实现 |
-| 登录页面 UI | 🟢 | Web 认证界面已完成 |
 
 ### 加密存储
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
 | MasterKey 管理 | 🟢 | 内存持有，AES-256-GCM 加密 |
-| secureLevel 分级 | 🟡 | 数据结构支持，加密逻辑待实现 |
+| secureLevel 正交加密 | 🟡 | 数据结构支持，recordType×secureLevel 正交加密逻辑待实现 |
 | 加密数据访问 | 🔴 | record 级别加解密 API 待实现 |
+| blobs 目录 | 🔴 | Protected 加密时密文 blob 存储、HKDF 密钥派生与 integrity 校验、大文件软链策略待实现 |
 
 ### 数据模型
 
@@ -49,8 +48,8 @@
 
 | 能力 | 状态 | 说明 |
 |------|------|------|
-| CLI 工具 | 🟢 | init/start/stop/status 命令 |
-| Web 管理界面 | 🟢 | 基础框架和认证 UI 已完成 |
+| CLI 工具 | 🟢 | keyroll setup/start/close/status 命令 |
+| Web 管理界面 | 🟢 | 登录/初始化/恢复码/密码修改等功能已完成 |
 | 数据备份 | 🔴 | 云备份机制待设计 |
 
 ---

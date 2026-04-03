@@ -1,17 +1,17 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { getAccessToken } from './services/auth';
 
+import { getAccessToken } from './services/authn';
 import Layout from './components/layout';
-import Dashboard from './pages/dashboard';
-import Records from './pages/records';
+import Database from './pages/database';
 import Settings from './pages/settings';
-import Auth from './pages/auth';
+import AuthnLogin from './pages/authn/login';
+import AuthnSetup from './pages/authn/setup';
 
 // 认证守卫组件
-function AuthGuard({ children }: { children: React.ReactNode }) {
+function AuthnGuard({ children }: { children: React.ReactNode; }) {
   const token = getAccessToken();
   if (!token) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/authn/login" replace />;
   }
   return <>{children}</>;
 }
@@ -19,14 +19,15 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <Routes>
-      <Route path="/auth" element={<Auth />} />
+      <Route path="/authn/login" element={<AuthnLogin />} />
+      <Route path="/authn/setup" element={<AuthnSetup />} />
       <Route path="/" element={
-        <AuthGuard>
+        <AuthnGuard>
           <Layout />
-        </AuthGuard>
+        </AuthnGuard>
       }>
-        <Route index element={<Dashboard />} />
-        <Route path="records" element={<Records />} />
+        <Route index element={<Navigate to="/database" replace />} />
+        <Route path="database" element={<Database />} />
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>

@@ -15,16 +15,20 @@
 ```
 src/web/
 ├── main.tsx          # 应用入口
-├── App.tsx           # 根组件
+├── App.tsx           # 根组件（路由守卫）
 ├── index.less        # 全局样式
-├── assets/           # 静态资源（图片、字体等）
+├── assets/           # 静态资源
 ├── services/         # API 服务层
 │   ├── fetcher.ts    # 自定义 fetch 封装
-│   └── records.ts    # Records 相关 API 操作
+│   ├── authn.ts      # 认证相关操作
+│   └── records.ts    # 记录 CRUD 操作
 └── pages/            # 页面组件
-    ├── Dashboard.tsx
-    ├── Records.tsx
-    └── Settings.tsx
+    ├── database.tsx  # 数据管理页
+    ├── settings.tsx  # 设置页
+    └── authn/        # 认证相关页面
+        ├── authn.less
+        ├── login.tsx  # 登录页
+        └── setup.tsx  # 初始化页
 ```
 
 ## 页面结构
@@ -35,9 +39,8 @@ src/web/
 ┌─────────────────────────────────────┐
 │  Sider    │  Header                 │
 │           ├─────────────────────────┤
-│  - Dashboard│  Content              │
-│  - Records  │                       │
-│  - Settings │                       │
+│  - Database│  Content               │
+│  - Settings│                        │
 │           │                       │
 └───────────┴─────────────────────────┘
 ```
@@ -46,19 +49,26 @@ src/web/
 
 | 路径 | 页面 | 说明 |
 |------|------|------|
-| `/` | Dashboard | 仪表盘，显示统计信息 |
-| `/records` | Records | 记录列表和管理 |
-| `/settings` | Settings | 系统设置 |
+| `/` | - | 根路径，重定向到 `/database` |
+| `/database` | Database | 数据管理与记录 CRUD |
+| `/settings` | Settings | 系统设置与账户管理 |
+| `/authn/login` | AuthnLogin | 登录页（密码登录 / 恢复码） |
+| `/authn/setup` | AuthnSetup | 首次初始化向导 |
 
 ## 服务层架构
 
 ### services/ 目录
 
-所有 API 调用逻辑组织在 `web/services` 目录，每个 UI 可依赖的操作（可能包含一个或多个 API 的组合）实现为一个 service 层文件。
+所有 API 调用逻辑组织在 `web/services` 目录，每个模块的操作实现为一个 service 文件。
+
+**当前服务列表**：
+- `fetcher.ts` — 统一请求封装，自动注入 Bearer Token，失败时自动 message.error
+- `authn.ts` — 认证操作（状态检查、初始化、登录、密码更新、恢复码验证、登出、Token 存取）
+- `records.ts` — 记录 CRUD（listRecords、getRecord、createRecord、updateRecord、deleteRecord）
 
 **设计原则**：
 - 每个 service 文件导出 `async` 函数提供操作
-- 使用自定义的 `fetcher` 组件作为请求工具
+- 使用自定义的 `fetcher` 作为请求工具
 - **不使用 react-query**，使用原生的 `fetch` 实现
 
 ### 自定义 fetcher
@@ -66,19 +76,27 @@ src/web/
 ```typescript
 // src/web/services/fetcher.ts
 
-export const API_BASE = '/api';
+export const ApiBase = '/api';
 
 export async function fetcher<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const token = getAccessToken();
+
+  const response = await fetch(`${ApiBase}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+      ...token ? { Authorization: `Bearer ${token}` } : {},
+      ...options?.headers
+    }
   });
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.status}`);
+    const body = await response.json().catch(() => null);
+    const detail = body?.error ?? body?.errorId ?? body?.message ?? `Request failed: ${response.status}`;
+    message.error(detail, 5);
+    const err = new Error(detail);
+    (err as any)._apiError = true;
+    throw err;
   }
 
   return response.json();
@@ -89,49 +107,42 @@ export async function fetcher<T>(endpoint: string, options?: RequestInit): Promi
 
 ```typescript
 // src/web/services/records.ts
+import type { IRecord } from '../../shared/types';
 import { fetcher } from './fetcher';
-import type { KeyrollRecord } from '../../shared/types';
 
 export async function listRecords(params?: {
   prefix?: string;
   domain?: string;
   type?: string;
-  secureLevel?: number
-}): Promise<KeyrollRecord[]> {
-  const search = new URLSearchParams();
-  if (params?.prefix) search.set('prefix', params.prefix);
-  if (params?.domain) search.set('domain', params.domain);
-  if (params?.type) search.set('type', params.type);
-  if (params?.secureLevel !== undefined) search.set('secureLevel', String(params.secureLevel));
-  const query = search.toString();
-  return fetcher(`/records${query ? `?${query}` : ''}`);
+  secureLevel?: number;
+}): Promise<IRecord[]> {
+  const result = await fetcher<{ content: { items: IRecord[]; }; }>('/model/records/search', {
+    method: 'POST',
+    body: JSON.stringify(params ?? {})
+  });
+  return result.content?.items ?? [];
 }
 
-export async function getRecord(recordKey: string): Promise<KeyrollRecord> {
-  const encodedKey = encodeURIComponent(recordKey.slice(1));
-  return fetcher(`/records/${encodedKey}`);
+export async function getRecord(recordKey: string): Promise<IRecord> {
+  const result = await fetcher<{ content: { record: IRecord; }; }>('/model/records/detail', {
+    method: 'POST',
+    body: JSON.stringify({ recordKey })
+  });
+  return result.content.record;
 }
 
-export async function putRecord(
+export async function createRecord(
   recordKey: string,
   body: {
-    recordType: 'plain' | 'refer';
+    recordType: IRecord['recordType'];
     recordValue: string;
     contentType: string;
-    secureLevel?: number
+    secureLevel?: number;
   }
-): Promise<{ success: boolean }> {
-  const encodedKey = encodeURIComponent(recordKey.slice(1));
-  return fetcher(`/records/${encodedKey}`, {
-    method: 'PUT',
-    body: JSON.stringify(body),
-  });
-}
-
-export async function deleteRecord(recordKey: string): Promise<{ success: boolean }> {
-  const encodedKey = encodeURIComponent(recordKey.slice(1));
-  return fetcher(`/records/${encodedKey}`, {
-    method: 'DELETE',
+): Promise<void> {
+  await fetcher('/model/records/create', {
+    method: 'POST',
+    body: JSON.stringify({ recordKey, ...body })
   });
 }
 ```

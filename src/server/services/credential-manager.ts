@@ -1,29 +1,14 @@
-import { join } from 'node:path';
-import { homedir } from 'node:os';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-
+import Database from './database.js';
 import {
   generateMasterKey,
   generateRecoveryCode,
-  generateSalt,
   generateRecoverySeed,
+  generateSalt,
   deriveKey,
   encryptMasterKey,
   decryptMasterKey,
-  computePasswordHash,
   isValidPassword
 } from './crypto.js';
-
-/**
- * Passkey 凭证数据
- */
-export interface IPasskeyCredential {
-  credentialId: string;
-  publicKey: string;  // base64 编码的 SPKI 格式公钥
-  counter: number;
-  transports: string[];  // ['internal', 'usb', 'nfc', 'ble', 'hybrid']
-  createdAt: number;
-}
 
 /**
  * Password 凭证数据
@@ -31,7 +16,6 @@ export interface IPasskeyCredential {
 export interface IPasswordCredential {
   passwordSalt: string;  // base64 编码
   masterKeySecret: string;  // base64 编码的加密数据
-  passwordHash?: string;  // base64 编码，可选（存在时 Password 可登录）
 }
 
 /**
@@ -43,37 +27,20 @@ export interface IRecoveryCredential {
 }
 
 /**
- * credentials.json 数据结构
- */
-export interface ICredentialsData {
-  version: number;
-  createdAt: number;
-  updatedAt: number;
-  passkeys: IPasskeyCredential[];
-  recovery: IRecoveryCredential;
-  password?: IPasswordCredential;
-}
-
-/**
  * 系统状态
  */
 export interface ISystemStatus {
   initialized: boolean;
-  passkeysExist: boolean;
-  passwordLoginAvailable: boolean;
-  hasPassword: boolean;
 }
-
-// credentials.json 路径
-const CredentialsPath = join(homedir(), '.keyroll', 'credentials.json');
 
 /**
  * Credentials 管理器
- * 单例模式，管理 credentials.json 的读写
+ * 单例模式，管理 keyroll.db inner 记录的读写
  */
 export class CredentialsManager {
   private static instance: CredentialsManager | null = null;
-  private credentials: ICredentialsData | null = null;
+  private passwordCred: IPasswordCredential | null = null;
+  private recoveryCred: IRecoveryCredential | null = null;
   private masterKey: Buffer | null = null;  // 解密后的 MasterKey（内存中）
 
   private constructor() {}
@@ -86,82 +53,54 @@ export class CredentialsManager {
   }
 
   /**
-   * 获取 credentials.json 路径
-   */
-  getCredentialsPath(): string {
-    return CredentialsPath;
-  }
-
-  /**
    * 检查系统是否已初始化
    */
   isInitialized(): boolean {
-    return this.credentials !== null;
+    return this.passwordCred !== null;
   }
 
   /**
    * 获取系统状态
    */
   getSystemStatus(): ISystemStatus {
-    if (!this.credentials) {
-      return {
-        initialized: false,
-        passkeysExist: false,
-        passwordLoginAvailable: false,
-        hasPassword: false
-      };
-    }
-
-    const passkeysExist = this.credentials.passkeys.length > 0;
-    const hasPassword = !!this.credentials.password;
-    // Password 登录可用：有 passwordHash 且无 Passkey
-    const passwordLoginAvailable = hasPassword && !passkeysExist;
-
-    return {
-      initialized: true,
-      passkeysExist,
-      passwordLoginAvailable,
-      hasPassword
-    };
+    return { initialized: this.isInitialized() };
   }
 
   /**
-   * 加载 credentials.json
-   * @returns true 如果加载成功，false 如果文件不存在或无效
+   * 从数据库加载 inner 凭证记录
+   * @returns true 如果加载成功，false 如果未初始化
    */
   load(): boolean {
     try {
-      if (!existsSync(CredentialsPath)) {
-        return false;
+      const db = Database.getInstance();
+
+      const passwordRecord = db.getInnerRecord('/inner/system.authn/password');
+      if (passwordRecord) {
+        this.passwordCred = JSON.parse(passwordRecord.recordValue) as IPasswordCredential;
       }
 
-      const data = readFileSync(CredentialsPath, 'utf-8');
-      const parsed = JSON.parse(data) as ICredentialsData;
-
-      // 验证必需字段
-      if (!parsed.version || !parsed.createdAt || !parsed.recovery || !parsed.passkeys) {
-        return false;
+      const recoveryRecord = db.getInnerRecord('/inner/system.authn/recovery');
+      if (recoveryRecord) {
+        this.recoveryCred = JSON.parse(recoveryRecord.recordValue) as IRecoveryCredential;
       }
 
-      this.credentials = parsed;
-      return true;
+      return this.passwordCred !== null;
     } catch (err) {
-      console.error('Failed to load credentials:', err);
+      console.error('Failed to load credentials from database:', err);
       return false;
     }
   }
 
   /**
    * 初始化系统（首次配置）
-   * @param password - 可选，6 位数字密码
+   * @param password - 可选，6-16 位数字密码
    * @returns recoveryCode（仅首次返回）
    */
   initialize(password?: string): string {
-    if (this.credentials) {
+    if (this.isInitialized()) {
       throw new Error('System already initialized');
     }
 
-    const now = Date.now();
     const recoveryCode = generateRecoveryCode();
     const recoverySeed = generateRecoverySeed();
     const masterKey = generateMasterKey();
@@ -170,18 +109,20 @@ export class CredentialsManager {
     const recoveryKey = deriveKey(recoveryCode, recoverySeed);
     const recoveryMasterKeySecret = encryptMasterKey(masterKey, recoveryKey);
 
-    const credentials: ICredentialsData = {
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
-      passkeys: [],
-      recovery: {
+    // 保存 Recovery 凭证
+    const recoveryRecord = {
+      recordKey: '/inner/system.authn/recovery',
+      recordType: 'inner' as const,
+      contentType: 'application/json',
+      secureLevel: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      recordValue: JSON.stringify({
         recoverySeed: recoverySeed.toString('base64'),
         masterKeySecret: recoveryMasterKeySecret
-      }
+      })
     };
 
-    // 如果提供了 Password，设置 Password 凭证
     if (password) {
       if (!isValidPassword(password)) {
         throw new Error('Invalid password format');
@@ -190,34 +131,39 @@ export class CredentialsManager {
       const passwordSalt = generateSalt();
       const passwordKey = deriveKey(password, passwordSalt);
       const passwordMasterKeySecret = encryptMasterKey(masterKey, passwordKey);
-      const passwordHash = computePasswordHash(password, passwordSalt);
 
-      credentials.password = {
+      // 保存 Password 凭证
+      this.passwordCred = {
         passwordSalt: passwordSalt.toString('base64'),
-        masterKeySecret: passwordMasterKeySecret,
-        passwordHash
+        masterKeySecret: passwordMasterKeySecret
       };
     }
 
-    // 保存 credentials
-    this.credentials = credentials;
+    // 保存 Recovery 凭证
+    this.recoveryCred = {
+      recoverySeed: recoverySeed.toString('base64'),
+      masterKeySecret: recoveryMasterKeySecret
+    };
     this.masterKey = masterKey;
-    this.save();
 
-    return recoveryCode;
-  }
+    // 写入数据库
+    const db = Database.getInstance();
 
-  /**
-   * 保存 credentials.json
-   */
-  private save(): void {
-    if (!this.credentials) {
-      throw new Error('No credentials to save');
+    if (this.passwordCred) {
+      db.upsertInnerRecord({
+        recordKey: '/inner/system.authn/password',
+        recordType: 'inner',
+        contentType: 'application/json',
+        secureLevel: 0,
+        createdAt: 0,
+        updatedAt: 0,
+        recordValue: JSON.stringify(this.passwordCred)
+      });
     }
 
-    this.credentials.updatedAt = Date.now();
-    const data = JSON.stringify(this.credentials, null, 2);
-    writeFileSync(CredentialsPath, data, 'utf-8');
+    db.upsertInnerRecord(recoveryRecord);
+
+    return recoveryCode;
   }
 
   /**
@@ -226,22 +172,21 @@ export class CredentialsManager {
    * @returns true 如果验证成功
    */
   verifyRecoveryCode(recoveryCode: string): boolean {
-    if (!this.credentials) {
+    if (!this.recoveryCred) {
       throw new Error('System not initialized');
     }
 
     try {
-      const recoverySeed = Buffer.from(this.credentials.recovery.recoverySeed, 'base64');
+      const recoverySeed = Buffer.from(this.recoveryCred.recoverySeed, 'base64');
       const recoveryKey = deriveKey(recoveryCode, recoverySeed);
-      const masterKey = decryptMasterKey(this.credentials.recovery.masterKeySecret, recoveryKey);
+      const masterKey = decryptMasterKey(this.recoveryCred.masterKeySecret, recoveryKey);
 
       this.masterKey = masterKey;
 
-      // RecoveryCode 验证成功后，清理 passwordHash
-      if (this.credentials.password) {
-        delete this.credentials.password.passwordHash;
-        this.save();
-      }
+      // RecoveryCode 验证成功后，清理 password 数据（需要用户重设）
+      const db = Database.getInstance();
+      db.deleteRecord('/inner/system.authn/password');
+      this.passwordCred = null;
 
       return true;
     } catch {
@@ -250,49 +195,36 @@ export class CredentialsManager {
   }
 
   /**
-   * 验证 Password 并解密 MasterKey
-   * @param password - 用户输入的 Password
-   * @returns true 如果验证成功
-   */
-  verifyPassword(password: string): boolean {
-    if (!this.credentials?.password) {
-      return false;
-    }
-
-    try {
-      const passwordSalt = Buffer.from(this.credentials.password.passwordSalt, 'base64');
-      const passwordKey = deriveKey(password, passwordSalt);
-      const masterKey = decryptMasterKey(this.credentials.password.masterKeySecret, passwordKey);
-
-      this.masterKey = masterKey;
-
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * 验证 Password 登录（仅当无 Passkey 时）
+   * 验证 Password 并解密 MasterKey（登录）
    * @param password - 用户输入的 Password
    * @returns true 如果验证成功
    */
   verifyPasswordForLogin(password: string): boolean {
-    if (!this.credentials?.password?.passwordHash) {
+    if (!this.passwordCred) {
       return false;
     }
 
-    const passwordSalt = Buffer.from(this.credentials.password.passwordSalt, 'base64');
-    return computePasswordHash(password, passwordSalt) === this.credentials.password.passwordHash;
+    try {
+      const passwordSalt = Buffer.from(this.passwordCred.passwordSalt, 'base64');
+      const passwordKey = deriveKey(password, passwordSalt);
+      const masterKey = decryptMasterKey(this.passwordCred.masterKeySecret, passwordKey);
+
+      this.masterKey = masterKey;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
-   * 设置/更新 Password
-   * @param password - 新的 Password（6 位数字）
+   * 设置/更新 Password（已登录状态，有 MasterKey 或需要现有密码验证）
+   * @param password - 新的 Password（6-16 位数字）
+   * @param currentPassword - 可选，现有密码（用于普通更新时验证身份）
    * @returns true 如果设置成功
    */
-  setPassword(password: string): boolean {
-    if (!this.credentials) {
+  setPassword(password: string, currentPassword?: string): boolean {
+    if (!this.isInitialized() && !this.masterKey) {
+      // 未初始化且无 MasterKey，不应走到这里（应该调用 initialize）
       throw new Error('System not initialized');
     }
 
@@ -300,7 +232,20 @@ export class CredentialsManager {
       throw new Error('Invalid password format');
     }
 
-    // 如果 MasterKey 尚未加载，需要先验证现有 Password 或 RecoveryCode
+    // 如果 MasterKey 未加载，需要 currentPassword 来解密
+    if (!this.masterKey) {
+      if (!currentPassword || !this.passwordCred) {
+        throw new Error('MasterKey not loaded');
+      }
+      try {
+        const salt = Buffer.from(this.passwordCred.passwordSalt, 'base64');
+        const key = deriveKey(currentPassword, salt);
+        this.masterKey = decryptMasterKey(this.passwordCred.masterKeySecret, key);
+      } catch {
+        throw new Error('Current password verification failed');
+      }
+    }
+
     if (!this.masterKey) {
       throw new Error('MasterKey not loaded');
     }
@@ -308,28 +253,32 @@ export class CredentialsManager {
     const passwordSalt = generateSalt();
     const passwordKey = deriveKey(password, passwordSalt);
     const passwordMasterKeySecret = encryptMasterKey(this.masterKey, passwordKey);
-    const passwordHash = computePasswordHash(password, passwordSalt);
 
-    this.credentials.password = {
+    this.passwordCred = {
       passwordSalt: passwordSalt.toString('base64'),
-      masterKeySecret: passwordMasterKeySecret,
-      passwordHash
+      masterKeySecret: passwordMasterKeySecret
     };
 
-    this.save();
+    const db = Database.getInstance();
+    db.upsertInnerRecord({
+      recordKey: '/inner/system.authn/password',
+      recordType: 'inner',
+      contentType: 'application/json',
+      secureLevel: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      recordValue: JSON.stringify(this.passwordCred)
+    });
+
     return true;
   }
 
   /**
-   * 更新 Password（RecoveryCode 恢复后）
-   * @param password - 新的 Password（6 位数字）
+   * 更新 Password（RecoveryCode 恢复后，MasterKey 已加载）
+   * @param password - 新的 Password（6-16 位数字）
    * @returns true 如果更新成功
    */
   updatePasswordAfterRecovery(password: string): boolean {
-    if (!this.credentials) {
-      throw new Error('System not initialized');
-    }
-
     if (!this.masterKey) {
       throw new Error('MasterKey not loaded');
     }
@@ -341,15 +290,23 @@ export class CredentialsManager {
     const passwordSalt = generateSalt();
     const passwordKey = deriveKey(password, passwordSalt);
     const passwordMasterKeySecret = encryptMasterKey(this.masterKey, passwordKey);
-    const passwordHash = computePasswordHash(password, passwordSalt);
 
-    this.credentials.password = {
+    this.passwordCred = {
       passwordSalt: passwordSalt.toString('base64'),
-      masterKeySecret: passwordMasterKeySecret,
-      passwordHash
+      masterKeySecret: passwordMasterKeySecret
     };
 
-    this.save();
+    const db = Database.getInstance();
+    db.upsertInnerRecord({
+      recordKey: '/inner/system.authn/password',
+      recordType: 'inner',
+      contentType: 'application/json',
+      secureLevel: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      recordValue: JSON.stringify(this.passwordCred)
+    });
+
     return true;
   }
 
@@ -370,82 +327,6 @@ export class CredentialsManager {
    */
   isMasterKeyLoaded(): boolean {
     return this.masterKey !== null;
-  }
-
-  /**
-   * 添加 Passkey
-   */
-  addPasskey(credential: IPasskeyCredential): void {
-    if (!this.credentials) {
-      throw new Error('System not initialized');
-    }
-
-    this.credentials.passkeys.push(credential);
-    this.save();
-  }
-
-  /**
-   * 移除 Passkey
-   */
-  removePasskey(credentialId: string): boolean {
-    if (!this.credentials) {
-      throw new Error('System not initialized');
-    }
-
-    const index = this.credentials.passkeys.findIndex(pk => pk.credentialId === credentialId);
-    if (index === -1) {
-      return false;
-    }
-
-    this.credentials.passkeys.splice(index, 1);
-    this.save();
-    return true;
-  }
-
-  /**
-   * 获取所有 Passkey
-   */
-  getPasskeys(): IPasskeyCredential[] {
-    return this.credentials?.passkeys || [];
-  }
-
-  /**
-   * 获取 Passkey 公钥
-   */
-  getPasskeyPublicKey(credentialId: string): string | null {
-    const passkey = this.credentials?.passkeys.find(pk => pk.credentialId === credentialId);
-    return passkey?.publicKey || null;
-  }
-
-  /**
-   * 获取 Passkey counter
-   */
-  getPasskeyCounter(credentialId: string): number {
-    const passkey = this.credentials?.passkeys.find(pk => pk.credentialId === credentialId);
-    return passkey?.counter || 0;
-  }
-
-  /**
-   * 更新 Passkey counter
-   */
-  updatePasskeyCounter(credentialId: string, counter: number): void {
-    if (!this.credentials) {
-      throw new Error('System not initialized');
-    }
-
-    const passkey = this.credentials.passkeys.find(pk => pk.credentialId === credentialId);
-    if (passkey) {
-      passkey.counter = counter;
-      this.save();
-    }
-  }
-
-  /**
-   * 检查 Password 登录是否可用
-   */
-  isPasswordLoginAvailable(): boolean {
-    const status = this.getSystemStatus();
-    return status.passwordLoginAvailable;
   }
 }
 

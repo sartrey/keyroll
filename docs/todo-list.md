@@ -11,34 +11,42 @@
 
 ### 当前任务
 
-- [ ] **修复凭证文件删除恢复的安全漏洞** - 2026-03-30
-  **问题**：攻击者删除 `credentials.json` 后，用户用 RecoveryCode 恢复时，系统无法验证密码是否被恶意重置。恢复后的密码可以登录，但无法解密 MasterKey 加密的数据（相当于登录密码无用）。
+- [ ] **数据创建体验优化** - 2026-04-07
+  优化 Database 页的数据创建交互。当前使用 Modal + 表单的方式较简陋，需要：
+  - 更友好的 Key 输入（自动补全前缀、格式校验提示）
+  - 记录值编辑器根据 contentType 切换（文本 / JSON / 其他）
+  - 创建后自动刷新列表并高亮新记录
 
-  **方案**：在 `keyroll.db` 中添加系统保留记录 `/system/auth/password_verifier`，与登录密码建立可验证联系。验证流程：
-  1. 初始化时：用 password 派生 verifier 存入数据库（与 MasterKey 一起加密）
-  2. 登录时：计算输入密码的 verifier，与数据库比对
-  3. 不匹配则说明 credentials.json 可能被恶意重置，拒绝登录
+- [ ] **新增数据结构类型支持** - 2026-04-07
+  当前仅 plain 类型基本可用，需要设计并实现其他数据结构的 CRUD 支持：
+  - **refer** — 引用类型，recordValue 为 JSON 格式 `{ originSrc, integrity }`，支持引用关系展示
+  - **graph** — 图谱类型，recordValue 为 JSON 格式的节点/边数据
+  - 在 Database 页为不同类型提供差异化的创建和编辑界面
 
-  涉及修改：
-  - 新增 `PasswordVerifier` 服务
-  - `credential-manager` 集成 verifier 验证
-  - 更新初始化/恢复流程
+- [ ] **统一 API 响应格式** - 2026-04-07
+  model 控制器的 create/update/delete 接口返回 `{ success: true }` 而非标准的 `{ traceId, content }` 格式。error 响应使用 `{ error }` 而非 `{ traceId, errorId, content }`。需要对齐到 spec-api.md 定义的统一响应格式。
 
-- [ ] **实现 RecoveryCode 恢复入口** - 2026-03-30
-  登录页面需要提供"使用恢复码"选项，包括 UI 和 /authn/recovery/verify API 集成
-
-- [ ] **实现 Password 修改功能** - 2026-03-30
-  已登录用户可以在设置页面修改 Password，服务端 API 已支持
-
-- [ ] **实现 Password 输入 UI** - 2026-03-30
-  已登录后，如果需要访问加密数据，需要输入 Password 解密 MasterKey
-
-- [ ] **修复 Passkey 认证功能** - 2026-03-30
-  Passkey 注册/登录流程不工作，需要检查：1) Passkey 是否正确保存到 credentials.json 2) Passkey 登录是否正确验证签名 3) Passkey 注册后 Password 登录能力是否正确禁用
+- [ ] **secureLevel 加密逻辑实现** - 2026-04-07
+  当前 secureLevel 字段存在但未实现实际的加密/解密逻辑。需要：
+  - secureLevel=1 时自动使用 MasterKey 加密 recordValue
+  - secureLevel=0 时明文存储
+  - 读取时自动解密
 
 ### 已完成任务
 
-- [x] ~~按设计文档修复 API 路由~~ - 2026-03-30
+- [x] ~~将凭证从 credentials.json 迁移到 keyroll.db~~ - 2026-04-07
+  凭证现在存储在 keyroll.db 的 inner 记录中（`/inner/system.authn/password`、`/inner/system.authn/recovery`）。
+  - credential-manager 改为读写 inner 记录
+  - server 启动自检改为从数据库加载凭证
+  - CLI `keyroll setup` 改为调用 API 初始化
+
+- [x] ~~实现 RecoveryCode 恢复入口~~ - 2026-04-07
+  登录页面添加"使用恢复码恢复"选项，包含恢复码验证和重设密码的完整 UI 流程。
+
+- [x] ~~实现 Password 修改功能~~ - 2026-04-07
+  设置页面添加修改密码按钮和弹窗，调用 `/authn/password/update` API。
+
+- [x] ~~修复 API 路由~~ - 2026-03-30
   删除 /authn/initiate API，恢复 /authn/password/verify 和 /authn/password/create 路由，初始化流程改为组合原子 API（/password/create → /password/verify）
 
 - [x] ~~实现 Web 认证 UI（登录页面和初始化引导）~~ - 2026-03-30

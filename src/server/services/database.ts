@@ -18,12 +18,12 @@ export class DataStore {
       CREATE TABLE IF NOT EXISTS records (
         record_key TEXT PRIMARY KEY NOT NULL,
         record_type INTEGER NOT NULL,
-        record_value TEXT NOT NULL,
         content_type TEXT NOT NULL,
         secure_level INTEGER DEFAULT 0,
         created_at INTEGER DEFAULT (strftime('%s', 'now')),
         updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-        deleted_at INTEGER
+        deleted_at INTEGER,
+        record_value TEXT NOT NULL
       )
     `);
 
@@ -44,46 +44,99 @@ export class DataStore {
   }
 
   private recordTypeToInt(type: ERecordType): number {
-    return type === 'plain' ? 0 : 1;
+    return type === 'inner' ? 0 : type === 'plain' ? 1 : type === 'refer' ? 2 : 3;
   }
 
   private intToRecordType(int: number): ERecordType {
-    return int === 0 ? 'plain' : 'refer';
+    return int === 0 ? 'inner' : int === 1 ? 'plain' : int === 2 ? 'refer' : 'graph';
   }
 
   private rowToRecord(row: Record<string, unknown>): IRecord {
     return {
       recordKey: row.record_key as string,
       recordType: this.intToRecordType(row.record_type as number),
-      recordValue: row.record_value as string,
       contentType: row.content_type as string,
       secureLevel: row.secure_level as number,
       createdAt: row.created_at as number,
-      updatedAt: row.updated_at as number
+      updatedAt: row.updated_at as number,
+      recordValue: row.record_value as string
     };
   }
 
   /**
-   * 创建或更新记录
+   * 创建记录
    */
-  upsertRecord(record: IRecord): void {
+  createRecord(record: IRecord): void {
     const stmt = this.db.prepare(`
-      INSERT INTO records (record_key, record_type, record_value, content_type, secure_level, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, strftime('%s', 'now'), strftime('%s', 'now'))
-      ON CONFLICT(record_key) DO UPDATE SET
-        record_type = excluded.record_type,
-        record_value = excluded.record_value,
-        content_type = excluded.content_type,
-        secure_level = excluded.secure_level,
-        updated_at = strftime('%s', 'now'),
-        deleted_at = NULL
+      INSERT INTO records (record_key, record_type, content_type, secure_level, created_at, updated_at, record_value)
+      VALUES (?, ?, ?, ?, strftime('%s', 'now'), strftime('%s', 'now'), ?)
     `);
     stmt.run(
         record.recordKey,
         this.recordTypeToInt(record.recordType),
-        record.recordValue,
         record.contentType,
-        record.secureLevel
+        record.secureLevel,
+        record.recordValue
+    );
+  }
+
+  /**
+   * 更新记录
+   */
+  updateRecord(recordKey: string, updates: Partial<Pick<IRecord, 'recordType' | 'contentType' | 'secureLevel' | 'recordValue'>>): void {
+    const sets: string[] = [];
+    const params: unknown[] = [];
+
+    if (updates.recordType !== undefined) {
+      sets.push('record_type = ?');
+      params.push(this.recordTypeToInt(updates.recordType));
+    }
+    if (updates.contentType !== undefined) {
+      sets.push('content_type = ?');
+      params.push(updates.contentType);
+    }
+    if (updates.secureLevel !== undefined) {
+      sets.push('secure_level = ?');
+      params.push(updates.secureLevel);
+    }
+    if (updates.recordValue !== undefined) {
+      sets.push('record_value = ?');
+      params.push(updates.recordValue);
+    }
+
+    if (sets.length === 0) {
+      return;
+    }
+
+    sets.push("updated_at = strftime('%s', 'now')");
+    sets.push('deleted_at = NULL');
+    params.push(recordKey);
+
+    const stmt = this.db.prepare(`UPDATE records SET ${sets.join(', ')} WHERE record_key = ?`);
+    stmt.run(...params);
+  }
+
+  /**
+   * 创建或更新记录（兼容旧接口）
+   */
+  upsertRecord(record: IRecord): void {
+    const stmt = this.db.prepare(`
+      INSERT INTO records (record_key, record_type, content_type, secure_level, created_at, updated_at, record_value)
+      VALUES (?, ?, ?, ?, strftime('%s', 'now'), strftime('%s', 'now'), ?)
+      ON CONFLICT(record_key) DO UPDATE SET
+        record_type = excluded.record_type,
+        content_type = excluded.content_type,
+        secure_level = excluded.secure_level,
+        updated_at = strftime('%s', 'now'),
+        deleted_at = NULL,
+        record_value = excluded.record_value
+    `);
+    stmt.run(
+        record.recordKey,
+        this.recordTypeToInt(record.recordType),
+        record.contentType,
+        record.secureLevel,
+        record.recordValue
     );
   }
 
@@ -140,6 +193,44 @@ export class DataStore {
       WHERE record_key = ?
     `);
     stmt.run(recordKey);
+  }
+
+  /**
+   * 获取 inner 记录（系统内部记录不会软删除）
+   */
+  getInnerRecord(recordKey: string): IRecord | null {
+    const stmt = this.db.prepare('SELECT * FROM records WHERE record_key = ? AND record_type = 0');
+    const row = stmt.get(recordKey);
+    if (!row) { return null; }
+    return this.rowToRecord(row as Record<string, unknown>);
+  }
+
+  /**
+   * 创建或更新 inner 记录
+   */
+  upsertInnerRecord(record: IRecord): void {
+    const stmt = this.db.prepare(`
+      INSERT INTO records (record_key, record_type, content_type, secure_level, created_at, updated_at, record_value)
+      VALUES (?, 0, ?, 0, strftime('%s', 'now'), strftime('%s', 'now'), ?)
+      ON CONFLICT(record_key) DO UPDATE SET
+        content_type = excluded.content_type,
+        secure_level = excluded.secure_level,
+        updated_at = strftime('%s', 'now'),
+        deleted_at = NULL,
+        record_value = excluded.record_value
+    `);
+    stmt.run(record.recordKey, record.contentType, record.recordValue);
+  }
+
+  /**
+   * 检查是否存在 inner 凭证记录（启动自检用）
+   */
+  hasInnerCredentials(): boolean {
+    const stmt = this.db.prepare(
+        "SELECT COUNT(*) as cnt FROM records WHERE record_key = '/inner/system.authn/password' AND deleted_at IS NULL"
+    );
+    const row = stmt.get() as { cnt: number; };
+    return row.cnt > 0;
   }
 
   close(): void {

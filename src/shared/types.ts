@@ -1,19 +1,19 @@
-export type ERecordType = 'plain' | 'refer';
+export type ERecordType = 'inner' | 'plain' | 'refer' | 'graph';
 
 export interface IRecord {
   recordKey: string;
   recordType: ERecordType;
-  recordValue: string;
   contentType: string;
   secureLevel: number;
   createdAt: number;
   updatedAt: number;
+  recordValue: string;
 }
 
 export interface IAPIResponse<T> {
-  data?: T;
-  error?: string;
-  success: boolean;
+  traceId: string;
+  content: T;
+  errorId?: string;
 }
 
 export const ApiVersion = 'v1';

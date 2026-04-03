@@ -3,71 +3,13 @@
 ## 快速命令
 
 ```bash
-# 安装依赖
-npm install
-
-# 开发模式（server + web）
-npm run dev
-
-# 单独启动 server
-npm run dev:server
-
-# 单独启动 web
-npm run dev:web
-
-# 构建
-npm run build
-
-# 生产启动
-npm start
-
-# CLI
-npm run cli -- <command>
-```
-
-## 快速开始
-
-```bash
-# 安装依赖
-npm install
-
-# 开发模式（server + web）
-npm run dev
-
-# 构建
-npm run build
-
-# 生产启动
-npm start
-
-# CLI
-npm run cli -- <command>
-```
-
-## 开发模式
-
-```bash
-# 启动全部服务
-npm run dev
-
-# 单独启动 server
-npm run dev:server
-
-# 单独启动 web
-npm run dev:web
-
-# 使用 CLI
-npm run cli -- <command>
-```
-
-## 构建
-
-```bash
-# 构建全部
-npm run build
-
-# 启动生产环境
-npm start
+npm install            # 安装依赖
+npm run dev            # 开发模式（server + web）
+npm run dev:server     # 单独启动 server
+npm run dev:web        # 单独启动 web
+npm run build          # 构建全部
+npm start              # 生产启动
+npm run cli -- <cmd>   # CLI
 ```
 
 ## 项目约定
@@ -111,7 +53,7 @@ npm start
 ```
 src/
 ├── server/
-│   ├── controllers/      # API 控制器（按模型命名：authn, model）
+│   ├── controllers/      # API 控制器（按模型命名 authn、model）
 │   ├── middlewares/      # 中间件（按功能命名：authn）
 │   ├── services/         # 业务服务
 │   │   ├── config.ts     # 统一配置（UserDataDir 等）

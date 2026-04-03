@@ -21,12 +21,14 @@
 
 ### 需要备份的数据
 
-- `credentials.json` 中的 recovery 数据（recoverySeed + masterKeySecret）
-- 主数据库文件（加密的 records）
+- `keyroll.db` 数据库文件（包含加密 records + inner 凭证记录）
 
 ### 不需要备份的数据
 
-- password 数据（与本地设备绑定，密码由用户记忆）
+- password inner 记录（与本地设备绑定，密码由用户记忆）
+- 恢复码（用户纸印保存）
+
+**说明**：所有数据存储在单个 `keyroll.db` 文件中，备份操作简化为复制该文件。云端备份时仅传输加密的 recordValue 内容，inner 凭证记录中的 recoverySeed + masterKeySecret 本身已用 RecoveryCode 派生密钥加密，云端无法解密。
 
 ---
 

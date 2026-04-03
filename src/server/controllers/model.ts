@@ -10,17 +10,6 @@ interface IRecordsQuery {
   secureLevel?: string;
 }
 
-interface IRecordBody {
-  recordType: string;
-  recordValue: string;
-  contentType: string;
-  secureLevel?: number;
-}
-
-interface IRecordParams {
-  key: string;
-}
-
 export const registerApiRoutes: FastifyPluginCallback = async (fastify) => {
   // Health check
   fastify.get('/health', async () => {
@@ -28,73 +17,71 @@ export const registerApiRoutes: FastifyPluginCallback = async (fastify) => {
   });
 
   /**
-   * GET /records
-   * 获取记录列表（支持过滤）
-   * 查询参数：prefix, domain, type, secureLevel
+   * POST /model/records/search
+   * 搜索记录（支持 prefix 过滤）
    */
-  fastify.get('/records', async (request) => {
+  fastify.post<{ Body: IRecordsQuery; }>('/model/records/search', async (request) => {
     const store = Database.getInstance();
-    const query = request.query as IRecordsQuery;
+    const body = request.body;
 
     const options = {
-      prefix: query.prefix,
-      domain: query.domain,
-      type: query.type as ERecordType | undefined,
-      secureLevel: query.secureLevel ? parseInt(query.secureLevel, 10) : undefined
+      prefix: body.prefix,
+      domain: body.domain,
+      type: body.type as ERecordType | undefined,
+      secureLevel: body.secureLevel ? parseInt(body.secureLevel, 10) : undefined
     };
 
-    return store.getRecords(options);
+    const items = store.getRecords(options);
+    return { content: { items } };
   });
 
   /**
-   * GET /records/:key
-   * 获取单条记录（key 需要 URL 编码）
-   * 使用正则匹配剩余所有路径
+   * POST /model/records/detail
+   * 获取单条记录
    */
-  fastify.get<{ Params: IRecordParams; }>('/records/:key(.*)', async (request, reply) => {
+  fastify.post<{ Body: { recordKey: string; }; }>('/model/records/detail', async (request, reply) => {
     const store = Database.getInstance();
-    const { key } = request.params;
-    const recordKey = '/' + decodeURIComponent(key);
+    const { recordKey } = request.body;
 
     const record = store.getRecord(recordKey);
     if (!record) {
       reply.code(404);
       return { error: 'Record not found' };
     }
-    return record;
+    return { content: { record } };
   });
 
   /**
-   * PUT /records/:key
-   * 创建或更新记录
+   * POST /model/records/create
+   * 创建记录
    */
-  fastify.put<{ Params: IRecordParams; Body: IRecordBody; }>('/records/:key(.*)', async (request, reply) => {
+  fastify.post<{ Body: { recordKey: string; recordType: string; recordValue: string; contentType: string; secureLevel?: number; }; }>('/model/records/create', async (request, reply) => {
     const store = Database.getInstance();
-    const { key } = request.params;
-    const recordKey = '/' + decodeURIComponent(key);
-
     const body = request.body;
 
-    // 验证必填字段
-    if (!body.recordType || !body.recordValue || !body.contentType) {
+    if (!body.recordKey || !body.recordType || !body.recordValue || !body.contentType) {
       reply.code(400);
-      return { error: 'Missing required fields: recordType, recordValue, contentType' };
+      return { error: 'Missing required fields: recordKey, recordType, recordValue, contentType' };
     }
 
-    // 验证 recordType
-    if (!['plain', 'refer'].includes(body.recordType)) {
+    if (!['plain', 'refer', 'graph'].includes(body.recordType)) {
       reply.code(400);
-      return { error: 'Invalid recordType. Must be "plain" or "refer"' };
+      return { error: 'Invalid recordType. Must be "plain", "refer" or "graph"' };
     }
 
-    // 验证 key 格式
-    if (!recordKey.startsWith('/plain/') && !recordKey.startsWith('/refer/')) {
+    const validPrefixes: Record<string, string[]> = {
+      plain: ['/plain/', '/inner/'],
+      refer: ['/refer/'],
+      graph: ['/graph/']
+    };
+    const allowed = validPrefixes[body.recordType] || [];
+    if (!allowed.some(p => body.recordKey.startsWith(p))) {
       reply.code(400);
-      return { error: 'Invalid key format. Must start with /plain/ or /refer/' };
+      return { error: `Invalid key format. Must start with ${allowed.join(' or ')}` };
     }
 
     const record = {
-      recordKey,
+      recordKey: body.recordKey,
       recordType: body.recordType as ERecordType,
       recordValue: body.recordValue,
       contentType: body.contentType,
@@ -108,13 +95,40 @@ export const registerApiRoutes: FastifyPluginCallback = async (fastify) => {
   });
 
   /**
-   * DELETE /records/:key
+   * POST /model/records/update
+   * 更新记录
+   */
+  fastify.post<{ Body: { recordKey: string; recordType?: string; recordValue?: string; contentType?: string; secureLevel?: number; }; }>('/model/records/update', async (request, reply) => {
+    const store = Database.getInstance();
+    const body = request.body;
+
+    const existing = store.getRecord(body.recordKey);
+    if (!existing) {
+      reply.code(404);
+      return { error: 'Record not found' };
+    }
+
+    const updated = {
+      recordKey: existing.recordKey,
+      recordType: (body.recordType || existing.recordType) as ERecordType,
+      recordValue: body.recordValue ?? existing.recordValue,
+      contentType: body.contentType ?? existing.contentType,
+      secureLevel: body.secureLevel ?? existing.secureLevel,
+      createdAt: existing.createdAt,
+      updatedAt: Date.now() / 1000
+    } satisfies IRecord;
+
+    store.upsertRecord(updated);
+    return { success: true };
+  });
+
+  /**
+   * POST /model/records/delete
    * 软删除记录
    */
-  fastify.delete<{ Params: IRecordParams; }>('/records/:key(.*)', async (request, reply) => {
+  fastify.post<{ Body: { recordKey: string; }; }>('/model/records/delete', async (request, reply) => {
     const store = Database.getInstance();
-    const { key } = request.params;
-    const recordKey = '/' + decodeURIComponent(key);
+    const { recordKey } = request.body;
 
     const record = store.getRecord(recordKey);
     if (!record) {

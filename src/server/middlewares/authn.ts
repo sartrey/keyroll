@@ -10,9 +10,6 @@ import SessionManager from '../services/session.js';
 // 豁免认证的 API 路径
 const EXEMPT_PATHS = [
   '/api/authn/status',
-  '/api/authn/initiate',
-  '/api/authn/passkeys/create',
-  '/api/authn/passkeys/verify',
   '/api/authn/password/create',
   '/api/authn/password/verify',
   '/api/authn/password/update',

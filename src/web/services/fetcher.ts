@@ -1,3 +1,5 @@
+import { message } from 'antd';
+
 export const ApiBase = '/api';
 
 /**
@@ -14,14 +16,18 @@ export async function fetcher<T>(endpoint: string, options?: RequestInit): Promi
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...token ? { Authorization: `Bearer ${token}` } : {},
       ...options?.headers
     }
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ errorId: 'UnknownError' }));
-    throw new Error(`API Error: ${response.status} - ${error.errorId || 'Unknown'}`);
+    const body = await response.json().catch(() => null);
+    const detail = body?.error ?? body?.errorId ?? body?.message ?? `Request failed: ${response.status}`;
+    message.error(detail, 5);
+    const err = new Error(detail);
+    (err as any)._apiError = true;
+    throw err;
   }
 
   return response.json();

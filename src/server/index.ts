@@ -36,11 +36,16 @@ await fastify.register(registerApiRoutes, { prefix: '/api' });
 
 // 静态文件服务
 await fastify.register(fastifyStatic, {
-  root: WebRoot
+  root: WebRoot,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
 });
 
 // SPA 路由回退
-fastify.setNotFoundHandler(async (request, reply) => {
+fastify.setNotFoundHandler(async (_request, reply) => {
   const indexHtml = await fs.promises.readFile(join(WebRoot, 'index.html'), 'utf-8');
   reply.type('text/html').send(indexHtml);
 });
@@ -59,14 +64,14 @@ const start = async (): Promise<void> => {
 const db = Database.getInstance();
 db.initialize();
 
-// 启动自检：检查 credentials.json
+// 启动自检：从数据库加载 inner 凭证记录
 const credentialsManager = CredentialsManager.getInstance();
 if (credentialsManager.load()) {
-  console.log('[Authn] Credentials loaded successfully');
+  console.log('[Authn] Credentials loaded from database');
   const status = credentialsManager.getSystemStatus();
   console.log('[Authn] System status:', JSON.stringify(status));
 } else {
-  console.log('[Authn] System not initialized. Run "keyroll init" or visit the web setup wizard.');
+  console.log('[Authn] System not initialized. Run "keyroll setup" or visit the web setup wizard.');
 }
 
 // Only auto-start when run directly (not when spawned by CLI)

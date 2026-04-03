@@ -4,23 +4,24 @@
 
 核心目标：提供一个简单、可靠的数据存储层，让开发者可以轻松地以结构化方式存储和管理个人数据。
 
-**核心概念参见**: [数据模型](docs/data-model.md)
+**核心概念参见**: [数据模型](docs/apispecs/model.md)
 
 ## 文档导航
 
 - [产品路线图](docs/roadmap.md)
 - [功能特性](docs/features/)
   - [用户认证与安全](docs/features/auth-security.md)
-  - [RP 证明](docs/features/rp-attestation.md)
+- [设计决策记录](docs/)
+  - [认证机制演进](docs/blog-authn.md)
+  - [数据模型演进](docs/blog-model.md)
 - [设计规范](docs/)
   - [文档规范](docs/spec-docs.md)
   - [API 规范](docs/spec-api.md)
     - [认证 API](docs/apispecs/authn.md)
-    - [数据 API](docs/apispecs/model.md)
+    - [数据模型与 API](docs/apispecs/model.md)
   - [Web 规范](docs/spec-web.md)
   - [CLI 规范](docs/spec-cli.md)
 - [架构设计](docs/architecture.md)
-- [数据模型](docs/data-model.md)
 - [开发指南](docs/dev-guide.md)
 - [待办任务](docs/todo-list.md)
 
@@ -38,7 +39,7 @@
    - 产品路线 → `docs/roadmap.md`
    - 功能特性 → `docs/features/`
    - 规范文档 → `docs/spec-*.md`（API/Web/CLI）
-   - 设计文档 → `docs/architecture.md`、`docs/data-model.md`
+   - 设计文档 → `docs/architecture.md`、`docs/apispecs/model.md`
    - 开发规范 → `docs/dev-guide.md`
 4. **遵守约束**：严格执行文档中定义的技术约束和设计方案
 5. **更新记录**：

@@ -132,33 +132,10 @@ export function decryptMasterKey(encryptedBase64: string, key: Buffer): Buffer {
 }
 
 /**
- * 计算 Password 登录哈希
- * @param password - Password（6 位数字）
- * @param salt - passwordSalt
- * @returns base64 编码的哈希值
- */
-export function computePasswordHash(password: string, salt: Buffer): string {
-  const key = deriveKey(password, Buffer.from('signin' + salt.toString('base64')));
-  return key.toString('base64');
-}
-
-/**
- * 验证 Password 登录哈希
- * @param password - Password（6 位数字）
- * @param salt - passwordSalt
- * @param storedHash - 存储的 passwordHash
- * @returns true 如果验证通过
- */
-export function verifyPasswordHash(password: string, salt: Buffer, storedHash: string): boolean {
-  const computedHash = computePasswordHash(password, salt);
-  return computedHash === storedHash;
-}
-
-/**
- * 验证 Password 格式（6 位数字）
+ * 验证 Password 格式（6-16 位数字）
  */
 export function isValidPassword(password: string): boolean {
-  return /^\d{6}$/.test(password);
+  return /^\d{6,16}$/.test(password);
 }
 
 /**

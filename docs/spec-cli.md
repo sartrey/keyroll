@@ -23,13 +23,18 @@ keyroll <command> [options]
 
 ## 命令列表
 
+### 初始化
+
+| 命令 | 说明 |
+|------|------|
+| `keyroll setup` | 首次初始化系统（生成 MasterKey + RecoveryCode + Password） |
+
 ### 服务器管理
 
 | 命令 | 说明 |
 |------|------|
 | `keyroll start` | 启动后台 server 进程 |
-| `keyroll stop` | 关闭后台 server 进程 |
-| `keyroll status` | 显示服务器状态（默认命令） |
+| `keyroll close` | 关闭后台 server 进程 |
 
 ### 设计原则
 
@@ -41,17 +46,17 @@ CLI **不提供**任何直接读写数据的命令，原因：
 ## 命令示例
 
 ```bash
+# 首次初始化
+keyroll setup
+
 # 启动服务器（后台运行）
 keyroll start
 
-# 查看状态
-keyroll status
-
-# 停止服务器
-keyroll stop
+# 关闭服务器
+keyroll close
 ```
 
-**注意**：CLI 不提供数据读写命令，数据访问请通过 Web UI 或直接调用 API。
+**注意**：直接执行 `keyroll`（无参数）会显示产品概览和可用命令列表。CLI 不提供数据读写命令，数据访问请通过 Web UI 或直接调用 API。
 
 ## 输出规范
 
