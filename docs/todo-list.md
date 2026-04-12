@@ -23,8 +23,8 @@
   - **graph** — 图谱类型，recordValue 为 JSON 格式的节点/边数据
   - 在 Database 页为不同类型提供差异化的创建和编辑界面
 
-- [ ] **统一 API 响应格式** - 2026-04-07
-  model 控制器的 create/update/delete 接口返回 `{ success: true }` 而非标准的 `{ traceId, content }` 格式。error 响应使用 `{ error }` 而非 `{ traceId, errorId, content }`。需要对齐到 spec-api.md 定义的统一响应格式。
+- [ ] **Refer 文件选择器（Server 辅助）**
+  当前 refer 记录本地路径只能手动输入。未来计划：server 端提供目录浏览和导航 API，web 侧通过选择器浏览本地文件系统并获取路径，server 验证文件存在性并反馈。
 
 - [ ] **secureLevel 加密逻辑实现** - 2026-04-07
   当前 secureLevel 字段存在但未实现实际的加密/解密逻辑。需要：
@@ -33,6 +33,27 @@
   - 读取时自动解密
 
 ### 已完成任务
+
+- [x] ~~优化 Refer 记录创建体验~~ - 2026-04-12
+  - 新增 Blob 服务（`src/server/services/blob.ts`），支持文件 integrity 计算和 blobs 目录存储
+  - create 端点自动处理本地文件路径 refer 记录，自动计算 integrity
+  - 新增 `POST /model/records/sync-refer` 端点，支持下载远程 URL 文件到本地
+  - 前端 refer 创建 UI：
+    - 远程 URL 模式 — 输入 URL + 可选 Integrity
+    - 本地文件模式 — 文件选择器（`<input type="file">`），显示文件名和大小
+  - 列表操作栏为远程 refer 记录添加"同步到本地"按钮
+  - 同步记录的 key 规则：`源key/sync`
+
+- [x] ~~优化数据创建体验~~ - 2026-04-12
+  - Key 输入拆分为不可编辑的类型前缀（addonBefore）+ 可编辑的后缀路径
+  - 安全等级选择器从 Select 改为 Radio.Group 大按钮样式，带图标和说明文字
+  - 安全等级移到值输入框前面
+
+- [x] ~~统一 API 响应格式~~ - 2026-04-12
+  model 控制器所有端点对齐到 spec-api.md 定义的统一格式：
+  - 成功响应统一为 `{ traceId, content }`
+  - 失败响应统一为 `{ traceId, errorId, content }`
+  - errorId 使用 PascalCase（RecordNotFound、InvalidRecordType、InvalidRecordKey、InvalidRequest）
 
 - [x] ~~将凭证从 credentials.json 迁移到 keyroll.db~~ - 2026-04-07
   凭证现在存储在 keyroll.db 的 inner 记录中（`/inner/system.authn/password`、`/inner/system.authn/recovery`）。

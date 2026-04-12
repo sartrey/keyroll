@@ -14,7 +14,8 @@ import {
   Row,
   Col,
   Card,
-  Segmented
+  Segmented,
+  Radio
 } from 'antd';
 import {
   DeleteOutlined,
@@ -27,11 +28,13 @@ import {
   BarChartOutlined,
   LockOutlined,
   AppstoreOutlined,
-  NodeIndexOutlined
+  NodeIndexOutlined,
+  KeyOutlined,
+  CloudDownloadOutlined
 } from '@ant-design/icons';
 import { useState, useEffect } from 'react';
 
-import { listRecords, createRecord, updateRecord, deleteRecord } from '../services/records';
+import { listRecords, createRecord, updateRecord, deleteRecord, syncReferRecord } from '../services/records';
 import type { IRecord } from '../../shared/types';
 
 function StatCard({
@@ -79,6 +82,8 @@ export default function Database() {
   const [createType, setCreateType] = useState<'plain' | 'refer' | 'graph'>('plain');
   const [statsOpen, setStatsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'domain' | 'canvas'>('list');
+  const [referSourceType, setReferSourceType] = useState<'url' | 'local'>('url');
+  const [syncingKeys, setSyncingKeys] = useState<Set<string>>(new Set());
   const [form] = Form.useForm();
 
   const loadRecords = async (prefix?: string) => {
@@ -106,13 +111,21 @@ export default function Database() {
   const handleOpenCreate = (type: 'plain' | 'refer' | 'graph') => {
     setEditingRecord(null);
     setCreateType(type);
+    setReferSourceType('url');
     const defaults: Record<string, Partial<{ contentType: string; secureLevel: number; }>> = {
       plain: { contentType: 'text/plain', secureLevel: 0 },
       refer: { contentType: 'application/json', secureLevel: 0 },
       graph: { contentType: 'application/json', secureLevel: 0 }
     };
-    form.setFieldsValue({ recordType: type, ...defaults[type] });
+    form.setFieldsValue({ recordType: type, keySuffix: '', ...defaults[type] });
     setDrawerOpen(true);
+  };
+
+  const getPrefixForType = (type: string) => {
+    if (type === 'plain') { return '/plain/'; }
+    if (type === 'refer') { return '/refer/'; }
+    if (type === 'graph') { return '/graph/'; }
+    return '';
   };
 
   const handleOpenEdit = (record: IRecord) => {
@@ -132,6 +145,17 @@ export default function Database() {
 
   const handleSubmit = async (values: Record<string, unknown>) => {
     try {
+      const recordKey = editingRecord
+        ? (values.recordKey as string)
+        : `${getPrefixForType(createType)}${(values.keySuffix as string) ?? ''}`;
+
+      let recordValue = values.recordValue as string;
+      if (!editingRecord && createType === 'refer') {
+        const originSrc = (values.referOriginSrc as string) ?? '';
+        const integrity = (values.referIntegrity as string) ?? '';
+        recordValue = JSON.stringify({ originSrc, integrity: integrity || undefined });
+      }
+
       if (editingRecord) {
         await updateRecord(editingRecord.recordKey, {
           recordType: values.recordType as IRecord['recordType'],
@@ -141,9 +165,9 @@ export default function Database() {
         });
         message.success('记录已更新');
       } else {
-        await createRecord(values.recordKey as string, {
+        await createRecord(recordKey, {
           recordType: values.recordType as IRecord['recordType'],
-          recordValue: values.recordValue as string,
+          recordValue,
           contentType: values.contentType as string,
           secureLevel: (values.secureLevel as number) ?? 0
         });
@@ -168,6 +192,25 @@ export default function Database() {
       if (!(err as any)?._apiError) {
         message.error(err instanceof Error ? err.message : '删除失败');
       }
+    }
+  };
+
+  const handleSyncRefer = async (recordKey: string) => {
+    setSyncingKeys((prev) => new Set(prev).add(recordKey));
+    try {
+      const newKey = await syncReferRecord(recordKey);
+      message.success(`已同步到本地: ${newKey}`);
+      loadRecords(filterPrefix || undefined);
+    } catch (err: unknown) {
+      if (!(err as any)?._apiError) {
+        message.error(err instanceof Error ? err.message : '同步失败');
+      }
+    } finally {
+      setSyncingKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(recordKey);
+        return next;
+      });
     }
   };
 
@@ -237,11 +280,33 @@ export default function Database() {
     {
       title: '操作',
       key: 'action',
-      width: 100,
-      render: (_: unknown, record: IRecord) =>
-        record.recordType === 'inner'
-          ? <span style={{ color: '#bfbfbf', fontSize: 12 }}>系统记录</span>
-          : <Space size="small">
+      width: 130,
+      render: (_: unknown, record: IRecord) => {
+        if (record.recordType === 'inner') {
+          return <span style={{ color: '#bfbfbf', fontSize: 12 }}>系统记录</span>;
+        }
+
+        const isRemoteRefer = record.recordType === 'refer' && (() => {
+          try {
+            const refValue = JSON.parse(record.recordValue);
+            return refValue.originSrc && (refValue.originSrc.startsWith('http://') || refValue.originSrc.startsWith('https://'));
+          } catch {
+            return false;
+          }
+        })();
+
+        return (
+          <Space size="small">
+            {isRemoteRefer &&
+              <Button
+                type="text"
+                size="small"
+                icon={<CloudDownloadOutlined style={{ fontSize: 13 }} />}
+                loading={syncingKeys.has(record.recordKey)}
+                onClick={() => handleSyncRefer(record.recordKey)}
+                title="同步到本地"
+              />
+            }
             <Button
               type="text"
               size="small"
@@ -258,6 +323,8 @@ export default function Database() {
               <Button type="text" size="small" danger icon={<DeleteOutlined style={{ fontSize: 13 }} />} />
             </Popconfirm>
           </Space>
+        );
+      }
 
     }
   ];
@@ -436,16 +503,38 @@ export default function Database() {
           layout="vertical"
           style={{ paddingTop: 16 }}
         >
-          <Form.Item
-            label="Key"
-            name="recordKey"
-            rules={[{ required: true, message: '请输入记录 Key' }]}
-          >
-            <Input
-              placeholder="/plain/localhost/user.name"
-              disabled={!!editingRecord}
-            />
-          </Form.Item>
+          {!editingRecord &&
+            <Form.Item
+              label="Key"
+              name="keySuffix"
+              rules={[{ required: true, message: '请输入记录 Key' }]}
+            >
+              <Input
+                addonBefore={<span style={{
+                  fontFamily: 'SF Mono, Menlo, monospace',
+                  fontSize: 13,
+                  color: '#595959',
+                  padding: '0 8px'
+                }}>{getPrefixForType(createType)}</span>}
+                placeholder={
+                  createType === 'plain'
+                    ? 'localhost/user.name'
+                    : createType === 'refer'
+                      ? 'photos/2024-07/image/1'
+                      : 'notes/my-graph'
+                }
+              />
+            </Form.Item>
+          }
+
+          {editingRecord &&
+            <Form.Item label="Key" name="recordKey">
+              <Input
+                disabled
+                style={{ fontFamily: 'SF Mono, Menlo, monospace', fontSize: 13, color: '#595959' }}
+              />
+            </Form.Item>
+          }
 
           <Form.Item
             label="类型"
@@ -459,29 +548,106 @@ export default function Database() {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            label="值"
-            name="recordValue"
-            rules={[{ required: true, message: '请输入记录值' }]}
-          >
-            <Input.TextArea
-              rows={5}
-              placeholder={createType === 'refer' ? '{"originSrc": "/path/to/file", "integrity": "sha256-..."}' : '记录内容'}
-            />
-          </Form.Item>
+          {createType !== 'graph' &&
+            <Form.Item label="安全等级" name="secureLevel">
+              <Radio.Group style={{ display: 'flex', gap: 12 }}>
+                <Radio.Button value={0} style={{
+                  flex: 1,
+                  height: 'auto',
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  textAlign: 'center',
+                  border: '1px solid #d9d9d9'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                    <KeyOutlined />
+                    <span>未托管</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4, fontWeight: 'normal' }}>
+                    明文存储
+                  </div>
+                </Radio.Button>
+                <Radio.Button value={1} style={{
+                  flex: 1,
+                  height: 'auto',
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  textAlign: 'center',
+                  border: '1px solid #d9d9d9'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center' }}>
+                    <LockOutlined />
+                    <span>已保护</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4, fontWeight: 'normal' }}>
+                    MasterKey 加密
+                  </div>
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          }
+
+          {createType === 'refer' && !editingRecord &&
+            <Form.Item label="数据源">
+              <Segmented
+                value={referSourceType}
+                onChange={(v) => setReferSourceType(v as 'url' | 'local')}
+                options={[
+                  { label: '远程 URL', value: 'url' },
+                  { label: '本地路径', value: 'local' }
+                ]}
+                style={{ marginBottom: 8 }}
+              />
+            </Form.Item>
+          }
+
+          {createType === 'refer' && !editingRecord && referSourceType === 'url' &&
+            <Form.Item name="referOriginSrc" label="URL" rules={[{ required: true, message: '请输入数据源' }]}>
+              <Input placeholder="https://example.com/file.jpg" />
+            </Form.Item>
+          }
+
+          {createType === 'refer' && !editingRecord && referSourceType === 'local' &&
+            <Form.Item name="referOriginSrc" label="文件路径" rules={[{ required: true, message: '请输入文件路径' }]}>
+              <Input placeholder="/Users/xxx/Downloads/file.jpg" />
+            </Form.Item>
+          }
+
+          {createType === 'refer' && !editingRecord && referSourceType === 'url' &&
+            <Form.Item label="Integrity（可选）" name="referIntegrity">
+              <Input placeholder="sha256-..." />
+            </Form.Item>
+          }
+
+          {createType !== 'refer' &&
+            <Form.Item
+              label="值"
+              name="recordValue"
+              rules={[{ required: true, message: '请输入记录值' }]}
+            >
+              <Input.TextArea
+                rows={5}
+                placeholder="记录内容"
+              />
+            </Form.Item>
+          }
+
+          {createType === 'refer' && editingRecord &&
+            <Form.Item
+              label="值"
+              name="recordValue"
+              rules={[{ required: true, message: '请输入记录值' }]}
+            >
+              <Input.TextArea
+                rows={5}
+                placeholder='{"originSrc": "/path/to/file", "integrity": "sha256-..."}'
+              />
+            </Form.Item>
+          }
 
           <Form.Item label="Content-Type" name="contentType">
             <Input placeholder="text/plain" />
           </Form.Item>
-
-          {createType !== 'graph' &&
-            <Form.Item label="安全等级" name="secureLevel">
-              <Select>
-                <Select.Option value={0}>未托管 (Unmanaged)</Select.Option>
-                <Select.Option value={1}>已保护 (Protected)</Select.Option>
-              </Select>
-            </Form.Item>
-          }
 
           <Form.Item style={{ marginBottom: 0, marginTop: 24 }}>
             <Space style={{ width: '100%', justifyContent: 'flex-end' }}>

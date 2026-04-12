@@ -78,3 +78,14 @@ export async function deleteRecord(recordKey: string): Promise<void> {
     body: JSON.stringify({ recordKey })
   });
 }
+
+/**
+ * 同步远程 refer 记录到本地
+ */
+export async function syncReferRecord(recordKey: string): Promise<string> {
+  const result = await fetcher<{ content: { localRecordKey: string; }; }>('/model/records/sync-refer', {
+    method: 'POST',
+    body: JSON.stringify({ recordKey })
+  });
+  return result.content.localRecordKey;
+}
